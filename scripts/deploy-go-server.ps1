@@ -26,6 +26,9 @@ Write-Host ""
 Set-Location $goDir
 
 # ── 1. Wails 빌드 ──
+# NOTE: wails build runs the binary to generate bindings; requires DATABASE_URL
+# or -skipbindings flag. In CI, set $env:DATABASE_URL before this step.
+# Locally, .env.production (loaded by main.go init) provides DATABASE_URL.
 Write-Host "[1/4] Wails build..." -ForegroundColor Yellow
 $sw = [System.Diagnostics.Stopwatch]::StartNew()
 wails build -platform windows/amd64 -ldflags "-s -w -X main.Version=$version"
@@ -35,12 +38,12 @@ if ($LASTEXITCODE -ne 0) {
 }
 $sw.Stop()
 
-$binPath = "build\bin\wgift-api.exe"
+$binPath = "build\bin\seedream-api.exe"
 if (-not (Test-Path $binPath)) {
     $binPath = Get-ChildItem "build\bin\*.exe" | Select-Object -First 1 -ExpandProperty FullName
 }
 $binSize = [math]::Round((Get-Item $binPath).Length / 1MB, 1)
-Write-Host "[OK] wgift-api.exe: ${binSize} MB ($($sw.Elapsed.TotalSeconds.ToString('F1'))s)" -ForegroundColor Green
+Write-Host "[OK] seedream-api.exe: ${binSize} MB ($($sw.Elapsed.TotalSeconds.ToString('F1'))s)" -ForegroundColor Green
 
 # ── 2. 패키지 구성 ──
 Write-Host "[2/4] Preparing package..." -ForegroundColor Yellow
@@ -49,7 +52,7 @@ if (Test-Path $stageDir) { Remove-Item $stageDir -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $stageDir | Out-Null
 New-Item -ItemType Directory -Force -Path "$stageDir\logs" | Out-Null
 
-Copy-Item $binPath "$stageDir\wgift-api.exe" -Force
+Copy-Item $binPath "$stageDir\seedream-api.exe" -Force
 if (Test-Path ".env.production") { Copy-Item ".env.production" "$stageDir\.env" -Force }
 Write-Host "[OK] Package contents ready" -ForegroundColor Green
 
@@ -84,14 +87,14 @@ Write-Host "  Package: deploy\$zipName" -ForegroundColor White
 Write-Host "  Size:    ${zipSize} MB" -ForegroundColor White
 Write-Host ""
 Write-Host "  ZIP contains:" -ForegroundColor Yellow
-Write-Host "    wgift-api.exe  <- 단일 exe (HEADLESS=true 로 서버 모드)" -ForegroundColor DarkGray
+Write-Host "    seedream-api.exe  <- 단일 exe (HEADLESS=true 로 서버 모드)" -ForegroundColor DarkGray
 Write-Host "    .env           <- Production config" -ForegroundColor DarkGray
 Write-Host "    logs/          <- Empty log directory" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  Deploy (Server B):" -ForegroundColor Yellow
-Write-Host "    nssm stop WowGiftAPI" -ForegroundColor DarkGray
-Write-Host "    Expand-Archive api-*.zip -Dest C:\deploy-server\wgift-api -Force" -ForegroundColor DarkGray
-Write-Host "    nssm start WowGiftAPI" -ForegroundColor DarkGray
+Write-Host "    nssm stop SeedreamGiftAPI" -ForegroundColor DarkGray
+Write-Host "    Expand-Archive api-*.zip -Dest C:\deploy-server\seedream-api -Force" -ForegroundColor DarkGray
+Write-Host "    nssm start SeedreamGiftAPI" -ForegroundColor DarkGray
 Write-Host ""
 
 Set-Location $rootDir

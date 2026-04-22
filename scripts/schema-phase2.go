@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	dsn := "server=103.97.209.194;port=7335;user id=dnflrhdwnghkdlxldsql;password=dnflrhdwnghkdlxld2024!@;database=WOWGIFT_DB"
+	dsn := "server=103.97.209.131;port=7335;user id=dnflrhdwnghkdlxldsql;password=dnflrhdwnghkdlxld2024!@;database=SEEDREAM_GIFT_DB"
 	db, err := sql.Open("sqlserver", dsn)
 	if err != nil {
 		fmt.Println("Connection error:", err)
@@ -21,7 +21,7 @@ func main() {
 		fmt.Println("Ping failed:", err)
 		os.Exit(1)
 	}
-	fmt.Println("Connected to WOWGIFT_DB successfully.\n")
+	fmt.Println("Connected to SEEDREAM_GIFT_DB successfully.\n")
 
 	// =========================================================================
 	// STEP 5: CHECK constraints on status columns and value columns
@@ -271,32 +271,32 @@ func main() {
 	fmt.Println("\n=== STEP 9: Enable READ_COMMITTED_SNAPSHOT ===")
 
 	var rcsiEnabled bool
-	err = db.QueryRow("SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name = 'WOWGIFT_DB'").Scan(&rcsiEnabled)
+	err = db.QueryRow("SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name = 'SEEDREAM_GIFT_DB'").Scan(&rcsiEnabled)
 	if err != nil {
 		fmt.Printf("[ERROR] Could not check RCSI status: %v\n", err)
 	} else if rcsiEnabled {
 		fmt.Println("[SKIP] READ_COMMITTED_SNAPSHOT is already enabled")
 	} else {
 		// Must force exclusive access with ROLLBACK IMMEDIATE, then re-enable multi-user
-		_, err = db.Exec("ALTER DATABASE WOWGIFT_DB SET SINGLE_USER WITH ROLLBACK IMMEDIATE")
+		_, err = db.Exec("ALTER DATABASE SEEDREAM_GIFT_DB SET SINGLE_USER WITH ROLLBACK IMMEDIATE")
 		if err != nil {
 			fmt.Printf("[WARN] Could not set SINGLE_USER: %v\n", err)
 			fmt.Println("[WARN] Attempting RCSI without exclusive access...")
-			_, err2 := db.Exec("ALTER DATABASE WOWGIFT_DB SET READ_COMMITTED_SNAPSHOT ON")
+			_, err2 := db.Exec("ALTER DATABASE SEEDREAM_GIFT_DB SET READ_COMMITTED_SNAPSHOT ON")
 			if err2 != nil {
 				fmt.Printf("[WARN] RCSI enable failed (needs exclusive access): %v\n", err2)
 			} else {
 				fmt.Println("[OK] READ_COMMITTED_SNAPSHOT enabled")
 			}
 		} else {
-			_, err = db.Exec("ALTER DATABASE WOWGIFT_DB SET READ_COMMITTED_SNAPSHOT ON")
+			_, err = db.Exec("ALTER DATABASE SEEDREAM_GIFT_DB SET READ_COMMITTED_SNAPSHOT ON")
 			if err != nil {
 				fmt.Printf("[ERROR] RCSI enable failed: %v\n", err)
 			} else {
 				fmt.Println("[OK] READ_COMMITTED_SNAPSHOT enabled")
 			}
 			// Always restore MULTI_USER
-			_, err = db.Exec("ALTER DATABASE WOWGIFT_DB SET MULTI_USER")
+			_, err = db.Exec("ALTER DATABASE SEEDREAM_GIFT_DB SET MULTI_USER")
 			if err != nil {
 				fmt.Printf("[WARN] Could not restore MULTI_USER: %v\n", err)
 			} else {
@@ -333,7 +333,7 @@ func main() {
 
 	// RCSI status
 	var rcsiStatus bool
-	db.QueryRow("SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name = 'WOWGIFT_DB'").Scan(&rcsiStatus)
+	db.QueryRow("SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name = 'SEEDREAM_GIFT_DB'").Scan(&rcsiStatus)
 	fmt.Printf("\nRCSI enabled: %v\n", rcsiStatus)
 
 	fmt.Println("\nSchema Phase 2 complete.")

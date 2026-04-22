@@ -1,7 +1,7 @@
 /**
  * 구매자(유저) 입장 상품권 구매거래 증빙 엑셀 생성
  *
- * - 입력: 권기훈.xlsx(롯데) / 김연주.xlsx(신세계) — 유저의 W기프트 입금 내역
+ * - 입력: 권기훈.xlsx(롯데) / 김연주.xlsx(신세계) — 유저의 씨드림기프트 입금 내역
  * - PIN 소스: lotte_pins_*.csv, shinsegae_pins_*.csv (단일 컬럼 CSV)
  * - 권종(액면가)은 자유 세팅 — 각 거래 금액을 현실적 권종 조합으로 분배
  * - PIN 마스킹: `105759*******` (대시 제거 후 앞 6자리 + 7 asterisks) — 송영수 레퍼런스 준수
@@ -21,14 +21,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '..');
 
 // ========================================
-// 판매자(W기프트) 고정 정보 + 구매자(유저) 매핑
+// 판매자(씨드림기프트) 고정 정보 + 구매자(유저) 매핑
 // ========================================
 const SELLER = {
-  companyName: 'W기프트',
-  site: 'wowgift.co.kr',
+  companyName: '씨드림기프트',
+  site: 'seedreamgift.com',
   bank: '광주은행',
   accountNumber: '110-7021-9293-61',
-  accountHolder: 'W기프트',
+  accountHolder: '씨드림기프트',
 };
 
 const BUYERS = [

@@ -2,7 +2,7 @@ param(
     [string]$Server = "103.97.209.141,7335",
     [string]$User = "dnflrhdwnghkdlxldsql",
     [string]$Password = "dnflrhdwnghkdlxld2024!@",
-    [string]$Database = "WOWGIFT_DB"
+    [string]$Database = "SEEDREAM_GIFT_DB"
 )
 
 Add-Type -AssemblyName "System.Data"
@@ -31,8 +31,8 @@ try {
     Write-Host "`n-- DB info --"
     Invoke-Sql $conn @"
 SELECT name, state_desc, recovery_model_desc, compatibility_level,
-       (SELECT SUM(CAST(size AS BIGINT))*8/1024 FROM sys.master_files WHERE database_id = DB_ID('WOWGIFT_DB')) AS total_mb
-FROM sys.databases WHERE name = 'WOWGIFT_DB'
+       (SELECT SUM(CAST(size AS BIGINT))*8/1024 FROM sys.master_files WHERE database_id = DB_ID('SEEDREAM_GIFT_DB')) AS total_mb
+FROM sys.databases WHERE name = 'SEEDREAM_GIFT_DB'
 "@ | Format-Table -AutoSize
 
     Write-Host "`n-- Default backup path --"

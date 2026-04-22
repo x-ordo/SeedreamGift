@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	dsn := "server=103.97.209.194;port=7335;user id=dnflrhdwnghkdlxldsql;password=dnflrhdwnghkdlxld2024!@;database=WOWGIFT_DB"
+	dsn := "server=103.97.209.131;port=7335;user id=dnflrhdwnghkdlxldsql;password=dnflrhdwnghkdlxld2024!@;database=SEEDREAM_GIFT_DB"
 	db, err := sql.Open("sqlserver", dsn)
 	if err != nil {
 		fmt.Println("Connection error:", err)
@@ -20,7 +20,7 @@ func main() {
 		fmt.Println("Ping failed:", err)
 		return
 	}
-	fmt.Println("Connected to WOWGIFT_DB")
+	fmt.Println("Connected to SEEDREAM_GIFT_DB")
 	fmt.Println()
 
 	// Each ALTER TABLE as individual statement with IF NOT EXISTS guard

@@ -216,11 +216,11 @@ const summaryRow = [
   '',
   `판매 ${summary.salesCount}건 (${summary.totalSales.toLocaleString()}원) / 매입 ${summary.purchasesCount}건 (${summary.totalPurchases.toLocaleString()}원)`,
   '', '', '', '', '', '', '',
-  `발급일: ${today} | W기프트 (wowgift.co.kr)`,
+  `발급일: ${today} | 씨드림기프트 (seedreamgift.com)`,
 ];
 
 // 시트 제목 행
-const titleRow = [`W기프트 거래내역 증빙 — 홍길동 (${today} 발급)`];
+const titleRow = [`씨드림기프트 거래내역 증빙 — 홍길동 (${today} 발급)`];
 const emptyRow = [];
 
 const allRows = [

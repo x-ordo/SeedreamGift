@@ -1,7 +1,7 @@
 /**
  * 은행제출용 이엑스 상품권 매입 거래내역 증빙 엑셀 생성
  *
- * - 박영례(판매자)가 상품권을 판매 → W기프트(매입자)가 매입 → 대금 계좌이체
+ * - 박영례(판매자)가 상품권을 판매 → 씨드림기프트(매입자)가 매입 → 대금 계좌이체
  * - PIN 소스: secure_gift_pins.csv (TSV)
  * - 액면가와 입금액 1:1 매칭 (greedy: 큰 권종 우선)
  * - 거래번호: WG-YYYYMMDD-XXXXX 시스템 코드 규칙 적용
@@ -24,7 +24,7 @@ const SELLER_NAME = '박영례';
 const SELLER_PHONE = '010-5591-1136';
 const SELLER_BANK = '농협';
 const SELLER_ACCOUNT = '3920-10-005396-1';
-const BUYER_NAME = 'W기프트';
+const BUYER_NAME = '씨드림기프트';
 const ISSUE_DATE = '2026-02-26';
 const PRODUCT_NAME = '이엑스(EX)상품권';
 const BRAND_CODE = 'EX';
@@ -77,7 +77,7 @@ Object.entries(pool)
   .forEach(([amt, arr]) => console.log(`   ${Number(amt) / 10000}만원권: ${arr.length}장`));
 
 // ========================================
-// 2. 은행 송금 내역 (W기프트 → 박영례 대금 지급)
+// 2. 은행 송금 내역 (씨드림기프트 → 박영례 대금 지급)
 // ========================================
 const transactions = [
   { date: '2026.02.16', time: '12:01:27', amount: 100000 },
@@ -156,7 +156,7 @@ let grandCards = 0;
 const titleRows = [
   [`${BUYER_NAME} 매입 거래내역 증빙 — 판매자: ${SELLER_NAME} (${ISSUE_DATE} 발급)`],
   [],
-  ['매입자(당사)', `${BUYER_NAME} (wowgift.co.kr)`, '', '판매자', SELLER_NAME, '', '판매자 계좌', `${SELLER_BANK} ${SELLER_ACCOUNT}`],
+  ['매입자(당사)', `${BUYER_NAME} (seedreamgift.com)`, '', '판매자', SELLER_NAME, '', '판매자 계좌', `${SELLER_BANK} ${SELLER_ACCOUNT}`],
   ['판매자 연락처', SELLER_PHONE, '', '매입상품', PRODUCT_NAME, '', '발급일', ISSUE_DATE],
   [],
 ];

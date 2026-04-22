@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const base = "https://wowgift.co.kr"
+const base = "https://seedreamgift.com"
 const api = base + "/api/v1"
 
 var cl = &http.Client{Timeout: 10 * time.Second}
@@ -75,7 +75,7 @@ func okRange(name string, code int, lo, hi int, body string) {
 
 func main() {
 	fmt.Println("╔══════════════════════════════════════════════════════════╗")
-	fmt.Println("║   W기프트 Client → Go Server 전체 엔드포인트 테스트     ║")
+	fmt.Println("║   씨드림기프트 Client → Go Server 전체 엔드포인트 테스트     ║")
 	fmt.Println("╚══════════════════════════════════════════════════════════╝")
 	fmt.Println()
 

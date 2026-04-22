@@ -2,7 +2,7 @@
 .SYNOPSIS
     Admin 단독 빌드 + Client dist에 병합
 .DESCRIPTION
-    Admin만 재빌드하여 기존 client/dist/wow_admin_portal/에 병합합니다.
+    Admin만 재빌드하여 기존 client/dist/seedream_admin_portal/에 병합합니다.
     Client를 재빌드하지 않으므로 Admin만 수정했을 때 빠르게 배포 가능.
     주의: client/dist/가 이미 존재해야 합니다 (먼저 client 빌드 필요).
 #>
@@ -38,8 +38,8 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "[OK] Admin built" -ForegroundColor Green
 
 # 2. Merge
-Write-Host "[2/3] Merging into client/dist/wow_admin_portal/..." -ForegroundColor Yellow
-$adminTarget = "$clientDir\dist\wow_admin_portal"
+Write-Host "[2/3] Merging into client/dist/seedream_admin_portal/..." -ForegroundColor Yellow
+$adminTarget = "$clientDir\dist\seedream_admin_portal"
 if (Test-Path $adminTarget) { Remove-Item $adminTarget -Recurse -Force }
 Copy-Item -Path "$adminDir\dist" -Destination $adminTarget -Recurse -Force
 Write-Host "[OK] Merged" -ForegroundColor Green
@@ -55,6 +55,6 @@ Write-Host "[OK] Package: $zipName ($size MB)" -ForegroundColor Green
 
 Set-Location $rootDir
 Write-Host ""
-Write-Host "  Deploy: Expand-Archive client-*.zip -Dest C:\deploy-server\wow-gift\client -Force" -ForegroundColor DarkGray
-Write-Host "  Admin URL: https://wowgift.co.kr/wow_admin_portal/" -ForegroundColor White
+Write-Host "  Deploy: Expand-Archive client-*.zip -Dest C:\deploy-server\seedream-gift\client -Force" -ForegroundColor DarkGray
+Write-Host "  Admin URL: https://seedreamgift.com/seedream_admin_portal/" -ForegroundColor White
 Write-Host ""

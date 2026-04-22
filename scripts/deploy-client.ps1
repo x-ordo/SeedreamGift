@@ -3,8 +3,8 @@
     Client + Admin + Partner 통합 빌드 + 배포 패키지 생성
 .DESCRIPTION
     Client Vite 빌드 → Admin Vite 빌드 → Partner Vite 빌드
-    → Admin을 client/dist/wow_admin_portal/에 병합
-    → Partner를 client/dist/wow_partner_portal/에 병합
+    → Admin을 client/dist/seedream_admin_portal/에 병합
+    → Partner를 client/dist/seedream_partner_portal/에 병합
     → ZIP 패키징. Server A에 단일 ZIP으로 배포
 #>
 
@@ -56,15 +56,15 @@ Write-Host "[OK] Partner built" -ForegroundColor Green
 # 4. Merge admin + partner into client
 Write-Host "[4/5] Merging admin + partner into client/dist/..." -ForegroundColor Yellow
 
-$adminTarget = "$clientDir\dist\wow_admin_portal"
+$adminTarget = "$clientDir\dist\seedream_admin_portal"
 if (Test-Path $adminTarget) { Remove-Item $adminTarget -Recurse -Force }
 Copy-Item -Path "$adminDir\dist" -Destination $adminTarget -Recurse -Force
-Write-Host "  Admin  → client/dist/wow_admin_portal/" -ForegroundColor DarkGray
+Write-Host "  Admin  → client/dist/seedream_admin_portal/" -ForegroundColor DarkGray
 
-$partnerTarget = "$clientDir\dist\wow_partner_portal"
+$partnerTarget = "$clientDir\dist\seedream_partner_portal"
 if (Test-Path $partnerTarget) { Remove-Item $partnerTarget -Recurse -Force }
 Copy-Item -Path "$partnerDir\dist" -Destination $partnerTarget -Recurse -Force
-Write-Host "  Partner → client/dist/wow_partner_portal/" -ForegroundColor DarkGray
+Write-Host "  Partner → client/dist/seedream_partner_portal/" -ForegroundColor DarkGray
 
 Write-Host "[OK] All merged" -ForegroundColor Green
 
@@ -96,11 +96,11 @@ Write-Host "  Size:    $size MB" -ForegroundColor White
 Write-Host ""
 Write-Host "  Deploy to Server A (103.97.209.205):" -ForegroundColor Yellow
 Write-Host "  1. Copy $zipName to Server A" -ForegroundColor White
-Write-Host "  2. Expand-Archive client-*.zip -Dest C:\deploy-server\wow-gift\client -Force" -ForegroundColor White
+Write-Host "  2. Expand-Archive client-*.zip -Dest C:\deploy-server\seedream-gift\client -Force" -ForegroundColor White
 Write-Host "  (nginx 재시작 불필요)" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  URLs:" -ForegroundColor Yellow
-Write-Host "    Client:  https://wowgift.co.kr" -ForegroundColor White
-Write-Host "    Admin:   https://wowgift.co.kr/wow_admin_portal/" -ForegroundColor White
-Write-Host "    Partner: https://wowgift.co.kr/wow_partner_portal/" -ForegroundColor White
+Write-Host "    Client:  https://seedreamgift.com" -ForegroundColor White
+Write-Host "    Admin:   https://seedreamgift.com/seedream_admin_portal/" -ForegroundColor White
+Write-Host "    Partner: https://seedreamgift.com/seedream_partner_portal/" -ForegroundColor White
 Write-Host ""

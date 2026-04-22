@@ -2,7 +2,7 @@ Add-Type -AssemblyName 'System.Data'
 
 $Script:SRC = '103.97.209.194,7335'
 $Script:DST = '103.97.209.131,7335'
-$Script:DB  = 'WOWGIFT_DB'
+$Script:DB  = 'SEEDREAM_GIFT_DB'
 $Script:USR = 'dnflrhdwnghkdlxldsql'
 $Script:PWD = 'dnflrhdwnghkdlxld2024!@'
 

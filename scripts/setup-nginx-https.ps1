@@ -9,7 +9,7 @@
     구조: 클라이언트 → nginx (:443 HTTPS, :80 HTTP) → NestJS (:5140 내부)
 
     사전 조건:
-    1. DNS A 레코드 설정 완료 (wowgift.co.kr → 103.97.209.205)
+    1. DNS A 레코드 설정 완료 (seedreamgift.com → 103.97.209.205)
     2. Windows 방화벽에서 80/443 포트 오픈
     3. NestJS 서버가 localhost:5140에서 실행 중 (PM2)
 
@@ -17,12 +17,12 @@
     .\scripts\setup-nginx-https.ps1
 
 .NOTES
-    도메인: wowgift.co.kr, www.wowgift.co.kr
+    도메인: seedreamgift.com, www.seedreamgift.com
     서버: 103.97.209.205 (Windows Server)
 #>
 
 param(
-    [string]$Domain = "wowgift.co.kr",
+    [string]$Domain = "seedreamgift.com",
     [string]$NginxDir = "C:\nginx",
     [string]$WinAcmeDir = "C:\win-acme",
     [int]$NginxPort = 443,
@@ -53,10 +53,10 @@ try {
 
 # 방화벽 확인
 Write-Host "  Checking firewall rules..."
-$fwRule = Get-NetFirewallRule -DisplayName "WowGift HTTPS ($NginxPort)" -ErrorAction SilentlyContinue
+$fwRule = Get-NetFirewallRule -DisplayName "SeedreamGift HTTPS ($NginxPort)" -ErrorAction SilentlyContinue
 if (-not $fwRule) {
     Write-Host "  Creating firewall rule for port $NginxPort..."
-    New-NetFirewallRule -DisplayName "WowGift HTTPS ($NginxPort)" -Direction Inbound -Protocol TCP -LocalPort $NginxPort -Action Allow | Out-Null
+    New-NetFirewallRule -DisplayName "SeedreamGift HTTPS ($NginxPort)" -Direction Inbound -Protocol TCP -LocalPort $NginxPort -Action Allow | Out-Null
 }
 Write-Host "  OK: Firewall rule for port $NginxPort configured" -ForegroundColor Green
 

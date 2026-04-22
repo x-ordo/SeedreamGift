@@ -36,9 +36,10 @@ $buildAdmin  = $Target -eq "all" -or $Target -eq "admin"
 $buildApi    = $Target -eq "all" -or $Target -eq "api"
 
 Write-Host ""
-Write-Host "=== W Gift Deploy Build (Target: $Target) ===" -ForegroundColor Cyan
+Write-Host "=== Seedream Gift Deploy Build (Target: $Target) ===" -ForegroundColor Cyan
 Write-Host "  Server A (103.97.209.205): client + admin (nginx static)" -ForegroundColor DarkGray
-Write-Host "  Server B (103.97.209.194): Go API + MSSQL" -ForegroundColor DarkGray
+Write-Host "  Server B (103.97.209.194): Go API (NSSM: SeedreamGiftAPI)" -ForegroundColor DarkGray
+Write-Host "  Server C (103.97.209.131): MSSQL (SEEDREAM_GIFT_DB)" -ForegroundColor DarkGray
 Write-Host ""
 
 # --- Preflight ---
@@ -61,7 +62,7 @@ if (-not $SkipInstall) {
 
 # --- Client Build ---
 if ($buildClient) {
-    Write-Step "3a" "Client Build (wowgift.co.kr)"
+    Write-Step "3a" "Client Build (seedreamgift.com)"
     # 이전 빌드 잔여물 제거 (캐시 오염 방지)
     if (Test-Path "client\dist") { Remove-Item "client\dist" -Recurse -Force }
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
@@ -73,20 +74,20 @@ if ($buildClient) {
     Write-Ok "client built"
 }
 
-# --- Admin Build (통합: client/dist/wow_admin_portal/ 에 병합) ---
+# --- Admin Build (통합: client/dist/seedream_admin_portal/ 에 병합) ---
 if ($buildAdmin) {
-    Write-Step "3b" "Admin Build (wowgift.co.kr/wow_admin_portal/)"
+    Write-Step "3b" "Admin Build (seedreamgift.com/seedream_admin_portal/)"
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
     pnpm --filter admin build
     if ($LASTEXITCODE -ne 0) { throw "Admin build failed" }
     $sw.Stop()
     Write-Host "  -> vite build: $($sw.Elapsed.TotalSeconds.ToString('F1'))s" -ForegroundColor DarkGray
 
-    # Admin dist → Client dist/wow_admin_portal/ 에 병합
-    $adminTarget = "client\dist\wow_admin_portal"
+    # Admin dist → Client dist/seedream_admin_portal/ 에 병합
+    $adminTarget = "client\dist\seedream_admin_portal"
     if (Test-Path $adminTarget) { Remove-Item $adminTarget -Recurse -Force }
     Copy-Item -Path "admin\dist" -Destination $adminTarget -Recurse -Force
-    Write-Ok "admin merged into client\dist\wow_admin_portal\"
+    Write-Ok "admin merged into client\dist\seedream_admin_portal\"
 }
 
 # --- Package client + admin (통합 ZIP) ---
@@ -100,7 +101,7 @@ if ($buildClient -or $buildAdmin) {
 
 # --- Go API Build (Wails) ---
 if ($buildApi) {
-    Write-Step "4" "Go API Build via Wails (api.wowgift.co.kr)"
+    Write-Step "4" "Go API Build via Wails (api.seedreamgift.com)"
     Set-Location "$ProjectRoot\go-server"
 
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
@@ -109,7 +110,7 @@ if ($buildApi) {
     if ($LASTEXITCODE -ne 0) { throw "Wails build failed" }
     $sw.Stop()
     # Wails outputs to build/bin/
-    $binPath = "build\bin\wgift-api.exe"
+    $binPath = "build\bin\seedream-api.exe"
     if (-not (Test-Path $binPath)) {
         # Fallback: Wails may output with project name
         $binPath = Get-ChildItem "build\bin\*.exe" | Select-Object -First 1 -ExpandProperty FullName
@@ -122,7 +123,7 @@ if ($buildApi) {
     if (Test-Path $stageDir) { Remove-Item $stageDir -Recurse -Force }
     New-Item -ItemType Directory -Force -Path $stageDir | Out-Null
     New-Item -ItemType Directory -Force -Path "$stageDir\logs" | Out-Null
-    Copy-Item $binPath "$stageDir\wgift-api.exe" -Force
+    Copy-Item $binPath "$stageDir\seedream-api.exe" -Force
     if (Test-Path ".env.production") { Copy-Item ".env.production" "$stageDir\.env" -Force }
 
     $apiZip = "api-$timestamp.zip"
@@ -151,16 +152,16 @@ if ($buildApi)    { Write-Host "  deploy\$apiZip" -ForegroundColor Cyan }
 Write-Host ""
 Write-Host "--- Server A (103.97.209.205) ---" -ForegroundColor Yellow
 if ($buildClient -or $buildAdmin) {
-    Write-Host "  Expand-Archive client-*.zip -Dest C:\deploy-server\wow-gift\client -Force" -ForegroundColor DarkGray
+    Write-Host "  Expand-Archive client-*.zip -Dest C:\deploy-server\seedream-gift\client -Force" -ForegroundColor DarkGray
     Write-Host "  (client + admin 통합 ZIP, nginx 재시작 불필요)" -ForegroundColor DarkGray
-    Write-Host "  Admin URL: https://wowgift.co.kr/wow_admin_portal/" -ForegroundColor DarkGray
+    Write-Host "  Admin URL: https://seedreamgift.com/seedream_admin_portal/" -ForegroundColor DarkGray
 }
 Write-Host ""
 if ($buildApi) {
     Write-Host "--- Server B (103.97.209.194) ---" -ForegroundColor Yellow
-    Write-Host "  nssm stop WowGiftAPI" -ForegroundColor DarkGray
-    Write-Host "  Expand-Archive api-*.zip -Dest C:\deploy-server\wgift-api -Force" -ForegroundColor DarkGray
-    Write-Host "  nssm start WowGiftAPI" -ForegroundColor DarkGray
-    Write-Host "  curl https://api.wowgift.co.kr/health" -ForegroundColor DarkGray
+    Write-Host "  nssm stop SeedreamGiftAPI" -ForegroundColor DarkGray
+    Write-Host "  Expand-Archive api-*.zip -Dest C:\deploy-server\seedream-api -Force" -ForegroundColor DarkGray
+    Write-Host "  nssm start SeedreamGiftAPI" -ForegroundColor DarkGray
+    Write-Host "  curl https://api.seedreamgift.com/health" -ForegroundColor DarkGray
 }
 Write-Host ""
