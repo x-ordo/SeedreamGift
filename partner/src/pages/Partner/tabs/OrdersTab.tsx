@@ -7,6 +7,7 @@ import { Eye, X } from 'lucide-react';
 import { partnerApi } from '@/api/manual';
 import { usePartnerList } from '../hooks/usePartnerList';
 import { ORDER_STATUS_MAP, PARTNER_PAGINATION } from '../constants';
+import PaymentTimeline from '../components/PaymentTimeline';
 
 const OrdersTab: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
@@ -232,6 +233,14 @@ const OrdersTab: React.FC = () => {
                       ))}
                     </div>
                   )}
+
+                  {/* Payment Timeline (결제 시도 이력 — 서버에서 마스킹된 값) */}
+                  <div className="partner-info-card" style={{ marginTop: '16px' }}>
+                    <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px', margin: '0 0 8px' }}>
+                      결제 시도 이력
+                    </h4>
+                    <PaymentTimeline items={detailModal?.payments} />
+                  </div>
                 </>
               )}
             </div>
