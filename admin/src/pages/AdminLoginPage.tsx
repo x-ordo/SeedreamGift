@@ -1,5 +1,5 @@
 /**
- * 관리자 전용 로그인 페이지 (admin.wowgift.co.kr/login)
+ * 관리자 전용 로그인 페이지 (admin.seedreamgift.com/login)
  */
 import React, { useState, useCallback } from 'react';
 import siteConfig from '../../../site.config.json';
@@ -11,7 +11,7 @@ import { useAuthStore, MFARequiredError } from '../store/useAuthStore';
 import { isWebAuthnSupported, startWebAuthnAuthentication } from '../utils/webauthn';
 import { webauthnApi } from '../api';
 
-const MAIN_SITE = import.meta.env.VITE_MAIN_URL || 'https://wowgift.co.kr';
+const MAIN_SITE = import.meta.env.VITE_MAIN_URL || 'https://seedreamgift.com';
 
 const AdminLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');

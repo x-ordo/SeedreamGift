@@ -64,7 +64,7 @@ function App() {
               <SessionExpiryBanner />
               <Routes>
                 {/* 관리자/파트너 포털 리다이렉트 */}
-                <Route path="/admin/*" element={<Navigate to={`${import.meta.env.VITE_ADMIN_URL || '/wow_admin_portal'}`} replace />} />
+                <Route path="/admin/*" element={<Navigate to={`${import.meta.env.VITE_ADMIN_URL || '/seedream_admin_portal'}`} replace />} />
 
                 {/* 사용자 라우트 — MainLayout (헤더/푸터 포함) */}
                 <Route element={<MainLayout />}>

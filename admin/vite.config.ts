@@ -5,7 +5,7 @@ import path from 'path';
 const API_TARGET = process.env.VITE_API_TARGET || 'http://localhost:5140';
 
 export default defineConfig({
-  base: '/wow_admin_portal/',
+  base: '/seedream_admin_portal/',
   plugins: [react()],
   resolve: {
     alias: {
