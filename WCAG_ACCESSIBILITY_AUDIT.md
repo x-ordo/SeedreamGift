@@ -1,4 +1,4 @@
-# W기프트 (W Gift) WCAG 2.1 AA 접근성 감사 보고서
+# 씨드림기프트 (Seedream Gift) WCAG 2.1 AA 접근성 감사 보고서
 
 **감사 범위**: client/ (React 18 + TypeScript)
 **감사 기준**: WCAG 2.1 Level AA

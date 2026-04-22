@@ -1,4 +1,4 @@
-# W Gift - 상품권 거래 플랫폼
+# Seedream Gift - 상품권 거래 플랫폼
 
 **NestJS + React + MSSQL 기반 모바일 상품권 판매/매입 플랫폼**
 
@@ -87,7 +87,7 @@ pnpm build
 ## 프로젝트 구조
 
 ```
-wow-gift/
+seedream-gift/
 ├── client/                 # React 프론트엔드
 │   ├── src/
 │   │   ├── api/generated/  # OpenAPI 자동 생성
@@ -115,9 +115,9 @@ wow-gift/
 
 | 항목 | 값 |
 |------|-----|
-| 서비스 URL | https://wowgift.co.kr |
-| API 문서 | https://wowgift.co.kr/api/docs |
-| 운영 경로 | `C:\deploy-server\wow-gift` |
+| 서비스 URL | https://seedreamgift.com |
+| API 문서 | https://seedreamgift.com/api/docs |
+| 운영 경로 | `C:\deploy-server\seedream-gift` |
 
 ---
 
