@@ -174,6 +174,20 @@ export const partnerApi = {
     return response.data;
   },
 
+  // Payments (결제현황 — 내 상품 주문)
+  getMyPayments: async (params?: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+    method?: string;
+    from?: string;
+    to?: string;
+    search?: string;
+  }) => {
+    const response = await axiosInstance.get('/partner/payments', { params });
+    return response.data;
+  },
+
   // Vouchers
   getMyVouchers: async (params?: { page?: number; limit?: number; productId?: number; status?: string }) => {
     const response = await axiosInstance.get<PaginatedResponse<any>>('/partner/vouchers', { params });
