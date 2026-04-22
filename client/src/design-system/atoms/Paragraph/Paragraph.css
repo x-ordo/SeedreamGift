@@ -1,0 +1,43 @@
+/**
+ * Paragraph Component Styles
+ */
+
+.paragraph {
+    margin: 0;
+    line-height: var(--text-line-height);
+    word-break: keep-all;
+    color: var(--color-grey-800);
+}
+
+/* Size Variants */
+.paragraph--small {
+    font-size: var(--text-caption);
+    /* 12px */
+}
+
+.paragraph--medium {
+    font-size: var(--text-body);
+    /* 14px */
+}
+
+.paragraph--large {
+    font-size: var(--text-body-lg);
+    /* 16px */
+}
+
+/* Weight Variants */
+.paragraph--weight-regular {
+    font-weight: var(--font-weight-regular);
+}
+
+.paragraph--weight-medium {
+    font-weight: var(--font-weight-medium);
+}
+
+.paragraph--weight-semibold {
+    font-weight: var(--font-weight-semibold);
+}
+
+.paragraph--weight-bold {
+    font-weight: var(--font-weight-bold);
+}

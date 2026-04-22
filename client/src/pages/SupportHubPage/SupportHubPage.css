@@ -1,0 +1,127 @@
+/**
+ * @file SupportHubPage.css
+ * @description 통합 고객지원 페이지 — 탭 전환 CSS 애니메이션
+ */
+
+/* 탭 전환 페이드인 (key 변경 시 1회 실행) */
+.support-hub-page__tab-content {
+  animation: supportFadeIn 0.2s ease;
+}
+
+@keyframes supportFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .support-hub-page__tab-content { animation: none; }
+}
+
+/* ============================================
+   SUPPORT PAGE - Extracted from index.css
+   ============================================ */
+
+.support-page {
+  background: white;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.support-page-container {
+  max-width: var(--container-lg);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Hero spacing */
+.support-hero-wrapper {
+  margin-bottom: var(--space-2);
+}
+
+/* Tab content area */
+.support-content {
+  min-height: 400px;
+}
+
+/* Banner spacing */
+.support-contact-wrapper {
+  margin-top: var(--space-8);
+}
+
+/* Support page mobile optimizations */
+@media (max-width: 575px) {
+  .support-page-container {
+    padding: var(--space-4) var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .support-contact-wrapper {
+    margin-top: var(--space-5);
+  }
+}
+
+@media (min-width: 768px) {
+  .support-page-container {
+    max-width: var(--container-lg);
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-6);
+    gap: var(--space-8);
+  }
+}
+
+@media (min-width: 1280px) {
+  .support-page-container {
+    padding: var(--space-8);
+    gap: var(--space-8);
+  }
+}
+
+
+/* SupportPage - sticky footer pattern */
+.main-content-wrapper:has(.support-page) {
+  flex: none;
+}
+
+.layout-root:has(.support-page)>.site-footer {
+  margin-top: auto;
+  padding-top: var(--space-4);
+}
+
+/* ============================================
+   NOTICE PAGE
+   ============================================ */
+
+.notice-page {
+  background: white;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.notice-page-container {
+  max-width: var(--container-sm);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .notice-page-container {
+    padding: var(--space-8) var(--space-6);
+    gap: var(--space-6);
+  }
+}
+
+/* NoticePage - sticky footer pattern */
+.main-content-wrapper:has(.notice-page) {
+  flex: none;
+}
+
+.layout-root:has(.notice-page)>.site-footer {
+  margin-top: auto;
+  padding-top: var(--space-4);
+}

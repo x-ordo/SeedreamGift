@@ -1,0 +1,11 @@
+/**
+ * @file NoticeTab.css
+ * @description 공지사항 탭 — daisyUI collapse 사용, 최소 CSS만 유지
+ */
+
+/* Reduced motion 지원 */
+@media (prefers-reduced-motion: reduce) {
+  .collapse {
+    transition: none;
+  }
+}

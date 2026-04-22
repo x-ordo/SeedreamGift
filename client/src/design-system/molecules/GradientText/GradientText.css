@@ -1,0 +1,66 @@
+/**
+ * GradientText.css
+ * React Bits GradientText 스타일 - Swift Trust Design System 적용
+ */
+
+.gradient-text-animated {
+  position: relative;
+  display: inline-flex;
+  max-width: fit-content;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  font-weight: inherit;
+  transition: box-shadow var(--transition-slow) var(--transition-ease-out);
+  overflow: hidden;
+}
+
+.gradient-text-animated.with-border {
+  padding: var(--space-1) var(--space-3);
+  backdrop-filter: blur(10px);
+}
+
+.gradient-text-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  z-index: var(--z-base);
+  pointer-events: none;
+}
+
+.gradient-text-overlay::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  border-radius: inherit;
+  background-color: var(--color-bg-secondary);
+  z-index: -1;
+}
+
+.gradient-text-content {
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Reduced motion: disable animation */
+@media (prefers-reduced-motion: reduce) {
+  .gradient-text-animated {
+    transition: none;
+  }
+
+  .gradient-text-content {
+    background-position: 0% 50% !important;
+  }
+}

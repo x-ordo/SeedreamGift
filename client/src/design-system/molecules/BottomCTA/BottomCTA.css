@@ -1,0 +1,316 @@
+/**
+ * BottomCTA Component Styles
+ * Toss Design System - Bottom CTA
+ */
+
+/* Container */
+.bottom-cta {
+  background: var(--color-surface-default, #FFFFFF);
+  padding: var(--space-4, 16px) var(--space-5, 20px);
+  padding-bottom: max(var(--toss-safe-area-bottom, 0px), env(safe-area-inset-bottom, 0px), 20px);
+}
+
+/* Sticky - 스크롤 시 하단에 따라옴 */
+.bottom-cta--sticky {
+  position: sticky;
+  /* 뷰포트 높이에서 CTA 높이(약 160px)를 뺀 위치에 고정 */
+  top: calc(100vh - 180px);
+  top: calc(100dvh - 180px);
+  /* 모바일 주소창 고려 */
+  z-index: var(--z-sticky, 100);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+
+  /* 배경 및 그림자로 떠있는 느낌 */
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 -4px 20px rgba(49, 130, 246, 0.06),
+    0 4px 20px rgba(49, 130, 246, 0.06);
+  border: 1px solid var(--color-grey-100);
+}
+
+/* Fixed - 화면 하단에 완전 고정 (Floating) */
+.bottom-cta--fixed {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: var(--z-modal-backdrop) !important;
+
+  /* 가독성 및 강조를 위한 글래스모피즘 적용 */
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid color-mix(in oklch, var(--color-primary) 8%, var(--color-grey-200));
+  box-shadow: 0 -8px 24px rgba(49, 130, 246, 0.06), 0 -2px 8px rgba(0, 0, 0, 0.03);
+
+  /* 진입 애니메이션 */
+  animation: slideUpCTA 0.3s var(--transition-ease-out, ease-out);
+}
+
+/* iOS virtual keyboard pushes fixed CTA up */
+@supports (bottom: env(keyboard-inset-height, 0px)) {
+  .bottom-cta--fixed {
+    bottom: env(keyboard-inset-height, 0px) !important;
+  }
+}
+
+@keyframes slideUpCTA {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 데스크탑: 약간 위로 띄워서 Floating 효과 */
+@media (min-width: 768px) {
+  .bottom-cta--fixed {
+    bottom: var(--space-4, 16px) !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%);
+    width: calc(100% - var(--space-8, 32px));
+    max-width: var(--container-md, 800px);
+    border-radius: var(--radius-lg, 18px);
+    border: 1px solid var(--color-grey-200);
+    box-shadow:
+      0 8px 32px rgba(49, 130, 246, 0.10),
+      0 4px 16px rgba(0, 0, 0, 0.04);
+  }
+
+  @keyframes slideUpCTA {
+    from {
+      transform: translateX(-50%) translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/* 큰 데스크탑: 더 넓은 여백 */
+@media (min-width: 1024px) {
+  .bottom-cta--fixed {
+    bottom: var(--space-6, 24px);
+    max-width: var(--container-md, 800px);
+  }
+}
+
+.bottom-cta--shadow {
+  /* 더 입체적인 그림자 */
+  box-shadow: 0 -10px 40px rgba(49, 130, 246, 0.08), 0 -4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.bottom-cta--no-bg {
+  background: transparent;
+  box-shadow: none;
+}
+
+.bottom-cta--no-padding-bottom {
+  padding-bottom: 0 !important;
+}
+
+.bottom-cta--no-safe-area {
+  padding-bottom: var(--space-4);
+}
+
+/* Inner container - max width for large screens */
+.bottom-cta-container {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Accessory areas */
+.bottom-cta-top-accessory {
+  margin-bottom: var(--space-4);
+}
+
+.bottom-cta-bottom-accessory {
+  margin-top: var(--space-3);
+}
+
+/* Sub text above button */
+.bottom-cta-subtext {
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  text-align: center;
+  margin: 0 0 var(--space-3);
+}
+
+/* Double button layout */
+.bottom-cta-double {
+  display: flex;
+  gap: var(--space-3, 12px);
+}
+
+.bottom-cta-double>* {
+  flex: 1;
+}
+
+/* Button base styles */
+.bottom-cta-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 8px);
+  width: 100%;
+  height: 56px;
+  padding: 0 var(--space-6, 24px);
+  border: none;
+  border-radius: var(--radius-lg, 18px);
+  font-family: var(--font-family-base);
+  font-size: var(--text-body-lg, 16px);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform 100ms, box-shadow var(--transition-fast);
+}
+
+.bottom-cta-button svg {
+  flex-shrink: 0;
+}
+
+.bottom-cta-button--small {
+  height: 48px;
+  font-size: var(--text-body);
+}
+
+.bottom-cta-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.bottom-cta-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Primary variant */
+.bottom-cta-button--primary {
+  background: var(--color-blue-500, #3182f6);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(49, 130, 246, 0.3);
+}
+
+.bottom-cta-button--primary:hover:not(:disabled) {
+  background: var(--color-blue-600, #2272eb);
+  box-shadow: 0 6px 16px rgba(49, 130, 246, 0.4);
+}
+
+.bottom-cta-button--primary:active:not(:disabled) {
+  background: var(--color-blue-700, #1b64da);
+  box-shadow: 0 2px 8px rgba(49, 130, 246, 0.3);
+}
+
+/* Secondary variant */
+.bottom-cta-button--secondary {
+  background: color-mix(in oklch, var(--color-primary) 5%, var(--color-grey-100));
+  color: var(--color-grey-800, #333d4b);
+  border: 1px solid color-mix(in oklch, var(--color-primary) 8%, var(--color-grey-200));
+}
+
+.bottom-cta-button--secondary:hover:not(:disabled) {
+  background: color-mix(in oklch, var(--color-primary) 8%, var(--color-grey-200));
+}
+
+.bottom-cta-button--secondary:active:not(:disabled) {
+  background: color-mix(in oklch, var(--color-primary) 10%, var(--color-grey-300));
+}
+
+/* Ghost variant */
+.bottom-cta-button--ghost {
+  background: transparent;
+  color: var(--color-grey-600);
+}
+
+.bottom-cta-button--ghost:hover:not(:disabled) {
+  background: var(--color-grey-100);
+}
+
+/* Danger variant */
+.bottom-cta-button--danger {
+  background: var(--color-red-500);
+  color: #fff;
+}
+
+.bottom-cta-button--danger:hover:not(:disabled) {
+  background: var(--color-red-600);
+}
+
+.bottom-cta-button--danger:active:not(:disabled) {
+  background: var(--color-red-700);
+}
+
+/* Loading spinner */
+.bottom-cta-button--loading {
+  pointer-events: none;
+}
+
+.bottom-cta-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: bottom-cta-spin 0.8s linear infinite;
+}
+
+@keyframes bottom-cta-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Focus visible for accessibility */
+.bottom-cta-button:focus-visible {
+  outline: 2px solid var(--color-blue-500);
+  outline-offset: 2px;
+}
+
+/* Prevent content from being hidden behind fixed CTA */
+.bottom-cta-spacer {
+  /* 모바일: CTA 높이 + 패딩 */
+  height: calc(56px + var(--space-4, 16px) * 2 + 20px);
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-cta-spacer {
+    height: calc(56px + var(--space-4, 16px) * 2 + env(safe-area-inset-bottom) + 20px);
+  }
+}
+
+/* 데스크탑: 떠있는 CTA + 하단 여백 고려 */
+@media (min-width: 768px) {
+  .bottom-cta-spacer {
+    height: calc(56px + var(--space-4, 16px) * 2 + var(--space-4, 16px) + 24px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .bottom-cta-spacer {
+    height: calc(56px + var(--space-4, 16px) * 2 + var(--space-6, 24px) + 24px);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .bottom-cta--fixed {
+    animation: none;
+  }
+
+  .bottom-cta-button {
+    transition: none;
+  }
+
+  .bottom-cta-spinner {
+    animation: bottom-cta-spin 0.8s linear infinite;
+    /* Keep spinner for UX feedback, but remove entry animation */
+  }
+}

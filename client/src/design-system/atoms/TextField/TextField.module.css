@@ -1,0 +1,271 @@
+/* TextField.module.css — daisyUI supplemental */
+/* Animated label, line variant, hero variant, sub-components */
+
+/* Base Container */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+/* Animated Label (daisyUI has no floating label) */
+.label {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-grey-600);
+  transition: opacity 150ms ease, transform 150ms ease;
+  min-height: 16px;
+}
+
+.labelHidden {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.labelVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.labelError {
+  color: var(--color-error);
+}
+
+/* Input Wrapper */
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  overflow: hidden;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+}
+
+/* Wrapper가 focus를 받도록 (내부 input focus 시 wrapper에 표시) */
+.inputWrapper:focus-within {
+  border-color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* Variant: Line — daisyUI has no underline input */
+.variantLine {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--color-grey-200);
+  border-radius: 0;
+  padding: var(--space-3) 0;
+}
+
+.variantLine:focus-within {
+  border-bottom-color: var(--color-primary);
+}
+
+.variantLine.hasError {
+  border-bottom-color: var(--color-error);
+}
+
+.variantLine.disabled {
+  border-bottom-color: var(--color-grey-200);
+  cursor: not-allowed;
+}
+
+/* Variant: Hero — extra border-width on top of daisyUI input */
+.variantHero {
+  border-width: 2px;
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+}
+
+/* Error for line variant */
+.hasError {
+  border-color: var(--color-error);
+}
+
+.hasError:focus-within {
+  border-color: var(--color-error);
+  outline-color: var(--color-error);
+}
+
+/* Disabled */
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Input */
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  border-radius: inherit;
+  font-family: inherit;
+  color: var(--color-grey-900);
+  font-size: max(16px, 1em); /* iOS Safari autofill requires >= 16px to prevent zoom */
+  line-height: 1.5;
+}
+
+.input:focus,
+.input:focus-visible {
+  outline: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.input::placeholder {
+  color: var(--color-grey-400);
+}
+
+.input:disabled {
+  color: var(--color-grey-400);
+  cursor: not-allowed;
+}
+
+/* 브라우저 자동완성(autofill) 배경이 둥근 모서리를 따르도록 */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-grey-900);
+  -webkit-box-shadow: 0 0 0 1000px color-mix(in oklch, var(--color-primary) 4%, white) inset;
+  transition: background-color 5000s ease-in-out 0s;
+  border-radius: inherit;
+}
+
+/* Prefix & Suffix */
+.prefix,
+.suffix {
+  flex-shrink: 0;
+  color: var(--color-grey-500);
+  font-size: var(--text-body);
+  white-space: nowrap;
+}
+
+/* Right component area */
+.right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Help text */
+.help {
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  margin-top: var(--space-1);
+  min-height: 16px;
+}
+
+.helpError {
+  color: var(--color-error);
+  animation: errorSlideIn 0.2s ease;
+}
+
+@keyframes errorSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Clear button */
+.clearButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: var(--color-grey-300);
+  border-radius: 50%;
+  cursor: pointer;
+  color: white;
+  font-size: 12px;
+  transition: background-color 150ms ease;
+  padding: 0;
+}
+
+/* Expand touch target to 44px while keeping 20px visual size */
+.clearButton::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+}
+
+.clearButton:hover {
+  background: var(--color-grey-400);
+}
+
+.clearButton:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--color-primary) 20%, transparent);
+}
+
+/* Visibility toggle button */
+.visibilityButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-grey-400);
+  font-size: 18px;
+  transition: color 150ms ease;
+  padding: 0;
+  margin: -10px;
+}
+
+.visibilityButton:hover {
+  color: var(--color-grey-600);
+}
+
+.visibilityButton:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in oklch, var(--color-primary) 20%, transparent);
+  color: var(--color-primary);
+}
+
+/* TextField.Button specific */
+.buttonWrapper {
+  cursor: pointer;
+}
+
+.buttonWrapper:hover {
+  background: var(--color-grey-100);
+}
+
+.buttonValue {
+  flex: 1;
+  text-align: left;
+  color: var(--color-grey-900);
+  font-size: var(--text-body);
+}
+
+.buttonPlaceholder {
+  color: var(--color-grey-500);
+}
+
+/* Arrow icon for button variant */
+.arrowIcon {
+  color: var(--color-grey-400);
+  font-size: 20px;
+  transition: transform 150ms ease;
+}
+
+.buttonWrapper:hover .arrowIcon {
+  transform: translateY(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .label,
+  .clearButton,
+  .visibilityButton,
+  .arrowIcon {
+    transition: none;
+  }
+
+  .helpError {
+    animation: none;
+  }
+}

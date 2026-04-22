@@ -1,0 +1,189 @@
+/**
+ * @file AdminDetailModal.module.css
+ * @description 어드민 상세 모달 서브 컴포넌트 스타일
+ */
+
+/* ─── Section ────────────────────────────────── */
+
+.section {
+  margin-bottom: var(--space-4);
+}
+
+.sectionTitle {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+  margin-bottom: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.sectionBody {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body);
+}
+
+.sectionDefault {
+  background: var(--color-grey-50);
+}
+
+.sectionHighlight {
+  background: var(--color-primary-light, #e8f3ff);
+  border-left: 3px solid var(--color-primary);
+}
+
+.sectionError {
+  background: var(--color-red-50, #FEF2F2);
+  border-left: 3px solid var(--color-error);
+}
+
+/* ─── InfoGrid ───────────────────────────────── */
+
+.infoGrid {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.infoGrid1 {
+  grid-template-columns: 1fr;
+}
+
+.infoGrid2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.infoGrid3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 575px) {
+  .infoGrid2,
+  .infoGrid3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── InfoRow ────────────────────────────────── */
+
+.infoRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.infoRowFull {
+  grid-column: 1 / -1;
+}
+
+.infoLabel {
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  font-weight: 500;
+}
+
+.infoValue {
+  font-size: var(--text-body);
+  color: var(--color-grey-800);
+  word-break: break-all;
+}
+
+.infoValueEmpty {
+  color: var(--color-grey-400);
+}
+
+.infoValueMono {
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+
+/* ─── StatusRow ──────────────────────────────── */
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.statusLabel {
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  font-weight: 500;
+}
+
+/* ─── Timeline ───────────────────────────────── */
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+}
+
+.timelineItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.timelineDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.timelineDotActive {
+  background-color: var(--color-primary);
+}
+
+.timelineDotInactive {
+  background-color: var(--color-grey-300);
+}
+
+.timelineLabel {
+  font-size: 13px;
+  color: var(--color-grey-800);
+}
+
+.timelineLabelInactive {
+  color: var(--color-grey-400);
+}
+
+.timelineLabelBold {
+  font-weight: 600;
+}
+
+.timelineDate {
+  font-size: var(--text-caption);
+  color: var(--color-grey-400);
+}
+
+/* ─── Divider ────────────────────────────────── */
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-grey-200);
+  margin: var(--space-3) 0;
+}
+
+/* ─── ActionBar ──────────────────────────────── */
+
+.actionBar {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* ─── Loading / Content Wrapper ──────────────── */
+
+.loadingWrapper {
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.contentWrapper {
+  padding: var(--space-4);
+}

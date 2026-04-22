@@ -1,0 +1,119 @@
+/**
+ * BrandSideNav.css
+ * Desktop-only vertical brand navigation
+ */
+.brand-sidenav {
+  background: var(--color-bg-elevated);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-grey-200);
+  padding: var(--space-4);
+  position: sticky;
+  top: calc(var(--header-height, 60px) + var(--space-6));
+  max-height: calc(100vh - 100px);
+  max-height: calc(100dvh - 100px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.brand-sidenav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.brand-sidenav::-webkit-scrollbar-thumb {
+  background-color: var(--color-grey-300);
+  border-radius: var(--radius-sm);
+}
+
+.brand-sidenav-header {
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-grey-100);
+}
+
+.brand-sidenav-title {
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+  margin: 0;
+}
+
+.brand-sidenav-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.brand-sidenav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  color: var(--color-grey-700);
+  font-size: var(--text-body);
+}
+
+.brand-sidenav-item:hover {
+  background-color: var(--color-grey-50);
+  color: var(--color-grey-900);
+}
+
+.brand-sidenav-item.active {
+  background-color: var(--color-primary-light);
+  border-left: 3px solid var(--color-primary);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.brand-sidenav-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  object-fit: contain;
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-grey-100);
+}
+
+.brand-sidenav-icon-placeholder {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-grey-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--color-grey-500);
+  font-weight: bold;
+}
+
+.brand-sidenav-count {
+  margin-left: auto;
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  background-color: var(--color-grey-100);
+  padding: 2px 6px;
+  border-radius: var(--radius-md);
+}
+
+.brand-sidenav-item:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--a11y-focus-ring-shadow);
+}
+
+.brand-sidenav-icon-placeholder--primary {
+  background-color: var(--color-primary);
+  color: var(--color-bg-elevated);
+}
+
+.brand-sidenav-item.active .brand-sidenav-count {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-primary);
+}

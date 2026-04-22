@@ -1,0 +1,283 @@
+/**
+ * @file Modal.module.css
+ * @description 모달 컴포넌트 스타일 - 디자인 시스템 토큰 활용
+ */
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    animation: fadeIn var(--transition-normal);
+    padding: var(--space-4);
+    will-change: opacity;
+}
+
+.modal {
+    background-color: var(--color-surface-default);
+    border-radius: 20px;
+    box-shadow: 0 16px 48px rgba(49, 130, 246, 0.10), 0 4px 16px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 500px;
+    max-height: calc(100vh - var(--space-8));
+    max-height: calc(100dvh - var(--space-8));
+    overflow: hidden;
+    overscroll-behavior: contain;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp var(--transition-normal);
+    will-change: transform, opacity;
+}
+
+/* =====================================================
+   Modal Sizes
+   ===================================================== */
+.small {
+    max-width: 400px;
+}
+
+.medium {
+    max-width: 500px;
+}
+
+.large {
+    max-width: 680px;
+}
+
+/* =====================================================
+   Header
+   ===================================================== */
+.header {
+    padding: var(--space-5) var(--space-5) var(--space-3);
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.title {
+    font-size: 18px;
+    letter-spacing: -0.02em;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-grey-900);
+    margin: 0;
+    line-height: 1.4;
+    padding-right: var(--space-4);
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--color-grey-500);
+    transition: color var(--transition-fast);
+    padding: var(--space-2);
+    line-height: 1;
+    border-radius: 10px;
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.closeButton:hover {
+    color: var(--color-grey-800);
+    background: color-mix(in oklch, var(--color-primary) 4%, var(--color-grey-100));
+}
+
+.closeButton:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* =====================================================
+   Body
+   ===================================================== */
+.body {
+    padding: var(--space-5);
+    padding-bottom: max(var(--space-5), env(safe-area-inset-bottom, 0px));
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* =====================================================
+   Footer
+   ===================================================== */
+.footer {
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid color-mix(in oklch, var(--color-primary) 8%, var(--color-grey-200));
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    background-color: transparent;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    flex-shrink: 0;
+}
+
+/* =====================================================
+   Animations
+   ===================================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(12px) scale(0.98);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* =====================================================
+   Drag Handle (Mobile Swipe)
+   ===================================================== */
+.dragHandle {
+    display: none;
+    justify-content: center;
+    padding: var(--space-2) 0 var(--space-1);
+    cursor: grab;
+    touch-action: none;
+}
+
+.dragHandle:active {
+    cursor: grabbing;
+}
+
+.dragHandleBar {
+    width: 36px;
+    height: 5px;
+    background: var(--color-grey-200);
+    border-radius: 3px;
+}
+
+.swipeable .dragHandle {
+    display: flex;
+}
+
+/* =====================================================
+   Mobile Responsive - Bottom Sheet Style
+   ===================================================== */
+@media (max-width: 767px) {
+    .overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .modal {
+        width: 100%;
+        max-width: 100%;
+        max-height: 90vh;
+        max-height: 90dvh;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        animation: slideUpMobile var(--transition-normal);
+    }
+
+    /* Always show drag handle on mobile as bottom-sheet affordance */
+    .dragHandle {
+        display: flex;
+    }
+
+    .header {
+        padding: var(--space-4);
+    }
+
+    .title {
+        font-size: var(--text-body-lg);
+    }
+
+    .body {
+        padding: var(--space-4);
+    }
+
+    .footer {
+        padding: var(--space-4);
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+    }
+
+    /* Size overrides for mobile */
+    .small,
+    .medium,
+    .large {
+        max-width: 100%;
+    }
+}
+
+@keyframes slideUpMobile {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* =====================================================
+   Touch Device Specific (Swipe)
+   ===================================================== */
+@media (hover: none) and (pointer: coarse) {
+    .swipeable {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+        max-height: 85vh;
+        max-height: 85dvh;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        animation: slideUpMobile var(--transition-normal);
+    }
+
+    .swipeable .footer {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+    }
+}
+
+/* =====================================================
+   Reduced Motion
+   ===================================================== */
+@media (prefers-reduced-motion: reduce) {
+    .overlay {
+        will-change: auto;
+    }
+
+    .modal,
+    .swipeable {
+        animation: none;
+        will-change: auto;
+    }
+}

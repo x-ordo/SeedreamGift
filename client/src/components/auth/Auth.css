@@ -1,0 +1,190 @@
+/**
+ * @file Auth.css
+ * @description Auth page styles - step indicator, auth tabs, bank info, KYC
+ * Extracted from index.css
+ */
+
+/* ============================================
+   STEP FORM STYLES
+   ============================================ */
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-grey-500);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium);
+}
+
+.step-item.active {
+  color: var(--color-primary);
+}
+
+.step-item.completed {
+  color: var(--color-success);
+}
+
+.step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--color-primary) 8%, var(--color-grey-100));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-caption);
+  color: color-mix(in oklch, var(--color-primary) 40%, var(--color-grey-500));
+}
+
+.step-item.active .step-number {
+  background: var(--color-primary);
+  color: white;
+}
+
+.step-item.completed .step-number {
+  background: var(--color-success);
+  color: white;
+}
+
+/* ============================================
+   AUTH PAGE STYLES
+   ============================================ */
+.auth-tabs {
+  display: flex;
+  border-bottom: 2px solid color-mix(in oklch, var(--color-primary) 8%, var(--color-grey-100));
+  margin-bottom: var(--space-6);
+}
+
+.auth-tab {
+  flex: 1;
+  padding: var(--space-4);
+  background: none;
+  border: none;
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-500);
+  cursor: pointer;
+  position: relative;
+  transition: color var(--transition-normal);
+}
+
+.auth-tab.active {
+  color: var(--color-primary);
+}
+
+.auth-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-primary);
+}
+
+/* ============================================
+   BANK INFO DISPLAY
+   ============================================ */
+.bank-info-card {
+  background: var(--color-primary-light);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.bank-name {
+  font-size: var(--text-body);
+  color: var(--color-grey-600);
+  margin-bottom: var(--space-1);
+}
+
+.bank-account {
+  font-size: var(--text-headline);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+  margin-bottom: var(--space-1);
+}
+
+.bank-holder {
+  font-size: var(--text-body);
+  color: var(--color-grey-600);
+}
+
+/* ============================================
+   AUTH INPUT UNIFICATION
+   로그인/회원가입 페이지 input 스타일 통일
+   ============================================ */
+
+/* 모든 auth 페이지 input: 동일한 배경색 + 테두리 + focus 색상 */
+.page-container .input.input-bordered,
+.auth-form .input.input-bordered {
+  background: var(--color-grey-50);
+  border-color: var(--color-grey-200);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.page-container .input.input-bordered:focus-visible,
+.auth-form .input.input-bordered:focus-visible,
+.page-container .input.input-bordered:focus-within,
+.auth-form .input.input-bordered:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-primary) 12%, transparent);
+  outline: none;
+  background: white;
+}
+
+/* 브라우저 자동완성(autofill) 배경이 둥근 모서리를 따르도록 */
+.page-container .input:-webkit-autofill,
+.auth-form .input:-webkit-autofill,
+.page-container .input:-webkit-autofill:hover,
+.auth-form .input:-webkit-autofill:hover,
+.page-container .input:-webkit-autofill:focus,
+.auth-form .input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-grey-900);
+  -webkit-box-shadow: 0 0 0 1000px color-mix(in oklch, var(--color-primary) 4%, white) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* select 요소도 동일 스타일 적용 */
+.page-container select.select-bordered,
+.auth-form select.select-bordered {
+  background: var(--color-grey-50);
+  border-color: var(--color-grey-200);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.page-container select.select-bordered:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-primary) 12%, transparent);
+  outline: none;
+  background: white;
+}
+
+/* Auth page mobile optimizations */
+@media (max-width: 575px) {
+  .auth-tabs {
+    margin-bottom: var(--space-4);
+  }
+
+  .auth-tab {
+    padding: var(--space-3);
+    font-size: var(--text-body);
+    min-height: 48px;
+  }
+
+  .bank-info-card {
+    padding: var(--space-4);
+  }
+
+  .bank-account {
+    font-size: var(--text-body-lg);
+  }
+}

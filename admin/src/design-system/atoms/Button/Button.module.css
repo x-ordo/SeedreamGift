@@ -1,0 +1,124 @@
+/* Button.module.css — daisyUI supplemental */
+/* Only: point variant (gold gradient), xl size, ripple effect, base positioning */
+
+/* Base: needed for ripple positioning */
+.btnBase {
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--transition-fast) var(--transition-ease-out), 
+                box-shadow var(--transition-fast) var(--transition-ease-out),
+                background-color var(--transition-fast) var(--transition-ease-out),
+                opacity var(--transition-fast) var(--transition-ease-out);
+}
+
+.btnBase:active {
+    transform: scale(0.96) !important;
+}
+
+/* Point - 골드 액센트 (CTA 강조) — daisyUI 대체 불가 */
+.point {
+    background: var(--gradient-point) !important;
+    color: var(--color-grey-900) !important;
+    border-color: transparent !important;
+    box-shadow: var(--shadow-point);
+    font-weight: var(--font-weight-bold);
+}
+
+.point:hover {
+    box-shadow: 0 12px 28px rgba(255, 187, 0, 0.35);
+    transform: translateY(-2px);
+}
+
+.point:active {
+    transform: scale(0.96) translateY(0) !important;
+}
+
+.point:focus-visible {
+    box-shadow: 0 0 0 3px rgba(255, 187, 0, 0.3),
+                0 0 0 5px var(--color-point, #FFBB00);
+}
+
+/* CTA - Primary action button (구매하기, 결제하기 등 주요 CTA) */
+.cta {
+    background: var(--color-primary) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.01em;
+    box-shadow: var(--shadow-primary);
+}
+
+.cta:hover {
+    background: var(--color-primary-hover) !important;
+    box-shadow: 0 12px 28px rgba(49, 130, 246, 0.3);
+    transform: translateY(-1px);
+}
+
+.cta:active {
+    background: var(--color-primary-active) !important;
+    transform: scale(0.96) !important;
+}
+
+.cta:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+/* XL size — daisyUI 대체 불가 */
+.xl {
+    padding: var(--space-4, 16px) var(--space-8, 32px);
+    font-size: var(--text-body-lg);
+    height: 60px;
+    border-radius: var(--radius-lg);
+    gap: var(--space-3, 12px);
+}
+
+/* ============ Ripple Effect ============ */
+
+@keyframes ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.4;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+.ripple {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+    animation: ripple 0.6s linear forwards;
+}
+
+/* Darker ripple for light backgrounds (btn-soft, btn-outline, btn-ghost) */
+:global(.btn-soft) .ripple,
+:global(.btn-outline) .ripple,
+:global(.btn-ghost) .ripple {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Touch target - 모바일 접근성 */
+@media (hover: none) and (pointer: coarse) {
+    .btnBase {
+        min-height: 44px; /* WCAG touch target */
+    }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    .ripple {
+        animation: none;
+        display: none;
+    }
+
+    .point:hover,
+    .point:active {
+        transform: none;
+    }
+}

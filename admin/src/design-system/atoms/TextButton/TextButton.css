@@ -1,0 +1,225 @@
+/**
+ * TextButton Component Styles
+ * Toss Design System 스타일의 텍스트 버튼
+ */
+
+/* =====================================================
+   Base Styles
+   ===================================================== */
+.text-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-family-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+    text-decoration: none;
+    transition: color var(--transition-fast) ease, background-color var(--transition-fast) ease, opacity var(--transition-fast) ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.text-button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* =====================================================
+   Size Variants
+   ===================================================== */
+.text-button--xsmall {
+    font-size: var(--text-xs, 11px);
+    gap: 1px;
+}
+
+.text-button--small {
+    font-size: var(--text-small, 12px);
+    gap: 1px;
+}
+
+.text-button--medium {
+    font-size: var(--text-caption, 13px);
+    gap: 2px;
+}
+
+.text-button--large {
+    font-size: var(--text-body, 15px);
+    gap: 2px;
+}
+
+.text-button--xlarge {
+    font-size: var(--text-body-lg, 17px);
+    gap: 3px;
+}
+
+.text-button--xxlarge {
+    font-size: var(--text-title, 20px);
+    gap: 4px;
+}
+
+/* =====================================================
+   Color Variants
+   ===================================================== */
+.text-button--primary {
+    color: var(--color-primary);
+}
+
+.text-button--primary:hover {
+    color: var(--color-primary-hover);
+}
+
+.text-button--primary:active {
+    color: var(--color-primary-active);
+}
+
+.text-button--secondary {
+    color: var(--color-grey-700);
+}
+
+.text-button--secondary:hover {
+    color: var(--color-grey-800);
+}
+
+.text-button--secondary:active {
+    color: var(--color-grey-900);
+}
+
+.text-button--tertiary {
+    color: var(--color-grey-500);
+}
+
+.text-button--tertiary:hover {
+    color: var(--color-grey-600);
+}
+
+.text-button--tertiary:active {
+    color: var(--color-grey-700);
+}
+
+.text-button--point {
+    color: var(--color-point);
+}
+
+.text-button--point:hover {
+    color: var(--color-point-hover);
+}
+
+.text-button--point:active {
+    color: var(--color-point-active);
+}
+
+.text-button--success {
+    color: var(--color-success);
+}
+
+.text-button--success:hover {
+    color: var(--color-green-600);
+}
+
+.text-button--error {
+    color: var(--color-error);
+}
+
+.text-button--error:hover {
+    color: var(--color-red-600);
+}
+
+/* =====================================================
+   Variant: Clear (Default)
+   ===================================================== */
+.text-button--clear {
+    text-decoration: none;
+}
+
+.text-button--clear:hover {
+    opacity: 0.8;
+}
+
+/* =====================================================
+   Variant: Arrow
+   ===================================================== */
+.text-button--arrow {
+    gap: 2px;
+}
+
+.text-button__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--transition-fast) ease;
+}
+
+.text-button--arrow:hover .text-button__arrow {
+    transform: translateX(2px);
+}
+
+/* Arrow sizes based on button size */
+.text-button--xsmall .text-button__arrow {
+    font-size: 12px;
+}
+
+.text-button--small .text-button__arrow {
+    font-size: 14px;
+}
+
+.text-button--medium .text-button__arrow {
+    font-size: 16px;
+}
+
+.text-button--large .text-button__arrow {
+    font-size: 18px;
+}
+
+.text-button--xlarge .text-button__arrow {
+    font-size: 20px;
+}
+
+.text-button--xxlarge .text-button__arrow {
+    font-size: 24px;
+}
+
+/* =====================================================
+   Variant: Underline
+   ===================================================== */
+.text-button--underline .text-button__text {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.text-button--underline:hover .text-button__text {
+    text-decoration-thickness: 2px;
+}
+
+/* =====================================================
+   Disabled State
+   ===================================================== */
+.text-button--disabled,
+.text-button:disabled {
+    color: var(--color-grey-400) !important;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.text-button--disabled:hover,
+.text-button:disabled:hover {
+    opacity: 1;
+}
+
+/* =====================================================
+   Accessibility: Reduced Motion
+   ===================================================== */
+@media (prefers-reduced-motion: reduce) {
+    .text-button,
+    .text-button__arrow {
+        transition: none;
+    }
+
+    .text-button--arrow:hover .text-button__arrow {
+        transform: none;
+    }
+}

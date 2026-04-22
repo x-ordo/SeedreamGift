@@ -1,0 +1,26 @@
+/**
+ * @file default.css
+ * @description W기프트 기본 테마 — Blue + Gold
+ *
+ * 사용법: 이 파일은 현재 기본 적용된 테마입니다.
+ * 다른 프리셋을 적용하려면 tokens.css의 :root에서
+ * 아래 변수들을 오버라이드하세요.
+ */
+
+/* 이 파일은 참조용입니다. 실제 값은 tokens.css에 정의되어 있습니다. */
+
+/*
+:root {
+  --color-primary: #3182f6;
+  --color-primary-hover: #2272eb;
+  --color-primary-active: #1b64da;
+  --color-primary-light: #e8f3ff;
+
+  --color-point: #ffc342;
+  --color-point-hover: #ffb331;
+  --color-point-active: #faa131;
+
+  --shadow-primary: 0 8px 24px rgba(49, 130, 246, 0.2);
+  --shadow-point: 0 8px 24px rgba(255, 187, 0, 0.2);
+}
+*/

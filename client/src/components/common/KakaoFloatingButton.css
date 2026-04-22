@@ -1,0 +1,100 @@
+/**
+ * @file KakaoFloatingButton.css
+ * @description 카카오톡 플로팅 상담 버튼 스타일
+ */
+
+.kakao-fab-container {
+  position: fixed;
+  bottom: calc(var(--space-8) + 60px); /* BottomNav 위 */
+  right: var(--space-4);
+  z-index: var(--z-float);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .kakao-fab-container {
+    bottom: var(--space-8);
+    right: var(--space-6);
+  }
+}
+
+.kakao-fab-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #FEE500;
+  color: #3C1E1E;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+  transition: transform var(--transition-normal) ease, box-shadow var(--transition-normal) ease;
+}
+
+.kakao-fab-button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.kakao-fab-button:active {
+  transform: scale(0.95);
+}
+
+.kakao-fab-icon {
+  flex-shrink: 0;
+}
+
+.kakao-fab-tooltip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-grey-900);
+  color: white;
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  animation: kakao-tooltip-in var(--transition-normal) ease;
+}
+
+.kakao-fab-tooltip-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  background: none;
+  border: none;
+  color: var(--color-grey-400);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.kakao-fab-tooltip-close:hover {
+  color: white;
+}
+
+@keyframes kakao-tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kakao-fab-button {
+    transition: none;
+  }
+  .kakao-fab-tooltip {
+    animation: none;
+  }
+}

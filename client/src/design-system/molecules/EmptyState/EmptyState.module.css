@@ -1,0 +1,94 @@
+/**
+ * @file EmptyState.module.css
+ * @description EmptyState 컴포넌트 스타일
+ * @module design-system/molecules/EmptyState
+ */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-10) var(--space-4);
+  text-align: center;
+  min-height: 240px;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  background: var(--color-grey-100);
+  margin-bottom: var(--space-4);
+  transition: background var(--transition-normal) var(--transition-ease-out);
+}
+
+.iconWrapper i {
+  font-size: 32px;
+  color: var(--color-grey-400);
+  transition: color var(--transition-normal) var(--transition-ease-out);
+}
+
+/* Variant Styles */
+.search .iconWrapper {
+  background: var(--color-blue-50);
+}
+
+.search .iconWrapper i {
+  color: var(--color-blue-400);
+}
+
+.cart .iconWrapper {
+  background: var(--color-orange-50);
+}
+
+.cart .iconWrapper i {
+  color: var(--color-orange-400);
+}
+
+.order .iconWrapper {
+  background: var(--color-green-50);
+}
+
+.order .iconWrapper i {
+  color: var(--color-green-400);
+}
+
+.error .iconWrapper {
+  background: var(--color-red-50);
+}
+
+.error .iconWrapper i {
+  color: var(--color-red-400);
+}
+
+.title {
+  font-size: var(--text-title);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+  line-height: var(--line-height-title);
+}
+
+.description {
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-6) 0;
+  line-height: var(--line-height-body);
+  max-width: 280px;
+}
+
+.action {
+  margin-top: var(--space-2);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .iconWrapper,
+  .iconWrapper i {
+    transition: none;
+  }
+}

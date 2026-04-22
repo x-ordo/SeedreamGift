@@ -1,0 +1,107 @@
+# 더치트 API 연동 문서
+
+## 개요
+더치트(TheCheat)는 금융사기 피해 정보 조회 서비스입니다.
+연락처 또는 계좌번호로 최근 3개월 내 피해사례 등록 여부를 검색합니다.
+
+## 인증
+| 항목 | 값 |
+|------|-----|
+| Header Key | `X-TheCheat-ApiKey` |
+| Header Value | key.txt의 API_KEY |
+| 암호화 키 | key.txt의 ENC_KEY (AES-256-CBC, 32바이트) |
+
+## 엔드포인트
+
+### 1. 평문 검색
+```
+POST https://api.thecheat.co.kr/api/v2/fraud/search
+```
+
+### 2. 암호화 검색
+```
+POST https://api.thecheat.co.kr/api/v2/fraud/search/encrypted
+```
+- keyword를 ENC_KEY로 AES-256-CBC 암호화하여 전송
+- keyword_type, bank_code, add_info는 평문
+
+## 요청 파라미터
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| keyword | string | O | 연락처 또는 계좌번호 (숫자만, 하이픈 제거) |
+| keyword_type | string | O | `phone` 또는 `account` |
+| bank_code | string | X | 금융기관 공동코드 (3자리), 계좌 검색 시 AND 조건 |
+| add_info | string | X | 부가 정보 (게시물 URL 등) |
+
+## 응답 형식
+
+```json
+{
+    "result_code": 1,
+    "result_msg": "success",
+    "content": "AES-256-CBC 암호화된 데이터"
+}
+```
+
+### content 복호화 결과
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| keyword | string | 검색한 키워드 |
+| keyword_type | string | `phone` 또는 `account` |
+| bank_code | string | 금융기관 공동코드 |
+| caution | string | **피해사례 등록 여부** (`Y` / `N`) |
+| date_start | string | 검색기간 시작 (yyyyMMddHHmmss) |
+| date_end | string | 검색기간 종료 (yyyyMMddHHmmss) |
+| keyword_url | string | 피해사례 열람용 URL |
+| add_info | string? | 부가 정보 |
+
+## 암호화/복호화 (AES-256-CBC)
+
+- 키: ENC_KEY (32바이트)
+- 알고리즘: AES-256-CBC + PKCS7 패딩
+- IV: 데이터의 첫 16바이트
+- 인코딩: Base64
+
+```
+암호화: plaintext → PKCS7 pad → AES-CBC encrypt → [IV(16) + ciphertext] → base64
+복호화: base64 → [IV(16) + ciphertext] → AES-CBC decrypt → PKCS7 unpad → plaintext
+```
+
+## 에러코드
+
+| HTTP | 코드 | 메시지 | 원인 |
+|------|------|--------|------|
+| 500 | -1 | System error | 서버 내부 에러 |
+| 401 | -2 | Invalid API Key | API Key 누락 또는 유효하지 않음 |
+| 400 | -3 | Invalid attempt / Failed to decrypt | 요청 변수 오류 또는 키워드 복호화 실패 |
+| 403 | -4 | IP DENY | 허용되지 않은 IP |
+
+## 테스트
+
+### 테스트 데이터 (제휴 전 테스트 DB에서 조회)
+- 전화번호: `01044440000`
+- 계좌번호: `12010123456`
+- 제휴 전: `result_msg: "success (test)"`, 위 번호 검색 시 `caution: "Y"`
+- 제휴 후: `result_msg: "success"`, 실제 DB 조회
+
+### 테스트 실행
+```bash
+cd the-cheat-test
+go build -o the-cheat-test.exe .
+./the-cheat-test.exe
+```
+
+## 제한사항
+- CORS 미지원 → 반드시 백엔드에서 호출
+- 금융기관 공동코드: https://www.kftc.or.kr/archive/bankListByCode (대표코드 사용)
+
+## 파일 구조
+```
+the-cheat-test/
+├── main.go      # API 테스트 클라이언트 (평문/암호화 검색, AES 암복호화)
+├── key.txt      # API_KEY, ENC_KEY (git에 포함하지 말 것)
+├── api.txt      # 이 문서
+└── go.mod       # Go 모듈
+```

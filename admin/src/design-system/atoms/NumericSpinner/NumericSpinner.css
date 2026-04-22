@@ -1,0 +1,167 @@
+/**
+ * NumericSpinner Component Styles
+ * Toss-style quantity selector - Premium Design
+ */
+
+.numeric-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: linear-gradient(to bottom, #fff, #fafbfc);
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-grey-200);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+/* Size variants */
+.numeric-spinner--tiny {
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.numeric-spinner--large {
+  gap: var(--space-2);
+  padding: var(--space-2);
+}
+
+/* Button base */
+.numeric-spinner__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--color-blue-500);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(49, 130, 246, 0.2);
+}
+
+.numeric-spinner__button:hover:not(:disabled) {
+  background: var(--color-blue-600);
+  box-shadow: 0 4px 8px rgba(49, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.numeric-spinner__button:active:not(:disabled) {
+  background: var(--color-blue-700);
+  transform: scale(0.95) translateY(0);
+  box-shadow: 0 1px 2px rgba(49, 130, 246, 0.2);
+}
+
+.numeric-spinner__button:disabled {
+  cursor: not-allowed;
+  background: var(--color-grey-200);
+  color: var(--color-grey-400);
+  box-shadow: none;
+}
+
+.numeric-spinner__button:focus-visible {
+  outline: 2px solid var(--color-blue-300);
+  outline-offset: 2px;
+}
+
+/* Size: tiny */
+.numeric-spinner--tiny .numeric-spinner__button {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+}
+
+/* Size: small */
+.numeric-spinner--small .numeric-spinner__button {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+}
+
+/* Size: medium (default) */
+.numeric-spinner--medium .numeric-spinner__button {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  font-size: 18px;
+}
+
+/* Size: large */
+.numeric-spinner--large .numeric-spinner__button {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  font-size: 20px;
+}
+
+/* Value display */
+.numeric-spinner__value {
+  min-width: 40px;
+  padding: var(--space-2) var(--space-3);
+  text-align: center;
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-grey-900);
+  background: transparent;
+}
+
+.numeric-spinner--tiny .numeric-spinner__value {
+  min-width: 28px;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-caption);
+}
+
+.numeric-spinner--small .numeric-spinner__value {
+  min-width: 32px;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-body);
+}
+
+.numeric-spinner--medium .numeric-spinner__value {
+  min-width: 40px;
+  font-size: var(--text-body-lg);
+}
+
+.numeric-spinner--large .numeric-spinner__value {
+  min-width: 48px;
+  font-size: var(--text-title);
+}
+
+/* Disabled state */
+.numeric-spinner--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Icon */
+.numeric-spinner__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Touch target - 모바일 접근성 (WCAG 2.5.5) */
+@media (hover: none) and (pointer: coarse) {
+  .numeric-spinner--tiny .numeric-spinner__button,
+  .numeric-spinner--small .numeric-spinner__button,
+  .numeric-spinner--medium .numeric-spinner__button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .numeric-spinner__button,
+  .numeric-spinner__value {
+    transition: none;
+  }
+}

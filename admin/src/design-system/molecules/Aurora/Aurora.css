@@ -1,0 +1,135 @@
+/**
+ * Aurora.css
+ * Aurora 배경 효과 스타일 - Swift Trust Design System 적용
+ * CSS-only implementation inspired by React Bits
+ */
+
+.aurora-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: var(--z-base);
+  pointer-events: none;
+}
+
+.aurora-blob {
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  border-radius: 50%;
+  filter: blur(var(--aurora-blur, 80px));
+  opacity: var(--aurora-opacity, 0.6);
+  mix-blend-mode: screen;
+}
+
+/* First blob - Primary color */
+.aurora-blob-1 {
+  background: radial-gradient(
+    circle at center,
+    var(--aurora-color-1, var(--color-primary)) 0%,
+    transparent 50%
+  );
+  top: -50%;
+  left: -25%;
+}
+
+/* Second blob - Point color */
+.aurora-blob-2 {
+  background: radial-gradient(
+    circle at center,
+    var(--aurora-color-2, var(--color-point)) 0%,
+    transparent 50%
+  );
+  bottom: -50%;
+  right: -25%;
+}
+
+/* Third blob - Accent color */
+.aurora-blob-3 {
+  background: radial-gradient(
+    circle at center,
+    var(--aurora-color-3, var(--color-blue-300)) 0%,
+    transparent 50%
+  );
+  top: 20%;
+  right: -30%;
+  width: 100%;
+  height: 100%;
+}
+
+/* Animation keyframes */
+@keyframes aurora-float-1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: var(--aurora-opacity, 0.6);
+  }
+  25% {
+    transform: translate(5%, 10%) scale(1.1);
+    opacity: calc(var(--aurora-opacity, 0.6) + 0.1);
+  }
+  50% {
+    transform: translate(0, 5%) scale(1.05);
+    opacity: var(--aurora-opacity, 0.6);
+  }
+  75% {
+    transform: translate(-5%, 0) scale(1.1);
+    opacity: calc(var(--aurora-opacity, 0.6) + 0.15);
+  }
+}
+
+@keyframes aurora-float-2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: var(--aurora-opacity, 0.6);
+  }
+  25% {
+    transform: translate(-8%, -5%) scale(1.15);
+    opacity: calc(var(--aurora-opacity, 0.6) + 0.1);
+  }
+  50% {
+    transform: translate(-3%, 8%) scale(1.1);
+    opacity: var(--aurora-opacity, 0.6);
+  }
+  75% {
+    transform: translate(5%, 3%) scale(1.05);
+    opacity: calc(var(--aurora-opacity, 0.6) + 0.05);
+  }
+}
+
+@keyframes aurora-float-3 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: calc(var(--aurora-opacity, 0.6) * 0.8);
+  }
+  33% {
+    transform: translate(-10%, 5%) scale(1.1);
+    opacity: calc(var(--aurora-opacity, 0.6) * 0.9);
+  }
+  66% {
+    transform: translate(5%, -8%) scale(0.95);
+    opacity: calc(var(--aurora-opacity, 0.6) * 0.7);
+  }
+}
+
+/* Animate class applies animations */
+.aurora-blob-1.aurora-animate {
+  animation: aurora-float-1 var(--aurora-speed, 8s) ease-in-out infinite;
+}
+
+.aurora-blob-2.aurora-animate {
+  animation: aurora-float-2 var(--aurora-speed, 8s) ease-in-out infinite;
+  animation-delay: calc(var(--aurora-speed, 8s) / 3);
+}
+
+.aurora-blob-3.aurora-animate {
+  animation: aurora-float-3 var(--aurora-speed, 8s) ease-in-out infinite;
+  animation-delay: calc(var(--aurora-speed, 8s) * 2 / 3);
+}
+
+/* Reduced motion: disable animations */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob {
+    animation: none !important;
+    opacity: calc(var(--aurora-opacity, 0.6) * 0.7);
+  }
+}

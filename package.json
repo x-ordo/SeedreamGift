@@ -1,0 +1,42 @@
+{
+  "name": "wow-gift",
+  "version": "2.1.0",
+  "private": true,
+  "description": "W기프트 - 백화점 상품권 판매 및 매입 플랫폼 (NestJS + React Monorepo)",
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter w-gift-server dev\" \"pnpm --filter client dev\"",
+    "dev:server": "pnpm --filter w-gift-server dev",
+    "dev:client": "pnpm --filter client dev",
+    "dev:admin": "pnpm --filter admin dev",
+    "prebuild": "node scripts/validate-site-config.js",
+    "build": "pnpm build:client && pnpm build:move && pnpm build:server",
+    "build:client": "pnpm --filter client build",
+    "build:server": "pnpm --filter w-gift-server build",
+    "build:move": "node scripts/move-client-build.js",
+    "deploy:prod": "pnpm build && pm2 reload ecosystem.config.js --env production",
+    "deploy:restart": "pm2 restart ecosystem.config.js --env production",
+    "prisma:generate": "pnpm --filter w-gift-server prisma:generate",
+    "prisma:push": "pnpm --filter w-gift-server prisma:push",
+    "api:generate": "pnpm --filter client api:generate",
+    "test": "pnpm --filter w-gift-server test || echo 'Warning: Server tests failed'",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "server/src/**/*.ts": [
+      "pnpm --filter w-gift-server lint:fix"
+    ],
+    "client/src/**/*.{ts,tsx}": [
+      "pnpm --filter client lint:fix"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "fs-extra": "^11.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

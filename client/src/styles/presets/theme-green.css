@@ -1,0 +1,30 @@
+/**
+ * @file theme-green.css
+ * @description 그린 테마 프리셋 예시
+ *
+ * 사용법:
+ * 1. tokens.css 상단에 @import './presets/theme-green.css'; 추가
+ * 2. index.css daisyUI theme에서 --color-primary oklch 값 변경:
+ *    --color-primary: oklch(0.55 0.17 160);
+ */
+
+:root {
+  /* Primary — 그린 계열 */
+  --color-primary: #059669;
+  --color-primary-hover: #047857;
+  --color-primary-active: #065f46;
+  --color-primary-light: #ecfdf5;
+
+  /* Point — 코랄 액센트 */
+  --color-point: #f43f5e;
+  --color-point-hover: #e11d48;
+  --color-point-active: #be123c;
+
+  /* Colored Shadows */
+  --shadow-primary: 0 8px 24px rgba(5, 150, 105, 0.2);
+  --shadow-point: 0 8px 24px rgba(244, 63, 94, 0.2);
+
+  /* Gradient Presets */
+  --gradient-primary: linear-gradient(135deg, #059669 0%, #047857 100%);
+  --gradient-point: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+}

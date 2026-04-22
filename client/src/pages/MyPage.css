@@ -1,0 +1,558 @@
+/**
+ * @file MyPage.css
+ * @description MyPage styles - tabs, settings, avatar, orders, gifts, bank info
+ * Extracted from index.css
+ */
+
+/* ============================================
+   MYPAGE TABS
+   ============================================ */
+.mypage-tabs {
+  display: flex;
+  gap: var(--space-2);
+  background: color-mix(in oklch, var(--color-primary) 6%, var(--color-grey-100));
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
+}
+
+.mypage-tab {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-500);
+  cursor: pointer;
+  transition: background-color var(--transition-normal), color var(--transition-normal), box-shadow var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mypage-tab:hover {
+  color: var(--color-grey-700);
+}
+
+.mypage-tab.active {
+  background: color-mix(in oklch, var(--color-primary) 2%, white);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================
+   SETTINGS ITEMS
+   ============================================ */
+.settings-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-body);
+  color: var(--color-grey-700);
+  cursor: pointer;
+  transition: background-color var(--transition-normal);
+  text-align: left;
+}
+
+.settings-item:hover {
+  background: color-mix(in oklch, var(--color-primary) 4%, var(--color-grey-100));
+}
+
+.settings-item span {
+  flex: 1;
+}
+
+/* ============================================
+   MY PAGE - Layout
+   ============================================ */
+
+.my-page {
+  background: linear-gradient(to bottom,
+      color-mix(in oklch, var(--color-primary) 4%, var(--color-bg-primary)) 0%,
+      color-mix(in oklch, var(--color-primary) 2%, var(--color-grey-50)) 50%,
+      var(--color-bg-primary) 100%);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.my-page-container {
+  max-width: var(--container-lg);
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.my-page-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.my-page-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.mypage-tabs-nav {
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 767px) {
+  .my-page-container {
+    padding-bottom: calc(var(--bottom-nav-height, 56px) + var(--space-6));
+  }
+}
+
+@media (min-width: 768px) {
+  .my-page-container {
+    padding: var(--space-6) var(--space-6);
+    gap: var(--section-gap);
+  }
+}
+
+/* MyPage - sticky footer pattern */
+.main-content-wrapper:has(.my-page) {
+  flex: none;
+}
+
+.layout-root:has(.my-page)>.site-footer {
+  margin-top: auto;
+  padding-top: var(--space-4);
+}
+
+@media (min-width: 1024px) {
+  .my-page-container {
+    padding: var(--space-8) var(--space-8);
+  }
+}
+
+/* MyPage mobile optimizations */
+@media (max-width: 575px) {
+  .my-page-container {
+    padding: var(--space-4) var(--space-4);
+    gap: var(--space-4);
+  }
+
+  .my-page .tab-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex-wrap: nowrap;
+  }
+
+  .my-page .tab-nav::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* MyPage touch targets (48px min) */
+.my-page .list-row,
+.my-page [role="button"],
+.my-page [role="tab"] {
+  min-height: 48px;
+}
+
+/* ============================================
+   MyPage: DS migration CSS classes
+   ============================================ */
+.mypage-avatar {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-blue-100));
+  color: var(--color-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(49, 130, 246, 0.15);
+}
+
+.mypage-avatar i {
+  font-size: var(--text-display);
+}
+
+.mypage-avatar--initial {
+  font-size: var(--text-headline);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+  user-select: none;
+}
+
+/* Legacy pin classes removed — replaced by .mypage-pin-section / .mypage-pin-card */
+
+.mypage-skeleton {
+  height: 100px;
+  background: linear-gradient(90deg, var(--color-grey-100) 25%, var(--color-grey-50, #f8f9fa) 50%, var(--color-grey-100) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+
+/* Legacy order/gift/tradein classes removed — replaced by .mypage-order-card / Tailwind */
+
+.mypage-bank-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.mypage-bank-current {
+  font-size: var(--text-caption);
+  color: var(--color-text-tertiary);
+}
+
+.mypage-bank-account {
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.mypage-bank-meta {
+  font-size: var(--text-caption);
+  color: var(--color-text-tertiary);
+}
+
+/* ============================================
+   ORDER CARD — Commerce-grade redesign
+   ============================================ */
+
+/* 주문 상태 필터 칩 */
+.mypage-filter-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+.mypage-filter-chips::-webkit-scrollbar { display: none; }
+
+.mypage-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid var(--color-grey-200);
+  background: var(--color-bg-elevated, white);
+  font-size: var(--text-caption-sm, 12px);
+  font-weight: 600;
+  color: var(--color-grey-500);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.mypage-filter-chip:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.mypage-filter-chip.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-on-primary, white);
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--color-primary) 25%, transparent);
+}
+.mypage-filter-chip .chip-count {
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+/* 주문 카드 — 상태별 좌측 액센트 바 */
+.mypage-order-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated, white);
+  border: 1px solid var(--color-grey-100);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.mypage-order-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.mypage-order-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+.mypage-order-card[data-status="PENDING"]::before { background: var(--color-warning); }
+.mypage-order-card[data-status="PAID"]::before { background: var(--color-primary); }
+.mypage-order-card[data-status="DELIVERED"]::before,
+.mypage-order-card[data-status="COMPLETED"]::before { background: var(--color-success); }
+.mypage-order-card[data-status="CANCELLED"]::before,
+.mypage-order-card[data-status="REFUNDED"]::before { background: var(--color-error); }
+
+/* 주문 금액 — 숫자 강조 */
+.mypage-order-price {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-grey-900);
+  line-height: 1;
+}
+
+/* PIN 보안 카드 영역 */
+.mypage-pin-section {
+  background: linear-gradient(135deg,
+    color-mix(in oklch, var(--color-primary) 3%, var(--color-grey-50)),
+    color-mix(in oklch, var(--color-primary) 1%, white));
+  border-top: 1px solid var(--color-grey-100);
+  padding: 16px 20px;
+}
+.mypage-pin-section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-success);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+.mypage-pin-card {
+  background: var(--color-bg-elevated, white);
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in oklch, var(--color-primary) 8%, var(--color-grey-100));
+  box-shadow: 0 1px 3px rgba(49, 130, 246, 0.04);
+}
+.mypage-pin-card + .mypage-pin-card {
+  margin-top: 8px;
+}
+.mypage-pin-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-grey-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.mypage-pin-value {
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0.03em;
+  user-select: all;
+}
+.mypage-pin-value--secondary {
+  color: var(--color-grey-800);
+}
+
+/* ============================================
+   TRADE-IN CARD — 진행 상태 시각화
+   ============================================ */
+
+.mypage-tradein-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated, white);
+  border: 1px solid var(--color-grey-100);
+  transition: box-shadow 0.2s ease;
+}
+.mypage-tradein-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* 매입 금액 — 성공 컬러 강조 */
+.mypage-tradein-price {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-success);
+  line-height: 1;
+}
+
+/* 3-step 프로그레스 바 */
+.mypage-progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 12px 0 4px;
+}
+.mypage-progress-step {
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--color-grey-200);
+  transition: background 0.3s ease;
+}
+.mypage-progress-step + .mypage-progress-step {
+  margin-left: 4px;
+}
+.mypage-progress-step.active {
+  background: var(--color-success);
+}
+.mypage-progress-step.rejected {
+  background: var(--color-error);
+}
+
+.mypage-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.mypage-progress-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-grey-400);
+}
+.mypage-progress-label.active {
+  color: var(--color-success);
+}
+.mypage-progress-label.rejected {
+  color: var(--color-error);
+}
+
+/* 매입 확장 상세 패널 */
+.mypage-tradein-detail {
+  border-top: 1px solid var(--color-grey-100);
+  background: var(--color-grey-50);
+  padding: 14px 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.mypage-tradein-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mypage-tradein-detail-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-grey-400);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.mypage-tradein-detail-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-grey-800);
+}
+
+/* 거부 사유 영역 */
+.mypage-rejection-reason {
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: color-mix(in oklch, var(--color-error) 4%, white);
+  border: 1px solid color-mix(in oklch, var(--color-error) 12%, var(--color-grey-100));
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--color-error);
+  line-height: 1.5;
+}
+
+/* ============================================
+   EMPTY STATE — 마이페이지 전용
+   ============================================ */
+.mypage-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  text-align: center;
+}
+.mypage-empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-grey-100), var(--color-grey-50));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--color-grey-300);
+}
+.mypage-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-grey-600);
+  margin-bottom: 6px;
+}
+.mypage-empty-desc {
+  font-size: 13px;
+  color: var(--color-grey-400);
+  line-height: 1.5;
+  max-width: 260px;
+}
+
+/* ============================================
+   RESPONSIVE — Mobile optimizations
+   ============================================ */
+@media (max-width: 576px) {
+  .mypage-order-price {
+    font-size: 18px;
+  }
+  .mypage-tradein-price {
+    font-size: 17px;
+  }
+  .mypage-pin-section {
+    padding: 12px 14px;
+  }
+  .mypage-pin-value {
+    font-size: 12px;
+  }
+  .mypage-tradein-detail {
+    grid-template-columns: 1fr;
+    padding: 12px 14px;
+  }
+  .mypage-filter-chips {
+    gap: 4px;
+  }
+  .mypage-filter-chip {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+/* ============================================
+   MOTION — 카드 진입 애니메이션
+   ============================================ */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mypage-order-card,
+.mypage-tradein-card {
+  animation: cardSlideIn 0.3s ease-out both;
+}
+.mypage-order-card:nth-child(2),
+.mypage-tradein-card:nth-child(2) { animation-delay: 0.05s; }
+.mypage-order-card:nth-child(3),
+.mypage-tradein-card:nth-child(3) { animation-delay: 0.1s; }
+.mypage-order-card:nth-child(4),
+.mypage-tradein-card:nth-child(4) { animation-delay: 0.15s; }
+.mypage-order-card:nth-child(5),
+.mypage-tradein-card:nth-child(5) { animation-delay: 0.2s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mypage-order-card,
+  .mypage-tradein-card {
+    animation: none;
+  }
+}

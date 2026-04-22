@@ -1,0 +1,4568 @@
+basePath: /api/v1
+definitions:
+  internal_api_handlers.APIResponse:
+    properties:
+      data: {}
+      error:
+        type: string
+      errorId:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  internal_api_handlers.CartAddItemRequest:
+    properties:
+      productId:
+        type: integer
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - productId
+    - quantity
+    type: object
+  internal_api_handlers.CartBatchRemoveRequest:
+    properties:
+      productIds:
+        items:
+          type: integer
+        type: array
+    required:
+    - productIds
+    type: object
+  internal_api_handlers.CartUpdateQuantityRequest:
+    properties:
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - quantity
+    type: object
+  internal_api_handlers.CheckReceiverRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+    required:
+    - email
+    type: object
+  internal_api_handlers.CreateSiteConfigRequest:
+    properties:
+      description:
+        example: 일일 최대 구매 한도 (원)
+        type: string
+      key:
+        example: PURCHASE_LIMIT_DAILY
+        type: string
+      type:
+        example: NUMBER
+        type: string
+      value:
+        example: "1000000"
+        type: string
+    required:
+    - key
+    - type
+    - value
+    type: object
+  internal_api_handlers.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_api_handlers.PaymentConfirmRequest:
+    properties:
+      orderId:
+        type: integer
+      paymentKey:
+        type: string
+    required:
+    - orderId
+    - paymentKey
+    type: object
+  internal_api_handlers.UpdateSiteConfigRequest:
+    properties:
+      value:
+        example: "2000000"
+        type: string
+    required:
+    - value
+    type: object
+  w-gift-server_internal_app_services.BankVerifyConfirmRequest:
+    properties:
+      accountNumber:
+        type: string
+      bankCode:
+        type: string
+      verifyTrDt:
+        type: string
+      verifyTrNo:
+        type: string
+      verifyVal:
+        description: The 3-digit code
+        type: string
+    required:
+    - accountNumber
+    - bankCode
+    - verifyTrDt
+    - verifyTrNo
+    - verifyVal
+    type: object
+  w-gift-server_internal_app_services.BankVerifyRequest:
+    properties:
+      accountHolder:
+        type: string
+      accountNumber:
+        type: string
+      bankCode:
+        type: string
+      bankName:
+        type: string
+    required:
+    - accountHolder
+    - accountNumber
+    - bankCode
+    - bankName
+    type: object
+  w-gift-server_internal_app_services.CreateOrderInput:
+    properties:
+      items:
+        items:
+          properties:
+            productId:
+              type: integer
+            quantity:
+              minimum: 1
+              type: integer
+          required:
+          - productId
+          - quantity
+          type: object
+        type: array
+      paymentMethod:
+        type: string
+      recipientAddr:
+        type: string
+      recipientName:
+        type: string
+      recipientPhone:
+        type: string
+      recipientZip:
+        type: string
+      shippingMethod:
+        type: string
+    required:
+    - items
+    type: object
+  w-gift-server_internal_app_services.CreateTradeInInput:
+    properties:
+      accountHolder:
+        type: string
+      accountNum:
+        type: string
+      bankName:
+        type: string
+      giftNumber:
+        type: string
+      pinCode:
+        type: string
+      productId:
+        type: integer
+      quantity:
+        minimum: 1
+        type: integer
+      securityCode:
+        type: string
+    required:
+    - accountHolder
+    - accountNum
+    - bankName
+    - pinCode
+    - productId
+    - quantity
+    type: object
+  w-gift-server_internal_app_services.PaymentInitiateRequest:
+    properties:
+      amount:
+        type: number
+      method:
+        type: string
+      orderId:
+        type: integer
+    required:
+    - amount
+    - method
+    - orderId
+    type: object
+  w-gift-server_internal_domain.Brand:
+    properties:
+      code:
+        type: string
+      color:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      imageUrl:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+      order:
+        type: integer
+      pinConfig:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  w-gift-server_internal_domain.Event:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      endDate:
+        type: string
+      id:
+        type: integer
+      imageUrl:
+        type: string
+      isActive:
+        type: boolean
+      isFeatured:
+        type: boolean
+      startDate:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      viewCount:
+        type: integer
+    type: object
+  w-gift-server_internal_domain.Faq:
+    properties:
+      answer:
+        type: string
+      category:
+        type: string
+      createdAt:
+        type: string
+      helpfulCount:
+        type: integer
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      order:
+        type: integer
+      question:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  w-gift-server_internal_domain.Notice:
+    properties:
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      title:
+        type: string
+      updatedAt:
+        type: string
+      viewCount:
+        type: integer
+    type: object
+  w-gift-server_internal_domain.NumericDecimal:
+    properties:
+      decimal.Decimal:
+        type: number
+    type: object
+  w-gift-server_internal_domain.Product:
+    properties:
+      allowTradeIn:
+        type: boolean
+      brand:
+        $ref: '#/definitions/w-gift-server_internal_domain.Brand'
+      brandCode:
+        type: string
+      buyPrice:
+        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+      createdAt:
+        type: string
+      description:
+        type: string
+      discountRate:
+        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+      id:
+        type: integer
+      imageUrl:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+      price:
+        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+      shippingMethod:
+        type: string
+      tradeInRate:
+        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+      type:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  w-gift-server_internal_domain.User:
+    properties:
+      accountHolder:
+        type: string
+      accountNumber:
+        type: string
+      address:
+        type: string
+      addressDetail:
+        type: string
+      bankCode:
+        type: string
+      bankName:
+        type: string
+      bankVerifiedAt:
+        type: string
+      canReceiveGift:
+        type: boolean
+      createdAt:
+        type: string
+      customLimitPerDay:
+        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+      customLimitPerTx:
+        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+      email:
+        type: string
+      emailNotification:
+        type: boolean
+      failedLoginAttempts:
+        type: integer
+      id:
+        type: integer
+      kycData:
+        type: string
+      kycStatus:
+        type: string
+      lastLoginAt:
+        type: string
+      lockedUntil:
+        type: string
+      mfaEnabled:
+        type: boolean
+      name:
+        type: string
+      partnerSince:
+        type: string
+      partnerTier:
+        type: string
+      phone:
+        type: string
+      pushNotification:
+        type: boolean
+      role:
+        type: string
+      totalTradeInVolume:
+        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+      updatedAt:
+        type: string
+      verifyAttemptCount:
+        type: integer
+      zipCode:
+        type: string
+    type: object
+  w-gift-server_internal_domain.VoucherCode:
+    properties:
+      createdAt:
+        type: string
+      expiredAt:
+        type: string
+      giftNumber:
+        type: string
+      id:
+        type: integer
+      orderId:
+        type: integer
+      pinCode:
+        type: string
+      pinHash:
+        type: string
+      product:
+        $ref: '#/definitions/w-gift-server_internal_domain.Product'
+      productId:
+        type: integer
+      securityCode:
+        type: string
+      soldAt:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        type: string
+      usedAt:
+        type: string
+    type: object
+host: localhost:5140
+info:
+  contact: {}
+  description: 백화점 상품권 판매 및 매입 플랫폼 API
+  title: W기프트 API
+  version: "1.0"
+paths:
+  /admin/audit-logs:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 감사 로그 목록 조회
+      tags:
+      - Admin - Audit Logs
+  /admin/audit-logs/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 감사 로그 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 감사 로그 상세 조회
+      tags:
+      - Admin - Audit Logs
+  /admin/brands:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 브랜드 목록 조회
+      tags:
+      - Admin - Brands
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 브랜드 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.Brand'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 브랜드 생성
+      tags:
+      - Admin - Brands
+  /admin/brands/{code}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 브랜드 코드
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 브랜드 삭제
+      tags:
+      - Admin - Brands
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 브랜드 코드
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: 브랜드 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.Brand'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 브랜드 수정
+      tags:
+      - Admin - Brands
+  /admin/carts:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 전체 장바구니 목록 조회
+      tags:
+      - Admin - Carts
+  /admin/carts/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 장바구니 항목 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 장바구니 항목 삭제
+      tags:
+      - Admin - Carts
+  /admin/carts/user/{userId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 장바구니 조회
+      tags:
+      - Admin - Carts
+  /admin/carts/user/{userId}/all:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 장바구니 전체 비우기
+      tags:
+      - Admin - Carts
+  /admin/events:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 이벤트 목록 조회
+      tags:
+      - Admin - Events
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 이벤트 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.Event'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 이벤트 생성
+      tags:
+      - Admin - Events
+  /admin/events/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 이벤트 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 이벤트 삭제
+      tags:
+      - Admin - Events
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 이벤트 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 이벤트 상세 조회
+      tags:
+      - Admin - Events
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 이벤트 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 이벤트 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.Event'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 이벤트 수정
+      tags:
+      - Admin - Events
+  /admin/faqs:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: FAQ 목록 조회
+      tags:
+      - Admin - FAQs
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: FAQ 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.Faq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: FAQ 생성
+      tags:
+      - Admin - FAQs
+  /admin/faqs/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: FAQ ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: FAQ 삭제
+      tags:
+      - Admin - FAQs
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: FAQ ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: FAQ 상세 조회
+      tags:
+      - Admin - FAQs
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: FAQ ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: FAQ 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.Faq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: FAQ 수정
+      tags:
+      - Admin - FAQs
+  /admin/gifts:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 선물 목록 조회
+      tags:
+      - Admin - Gifts
+  /admin/gifts/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 선물 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 선물 상세 조회
+      tags:
+      - Admin - Gifts
+  /admin/gifts/stats:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 선물 통계 조회
+      tags:
+      - Admin - Gifts
+  /admin/inquiries:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 문의 목록 조회
+      tags:
+      - Admin - Inquiries
+  /admin/inquiries/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 문의 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 문의 삭제
+      tags:
+      - Admin - Inquiries
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 문의 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 문의 상세 조회
+      tags:
+      - Admin - Inquiries
+  /admin/inquiries/{id}/answer:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 문의 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 답변 내용
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 문의 답변 등록
+      tags:
+      - Admin - Inquiries
+  /admin/inquiries/{id}/close:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 문의 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 문의 종료 처리
+      tags:
+      - Admin - Inquiries
+  /admin/notices:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 공지사항 목록 조회
+      tags:
+      - Admin - Notices
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 공지사항 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.Notice'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 공지사항 생성
+      tags:
+      - Admin - Notices
+  /admin/notices/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 공지사항 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 공지사항 삭제
+      tags:
+      - Admin - Notices
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 공지사항 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 공지사항 상세 조회
+      tags:
+      - Admin - Notices
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 공지사항 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 공지사항 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.Notice'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 공지사항 수정
+      tags:
+      - Admin - Notices
+  /admin/orders:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      - description: 상태 필터
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 주문 목록 조회
+      tags:
+      - Admin - Orders
+  /admin/orders/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 주문 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 주문 상세 조회
+      tags:
+      - Admin - Orders
+  /admin/orders/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 주문 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 주문 상태
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 주문 상태 변경
+      tags:
+      - Admin - Orders
+  /admin/products:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 상품 목록 조회
+      tags:
+      - Admin - Products
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 상품 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 상품 생성
+      tags:
+      - Admin - Products
+  /admin/products/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 상품 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 상품 삭제
+      tags:
+      - Admin - Products
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 상품 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 상품 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 상품 수정
+      tags:
+      - Admin - Products
+  /admin/refunds:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 환불 목록 조회
+      tags:
+      - Admin - Refunds
+  /admin/refunds/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 환불 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 환불 상세 조회
+      tags:
+      - Admin - Refunds
+  /admin/refunds/{id}/approve:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 환불 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 환불 승인
+      tags:
+      - Admin - Refunds
+  /admin/refunds/{id}/reject:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 환불 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 환불 거부
+      tags:
+      - Admin - Refunds
+  /admin/reports/bank-transactions:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 은행 거래 내역 리포트 조회
+      tags:
+      - Admin - Reports
+  /admin/reports/trade-in-payouts:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 매입 지급 리포트 조회
+      tags:
+      - Admin - Reports
+  /admin/reports/user-transactions/{userId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 거래 내역 내보내기
+      tags:
+      - Admin - Reports
+  /admin/sessions:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 세션 목록 조회
+      tags:
+      - Admin - Sessions
+  /admin/sessions/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 세션 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 세션 삭제
+      tags:
+      - Admin - Sessions
+  /admin/sessions/user/{userId}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 세션 전체 삭제
+      tags:
+      - Admin - Sessions
+  /admin/site-configs:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 사이트 설정 목록 조회
+      tags:
+      - Admin - Site Config
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 설정 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.CreateSiteConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 사이트 설정 생성
+      tags:
+      - Admin - Site Config
+  /admin/site-configs/{id}:
+    delete:
+      parameters:
+      - description: 설정 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 사이트 설정 삭제
+      tags:
+      - Admin - Site Config
+    get:
+      parameters:
+      - description: 설정 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 사이트 설정 단건 조회
+      tags:
+      - Admin - Site Config
+  /admin/site-configs/{key}:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 설정 키
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: 변경할 값
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.UpdateSiteConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 사이트 설정 수정
+      tags:
+      - Admin - Site Config
+  /admin/stats:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 대시보드 통계 조회
+      tags:
+      - Admin - Users
+  /admin/trade-ins:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      - description: 상태 필터
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 매입 목록 조회
+      tags:
+      - Admin - Trade-Ins
+  /admin/trade-ins/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 매입 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 매입 상세 조회
+      tags:
+      - Admin - Trade-Ins
+  /admin/trade-ins/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 매입 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 상태 및 관리자 메모
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 매입 상태 변경
+      tags:
+      - Admin - Trade-Ins
+  /admin/users:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      - description: KYC 상태 필터
+        in: query
+        name: kycStatus
+        type: string
+      - description: 역할 필터
+        in: query
+        name: role
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 목록 조회
+      tags:
+      - Admin - Users
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 생성
+      tags:
+      - Admin - Users
+  /admin/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 삭제
+      tags:
+      - Admin - Users
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 상세 조회
+      tags:
+      - Admin - Users
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 회원 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 정보 수정
+      tags:
+      - Admin - Users
+  /admin/users/{id}/kyc:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: KYC 상태
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 KYC 상태 변경
+      tags:
+      - Admin - Users
+  /admin/users/{id}/password:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 새 비밀번호
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 비밀번호 초기화
+      tags:
+      - Admin - Users
+  /admin/users/{id}/role:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 역할 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 역할 변경
+      tags:
+      - Admin - Users
+  /admin/vouchers:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      - description: 상태 필터
+        in: query
+        name: status
+        type: string
+      - description: 상품 ID 필터
+        in: query
+        name: productId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 바우처 목록 조회
+      tags:
+      - Admin - Vouchers
+  /admin/vouchers/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 바우처 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 바우처 삭제
+      tags:
+      - Admin - Vouchers
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 바우처 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 바우처 상세 조회
+      tags:
+      - Admin - Vouchers
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 바우처 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 수정할 필드
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 바우처 수정
+      tags:
+      - Admin - Vouchers
+  /admin/vouchers/bulk:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 바우처 목록
+        in: body
+        name: body
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/w-gift-server_internal_domain.VoucherCode'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 바우처 일괄 업로드
+      tags:
+      - Admin - Vouchers
+  /admin/vouchers/inventory:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 바우처 재고 현황 조회
+      tags:
+      - Admin - Vouchers
+  /admin/vouchers/stock/{productId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 상품 ID
+        in: path
+        name: productId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 상품별 바우처 재고 수량 조회
+      tags:
+      - Admin - Vouchers
+  /auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 이메일 주소
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 비밀번호 재설정 토큰 발급
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 로그인 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 로그인
+      tags:
+      - Auth
+  /auth/login/mfa:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: MFA 토큰 및 TOTP 코드
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: MFA 2단계 로그인
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 로그아웃
+      tags:
+      - Auth
+  /auth/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 내 정보 조회
+      tags:
+      - Auth
+  /auth/mfa/disable:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 현재 TOTP 코드
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: MFA 비활성화
+      tags:
+      - MFA
+  /auth/mfa/setup:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: MFA 설정 (QR 코드 생성)
+      tags:
+      - MFA
+  /auth/mfa/status:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: MFA 활성화 상태 조회
+      tags:
+      - MFA
+  /auth/mfa/verify:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: TOTP 코드
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: MFA 활성화 (TOTP 코드 검증)
+      tags:
+      - MFA
+  /auth/password:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 기존/새 비밀번호
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 비밀번호 변경
+      tags:
+      - Auth
+  /auth/profile:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 수정할 프로필 필드 (key-value)
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 프로필 수정
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 토큰 갱신 (쿠키 기반)
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 회원가입 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_domain.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 회원가입
+      tags:
+      - Auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 이메일, 재설정 토큰, 새 비밀번호
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 비밀번호 재설정
+      tags:
+      - Auth
+  /auth/sessions:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 다른 모든 세션 삭제
+      tags:
+      - Auth
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 활성 세션 목록 조회
+      tags:
+      - Auth
+  /auth/sessions/{id}:
+    delete:
+      parameters:
+      - description: 세션 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 특정 세션 삭제
+      tags:
+      - Auth
+  /brands:
+    get:
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지당 항목 수
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 브랜드 목록 조회
+      tags:
+      - Brands
+  /brands/{code}:
+    get:
+      parameters:
+      - description: 브랜드 코드
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 브랜드 단건 조회
+      tags:
+      - Brands
+  /cart:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 장바구니 전체 비우기
+      tags:
+      - Cart
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 장바구니 조회
+      tags:
+      - Cart
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 추가할 상품 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.CartAddItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 장바구니에 상품 추가
+      tags:
+      - Cart
+  /cart/{id}:
+    delete:
+      parameters:
+      - description: 장바구니 항목 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 장바구니 상품 삭제
+      tags:
+      - Cart
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 장바구니 항목 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 변경할 수량
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.CartUpdateQuantityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 장바구니 상품 수량 변경
+      tags:
+      - Cart
+  /cart/batch:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 삭제할 상품 ID 목록
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.CartBatchRemoveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 장바구니 상품 일괄 삭제
+      tags:
+      - Cart
+  /cart/check-limit:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 장바구니 구매 한도 확인
+      tags:
+      - Cart
+  /events:
+    get:
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지당 항목 수
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 이벤트 목록 조회
+      tags:
+      - Events
+  /events/{id}:
+    get:
+      parameters:
+      - description: 이벤트 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 이벤트 단건 조회
+      tags:
+      - Events
+  /events/{id}/view:
+    patch:
+      parameters:
+      - description: 이벤트 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 이벤트 조회수 증가
+      tags:
+      - Events
+  /events/active:
+    get:
+      parameters:
+      - description: 이벤트 상태 필터
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 활성 이벤트 목록 조회
+      tags:
+      - Events
+  /events/featured:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 추천 이벤트 목록 조회
+      tags:
+      - Events
+  /faqs:
+    get:
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지당 항목 수
+        in: query
+        name: limit
+        type: integer
+      - description: 카테고리 필터
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: FAQ 목록 조회
+      tags:
+      - FAQs
+  /faqs/{id}:
+    get:
+      parameters:
+      - description: FAQ ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: FAQ 단건 조회
+      tags:
+      - FAQs
+  /faqs/{id}/helpful:
+    patch:
+      parameters:
+      - description: FAQ ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: FAQ 도움됨 수 증가
+      tags:
+      - FAQs
+  /faqs/active:
+    get:
+      parameters:
+      - description: 카테고리 필터
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 활성 FAQ 목록 조회
+      tags:
+      - FAQs
+  /faqs/categories:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: FAQ 카테고리 목록 조회
+      tags:
+      - FAQs
+  /gifts/{id}/claim:
+    post:
+      parameters:
+      - description: 선물 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 선물 수령
+      tags:
+      - Gifts
+  /gifts/check-receiver:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 수신자 이메일
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.CheckReceiverRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 선물 수신자 확인
+      tags:
+      - Gifts
+  /gifts/received:
+    get:
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 받은 선물 목록 조회
+      tags:
+      - Gifts
+  /gifts/search:
+    get:
+      parameters:
+      - description: 이름 또는 이메일 검색어 (최소 3자)
+        in: query
+        name: query
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 선물 수신자 검색
+      tags:
+      - Gifts
+  /health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 서버 상태 확인
+      tags:
+      - Health
+  /inquiries:
+    get:
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지당 항목 수
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 내 문의 목록 조회
+      tags:
+      - Inquiries
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 문의 내용 (category, subject, content 필수)
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 문의 등록
+      tags:
+      - Inquiries
+  /inquiries/{id}:
+    delete:
+      parameters:
+      - description: 문의 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 문의 삭제
+      tags:
+      - Inquiries
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 문의 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 수정할 문의 내용
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 문의 수정
+      tags:
+      - Inquiries
+  /kyc/bank-account:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 등록된 계좌 조회
+      tags:
+      - KYC
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 인증 거래번호 및 인증어
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 계좌 변경
+      tags:
+      - KYC
+  /kyc/bank-verify/confirm:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 인증 확인 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_app_services.BankVerifyConfirmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 1원 인증 확인
+      tags:
+      - KYC
+  /kyc/bank-verify/request:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 은행 계좌 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_app_services.BankVerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 1원 인증 요청
+      tags:
+      - KYC
+  /kyc/kcb/check-status:
+    get:
+      parameters:
+      - description: KCB 인증 ID
+        in: query
+        name: kcbAuthId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: KCB 인증 상태 조회
+      tags:
+      - KCB
+  /kyc/kcb/complete:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: KCB 인증 결과 데이터
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: KCB 본인인증 완료
+      tags:
+      - KCB
+  /kyc/kcb/start:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: KCB 본인인증 세션 시작
+      tags:
+      - KCB
+  /kyc/verify-sms:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 휴대폰 번호
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: SMS 본인인증 처리
+      tags:
+      - KYC
+  /notices:
+    get:
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지당 항목 수
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 공지사항 목록 조회
+      tags:
+      - Notices
+  /notices/{id}:
+    get:
+      parameters:
+      - description: 공지사항 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 공지사항 단건 조회
+      tags:
+      - Notices
+  /notices/{id}/view:
+    patch:
+      parameters:
+      - description: 공지사항 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 공지사항 조회수 증가
+      tags:
+      - Notices
+  /notices/active:
+    get:
+      parameters:
+      - default: 5
+        description: 조회 개수
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 활성 공지사항 목록 조회
+      tags:
+      - Notices
+  /orders:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 주문 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_app_services.CreateOrderInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 주문 생성
+      tags:
+      - Orders
+  /orders/{id}:
+    get:
+      parameters:
+      - description: 주문 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 주문 상세 조회
+      tags:
+      - Orders
+  /orders/{id}/cancel:
+    post:
+      parameters:
+      - description: 주문 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 주문 취소
+      tags:
+      - Orders
+  /orders/my:
+    get:
+      parameters:
+      - default: 1
+        description: 페이지
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 페이지당 항목 수
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 내 주문 목록 조회
+      tags:
+      - Orders
+  /orders/my-gifts:
+    get:
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지 크기
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 받은 선물 목록 조회
+      tags:
+      - Gifts
+  /orders/my/bank-submission:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 내 계좌 제출 내역 조회
+      tags:
+      - Orders
+  /orders/my/export:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 내 주문 내보내기
+      tags:
+      - Orders
+  /orders/payment/confirm:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 결제 확인 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_api_handlers.PaymentConfirmRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 결제 확인 및 주문 처리
+      tags:
+      - Orders
+  /payments/initiate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 결제 요청 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_app_services.PaymentInitiateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 결제 시작
+      tags:
+      - Payments
+  /payments/verify:
+    get:
+      parameters:
+      - description: 결제 키
+        in: query
+        name: paymentKey
+        required: true
+        type: string
+      - description: 주문 ID
+        in: query
+        name: orderId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 결제 검증
+      tags:
+      - Payments
+  /products:
+    get:
+      parameters:
+      - default: 1
+        description: 페이지 번호
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: 페이지당 항목 수
+        in: query
+        name: limit
+        type: integer
+      - description: 브랜드 필터
+        in: query
+        name: brand
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 상품 목록 조회
+      tags:
+      - Products
+  /products/{id}:
+    get:
+      parameters:
+      - description: 상품 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 상품 단건 조회
+      tags:
+      - Products
+  /products/brand/{brand}:
+    get:
+      parameters:
+      - description: 브랜드 코드
+        in: path
+        name: brand
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 브랜드별 상품 목록 조회
+      tags:
+      - Products
+  /products/live-rates:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      summary: 실시간 상품 할인율 조회
+      tags:
+      - Products
+  /trade-ins:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 매입 신청 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/w-gift-server_internal_app_services.CreateTradeInInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 매입 신청
+      tags:
+      - Trade-Ins
+  /trade-ins/{id}:
+    get:
+      parameters:
+      - description: 매입 신청 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 매입 신청 상세 조회
+      tags:
+      - Trade-Ins
+  /trade-ins/my:
+    get:
+      parameters:
+      - default: 1
+        description: 페이지
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 페이지당 항목 수
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 내 매입 신청 목록 조회
+      tags:
+      - Trade-Ins
+  /users/me:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 비밀번호 확인
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api_handlers.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: 회원 탈퇴
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    description: Bearer {access_token}
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

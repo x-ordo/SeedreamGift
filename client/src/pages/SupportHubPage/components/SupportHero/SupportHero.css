@@ -1,0 +1,83 @@
+/**
+ * @file SupportHero.css
+ * @description 고객지원 히어로 섹션 스타일
+ * @design Swift Trust Design System - 신뢰감 있는 비주얼
+ */
+
+.support-hero {
+  background: var(--gradient-primary);
+  padding: var(--space-10, 40px) var(--space-4) var(--space-8, 32px);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(49, 130, 246, 0.08);
+}
+
+.support-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, var(--color-white-opacity-10) 0%, transparent 60%);
+  animation: heroGlow 15s ease-in-out infinite;
+}
+
+@keyframes heroGlow {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(10%, 10%); }
+}
+
+.support-hero__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.support-hero__title {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-inverse);
+  margin: 0 0 var(--space-2);
+  letter-spacing: -0.5px;
+  line-height: 1.3;
+}
+
+.support-hero__subtitle {
+  font-size: var(--text-body-lg);
+  color: var(--color-white-opacity-80);
+  margin: 0;
+  line-height: var(--text-line-height);
+}
+
+/* 반응형 */
+
+/* < 480px: 최소 패딩 */
+@media (max-width: 575px) {
+  .support-hero {
+    padding: var(--space-10) var(--space-3) var(--space-8);
+  }
+}
+
+/* >= 768px: 히어로 패딩 확대 */
+@media (min-width: 768px) {
+  .support-hero {
+    padding: var(--space-10, 40px) var(--space-6) var(--space-8, 32px);
+  }
+}
+
+/* >= 1024px: 최대 여유 패딩 */
+@media (min-width: 1024px) {
+  .support-hero {
+    padding: var(--space-12, 48px) var(--space-8) var(--space-10, 40px);
+  }
+}
+
+/* Reduced motion 지원 */
+@media (prefers-reduced-motion: reduce) {
+  .support-hero::before {
+    animation: none;
+  }
+}

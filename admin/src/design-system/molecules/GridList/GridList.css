@@ -1,0 +1,152 @@
+/**
+ * GridList Component Styles
+ * Toss-style grid layout
+ */
+
+.grid-list {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0 24px;
+}
+
+/* Column variants — responsive with auto-fit fallback on small screens */
+.grid-list--column-1 {
+  grid-template-columns: 1fr;
+}
+
+.grid-list--column-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-list--column-3 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 576px) {
+  .grid-list--column-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* No padding variant */
+.grid-list--no-padding {
+  padding: 0;
+}
+
+/* Grid Item */
+.grid-list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  padding: 12px;
+  background: var(--color-surface-default);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.grid-list-item:active {
+  background: var(--color-grey-100);
+  transform: scale(1.02);
+  /* Magnification effect for user feedback */
+}
+
+.grid-list-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Item with border */
+.grid-list--bordered .grid-list-item {
+  border: 1px solid var(--color-grey-100);
+}
+
+/* Item image */
+.grid-list-item__image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: 40px;
+  max-width: 100%;
+  margin-bottom: var(--space-2, 8px);
+}
+
+.grid-list-item__image img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-md, 14px);
+}
+
+/* Item icon */
+.grid-list-item__icon {
+  font-size: 24px;
+  margin-bottom: var(--space-2);
+  color: var(--color-grey-700);
+}
+
+.grid-list-item__icon--colored {
+  color: var(--color-primary);
+}
+
+/* Item label */
+.grid-list-item__label {
+  font-size: var(--text-caption);
+  color: var(--color-grey-700);
+  text-align: center;
+  line-height: 1.4;
+  word-break: keep-all;
+  display: block;
+  /* Ensure it behaves like a paragraph container */
+  margin: 0;
+}
+
+/* Selected state */
+.grid-list-item--selected {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.grid-list-item--selected .grid-list-item__icon,
+.grid-list-item--selected .grid-list-item__label {
+  color: var(--color-primary);
+}
+
+/* Disabled state */
+.grid-list-item--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Size variants */
+.grid-list--compact .grid-list-item {
+  min-height: 56px;
+  padding: 8px;
+}
+
+.grid-list--large .grid-list-item {
+  min-height: 96px;
+  padding: 16px;
+}
+
+.grid-list--large .grid-list-item__icon {
+  font-size: 32px;
+}
+
+.grid-list--large .grid-list-item__image {
+  max-height: 56px;
+  margin-bottom: var(--space-3, 12px);
+}
+
+.grid-list--large .grid-list-item__label {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-list-item {
+    transition: none;
+  }
+}

@@ -1,0 +1,101 @@
+/**
+ * SegmentedControl — TDS Style
+ * 토스 SegmentedControl 디자인 재현
+ */
+
+.segmented-control {
+  display: inline-flex;
+  background: var(--color-grey-100);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 2px;
+  width: 100%;
+}
+
+/* Item */
+.segmented-control__item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: calc(var(--radius-sm) - 2px);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-500);
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              box-shadow var(--transition-fast);
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+}
+
+.segmented-control__item:hover:not(:disabled):not(.segmented-control__item--selected) {
+  color: var(--color-grey-700);
+}
+
+.segmented-control__item--selected {
+  background: white;
+  color: var(--color-grey-900);
+  font-weight: var(--font-weight-bold);
+  box-shadow: 0 1px 3px rgba(49, 130, 246, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.segmented-control__item--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.segmented-control__item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: var(--a11y-focus-ring-shadow);
+}
+
+.segmented-control__label {
+  position: relative;
+  z-index: 1;
+}
+
+/* Size: sm */
+.segmented-control--sm {
+  height: 36px;
+  border-radius: var(--radius-sm);
+}
+
+.segmented-control--sm .segmented-control__item {
+  font-size: var(--text-caption);
+  padding: 0 var(--space-3);
+}
+
+/* Size: lg */
+.segmented-control--lg {
+  height: 44px;
+  border-radius: var(--radius-md);
+}
+
+.segmented-control--lg .segmented-control__item {
+  font-size: var(--text-body);
+  padding: 0 var(--space-4);
+  border-radius: calc(var(--radius-md) - 2px);
+}
+
+/* Touch target */
+@media (hover: none) and (pointer: coarse) {
+  .segmented-control--sm {
+    height: 40px;
+  }
+
+  .segmented-control--lg {
+    height: 48px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .segmented-control__item {
+    transition: none;
+  }
+}

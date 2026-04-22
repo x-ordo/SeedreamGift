@@ -1,0 +1,302 @@
+/**
+ * ListHeader Component Styles
+ * Toss Design System 스타일의 리스트 헤더
+ */
+
+/* =====================================================
+   Typography Scale (t4~t7)
+   ===================================================== */
+.list-header-typography-t4 {
+  font-size: var(--text-title, 20px);
+  line-height: 1.4;
+}
+
+.list-header-typography-t5 {
+  font-size: var(--text-body-lg, 16px);
+  line-height: 1.5;
+}
+
+.list-header-typography-t6 {
+  font-size: var(--text-body, 14px);
+  line-height: 1.5;
+}
+
+.list-header-typography-t7 {
+  font-size: var(--text-caption, 12px);
+  line-height: 1.5;
+}
+
+/* =====================================================
+   Font Weights
+   ===================================================== */
+.list-header-weight-regular {
+  font-weight: var(--font-weight-regular);
+}
+
+.list-header-weight-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.list-header-weight-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+/* =====================================================
+   Text Button Sizes
+   ===================================================== */
+.list-header-size-xsmall {
+  font-size: var(--text-caption, 12px);
+}
+
+.list-header-size-medium {
+  font-size: var(--text-body, 14px);
+}
+
+.list-header-size-large {
+  font-size: var(--text-body-lg, 16px);
+}
+
+/* =====================================================
+   Main Container
+   ===================================================== */
+.list-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3, 12px);
+  width: 100%;
+}
+
+.list-header--right-align-center {
+  align-items: center;
+}
+
+.list-header--right-align-bottom {
+  align-items: flex-end;
+}
+
+/* =====================================================
+   Left Section (Title + Description)
+   ===================================================== */
+.list-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 4px);
+  min-width: 0;
+  flex: 1;
+}
+
+.list-header__title {
+  display: flex;
+  align-items: center;
+}
+
+.list-header__description-wrap {
+  order: -1; /* description top by default */
+}
+
+.list-header__description-wrap--bottom {
+  order: 1;
+}
+
+/* =====================================================
+   Right Section
+   ===================================================== */
+.list-header__right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* =====================================================
+   TitleParagraph
+   ===================================================== */
+.list-header-title-paragraph {
+  display: inline-block;
+  margin: 0;
+}
+
+/* =====================================================
+   TitleTextButton
+   ===================================================== */
+.list-header-title-text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast) ease;
+}
+
+.list-header-title-text-button:hover {
+  opacity: 0.7;
+}
+
+.list-header-title-text-button:active {
+  opacity: 0.5;
+}
+
+.list-header-title-text-button__text {
+  display: inline-block;
+}
+
+.list-header-title-text-button__arrow {
+  font-size: 0.85em;
+  transition: transform var(--transition-fast) ease;
+}
+
+.list-header-title-text-button:hover .list-header-title-text-button__arrow {
+  transform: translateX(2px);
+}
+
+/* Variant: underline */
+.list-header-variant-underline .list-header-title-text-button__text {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Variant: clear */
+.list-header-variant-clear .list-header-title-text-button__text {
+  text-decoration: none;
+}
+
+/* Variant: arrow */
+.list-header-variant-arrow .list-header-title-text-button__text {
+  text-decoration: none;
+}
+
+/* =====================================================
+   TitleSelector
+   ===================================================== */
+.list-header-title-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast) ease;
+}
+
+.list-header-title-selector:hover {
+  opacity: 0.7;
+}
+
+.list-header-title-selector:active {
+  opacity: 0.5;
+}
+
+.list-header-title-selector__text {
+  display: inline-block;
+}
+
+.list-header-title-selector__icon {
+  font-size: 0.8em;
+  transition: transform var(--transition-normal) ease;
+}
+
+.list-header-title-selector:hover .list-header-title-selector__icon {
+  transform: translateY(1px);
+}
+
+/* =====================================================
+   DescriptionParagraph
+   ===================================================== */
+.list-header-description {
+  display: inline-block;
+  font-size: var(--text-caption, 12px);
+  line-height: 1.5;
+}
+
+/* =====================================================
+   RightText
+   ===================================================== */
+.list-header-right-text {
+  display: inline-block;
+}
+
+/* =====================================================
+   RightArrow
+   ===================================================== */
+.list-header-right-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+}
+
+.list-header-right-arrow--clickable {
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast) ease;
+}
+
+.list-header-right-arrow--clickable:hover {
+  opacity: 0.7;
+}
+
+.list-header-right-arrow--clickable:active {
+  opacity: 0.5;
+}
+
+.list-header-right-arrow__text {
+  display: inline-block;
+}
+
+.list-header-right-arrow__icon {
+  font-size: 0.9em;
+  transition: transform var(--transition-fast) ease;
+}
+
+.list-header-right-arrow--clickable:hover .list-header-right-arrow__icon {
+  transform: translateX(2px);
+}
+
+/* =====================================================
+   Responsive
+   ===================================================== */
+@media (max-width: 480px) {
+  .list-header {
+    gap: var(--space-2, 8px);
+  }
+
+  .list-header-typography-t4 {
+    font-size: var(--text-body-lg, 16px);
+  }
+
+  .list-header-typography-t5 {
+    font-size: var(--text-body, 14px);
+  }
+}
+
+/* =====================================================
+   Focus States (Accessibility)
+   ===================================================== */
+.list-header-title-text-button:focus-visible,
+.list-header-title-selector:focus-visible,
+.list-header-right-arrow--clickable:focus-visible {
+  outline: 2px solid var(--color-primary, #3182F6);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 8px);
+}
+
+/* =====================================================
+   Reduced Motion
+   ===================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .list-header-title-text-button,
+  .list-header-title-text-button__arrow,
+  .list-header-title-selector,
+  .list-header-title-selector__icon,
+  .list-header-right-arrow--clickable,
+  .list-header-right-arrow__icon {
+    transition: none;
+  }
+}

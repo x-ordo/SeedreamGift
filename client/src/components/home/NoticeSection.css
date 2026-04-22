@@ -1,0 +1,119 @@
+/**
+ * NoticeSection Component Styles
+ * Toss TableRow 스타일 적용 - Design Tokens Applied
+ */
+
+.notice-section {
+  /* spacing handled by parent .home-main flex gap */
+}
+
+/* 테이블 컨테이너 */
+.notice-table {
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in oklch, var(--color-primary) 6%, var(--color-grey-100));
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(49, 130, 246, 0.03), 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: box-shadow var(--transition-normal) var(--transition-ease-out);
+}
+
+.notice-table:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* 공지 행 */
+.notice-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4) var(--space-6);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-grey-50);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast) var(--transition-ease-out);
+}
+
+.notice-row:last-child {
+  border-bottom: none;
+}
+
+.notice-row:hover {
+  background: var(--color-grey-50);
+}
+
+.notice-row:active {
+  transform: scale(0.995);
+}
+
+/* 왼쪽: 뱃지 + 제목 */
+.notice-row-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+}
+
+/* 뱃지 */
+.notice-badge {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  font-size: var(--text-tiny);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-xs);
+  letter-spacing: -0.02em;
+}
+
+.notice-badge-important {
+  background: var(--color-red-50);
+  color: var(--color-error);
+}
+
+.notice-badge-new {
+  background: var(--color-blue-50);
+  color: var(--color-primary);
+}
+
+/* 제목 */
+.notice-title {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 날짜 */
+.notice-date {
+  flex-shrink: 0;
+  font-size: var(--text-tiny);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-tertiary);
+  font-family: var(--font-family-numeric);
+}
+
+/* 모바일 최적화 */
+@media (max-width: 575px) {
+  .notice-row {
+    padding: var(--space-3);
+  }
+
+  .notice-title {
+    font-size: var(--text-caption);
+  }
+
+  .notice-date {
+    font-size: var(--text-small);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notice-row {
+    transition: none;
+  }
+}

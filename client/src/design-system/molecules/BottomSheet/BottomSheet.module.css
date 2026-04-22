@@ -1,0 +1,106 @@
+/* BottomSheet.module.css */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 11000);
+  background: var(--color-surface-overlay);
+  animation: bsOverlayFadeIn var(--transition-normal) ease;
+  will-change: opacity;
+}
+
+@keyframes bsOverlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-surface-default, #fff);
+  border-radius: 20px 20px 0 0;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: var(--z-modal, 11000);
+  box-shadow: 0 -12px 40px rgba(49, 130, 246, 0.08), 0 -4px 16px rgba(0, 0, 0, 0.04);
+  will-change: transform;
+}
+
+.dragHandle {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-3, 12px) 0 var(--space-1, 4px);
+  cursor: grab;
+  touch-action: none;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragHandleBar {
+  width: 36px;
+  height: 5px;
+  background: var(--color-grey-200);
+  border-radius: 3px;
+}
+
+.header {
+  padding: var(--space-3, 12px) var(--space-5, 20px) 0;
+}
+
+.headerTitle {
+  font-size: var(--text-title, 18px);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900, #191f28);
+  margin: 0;
+}
+
+.headerDescription {
+  padding: var(--space-1, 4px) var(--space-5, 20px) var(--space-3, 12px);
+  font-size: var(--text-caption, 12px);
+  color: var(--color-grey-500, #8b95a1);
+  margin: 0;
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--space-5, 20px);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  touch-action: pan-y;
+}
+
+.footer {
+  padding: var(--space-4, 16px) var(--space-5, 20px);
+  padding-bottom: max(var(--space-4, 16px), env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-grey-200, #e5e8eb);
+}
+
+.doubleCTA {
+  display: flex;
+  gap: var(--space-3, 12px);
+}
+
+.doubleCTA > * {
+  flex: 1;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    animation: none;
+    will-change: auto;
+  }
+
+  .sheet {
+    animation: none;
+    will-change: auto;
+  }
+}

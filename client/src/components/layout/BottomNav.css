@@ -1,0 +1,155 @@
+/**
+ * @file BottomNav.css
+ * @description 모바일 전용 하단 탭 네비게이션 스타일
+ * @module components/layout
+ */
+
+/* =====================================================
+   하단 네비게이션 바 (모바일 768px 미만에서만 표시)
+   ===================================================== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-nav-height);
+  background: white;
+  border-top: 1px solid color-mix(in oklch, var(--color-primary) 6%, var(--color-grey-200));
+  display: flex;
+  align-items: stretch;
+  z-index: var(--z-sticky);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Fixed CTA와 중첩 방지: 화면에 고정 CTA가 있으면 BottomNav를 숨김 */
+.layout-root:has(.bottom-cta--fixed) .bottom-nav {
+  display: none !important;
+}
+
+/* JS fallback: CSS :has() 미지원 브라우저용 (MutationObserver가 토글) */
+.bottom-nav--hidden-by-cta {
+  display: none !important;
+}
+
+/* 768px 이상에서 숨김 */
+@media (min-width: 768px) {
+  .bottom-nav {
+    display: none;
+  }
+}
+
+/* =====================================================
+   개별 탭 아이템
+   ===================================================== */
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  text-decoration: none;
+  color: var(--color-grey-500);
+  transition: color 150ms ease, transform 100ms ease;
+  -webkit-tap-highlight-color: rgba(49, 130, 246, 0.08);
+  user-select: none;
+}
+
+.bottom-nav-item i {
+  font-size: var(--text-title);
+  line-height: 1;
+}
+
+.bottom-nav-item span:not(.bottom-nav-badge):not(.bottom-nav-icon-wrap) {
+  font-size: var(--text-tiny);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.2px;
+}
+
+/* 아이콘 기본 선 두께 (CSS overrides SVG stroke-width attribute) */
+.bottom-nav-item svg {
+  stroke-width: 1.5;
+  transition: stroke-width 150ms ease;
+}
+
+/* 활성 인디케이터 (항상 존재, opacity/scale로 표시 전환) */
+.bottom-nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  transition: opacity 150ms ease, transform 150ms ease;
+  opacity: 0;
+  transform: translateX(-50%) scale(0);
+}
+
+/* 활성 상태 */
+.bottom-nav-item.active {
+  color: var(--color-primary);
+  position: relative;
+}
+
+.bottom-nav-item.active::before {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.bottom-nav-item.active svg {
+  stroke-width: 2.5;
+}
+
+/* 눌림 효과 (터치 피드백) - focus-visible 제외 */
+.bottom-nav-item:active:not(:focus-visible) {
+  transform: scale(0.95);
+  transition: transform 100ms ease;
+}
+
+/* 키보드 포커스 링 */
+.bottom-nav-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+/* =====================================================
+   장바구니 수량 배지
+   ===================================================== */
+.bottom-nav-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--color-primary);
+  color: white;
+  font-size: var(--text-tiny);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav-item,
+  .bottom-nav-item svg {
+    transition: none;
+  }
+
+  .bottom-nav-item::before {
+    transition: none;
+  }
+}

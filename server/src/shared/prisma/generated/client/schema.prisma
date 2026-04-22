@@ -1,0 +1,529 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/shared/prisma/generated/client"
+}
+
+datasource db {
+  provider = "sqlserver"
+}
+
+// ============================================
+//  User — 회원
+// ============================================
+model User {
+  id                   Int       @id @default(autoincrement()) @map("Id")
+  email                String    @unique @map("Email") @db.VarChar(100)
+  password             String    @map("Password") @db.VarChar(60)
+  name                 String?   @map("Name") @db.NVarChar(50)
+  phone                String?   @unique @map("Phone") @db.VarChar(15)
+  zipCode              String    @default("") @map("ZipCode") @db.VarChar(5)
+  address              String    @default("") @map("Address") @db.NVarChar(200)
+  addressDetail        String    @default("") @map("AddressDetail") @db.NVarChar(200)
+  role                 String    @default("USER") @map("Role") @db.VarChar(10)
+  kycStatus            String    @default("NONE") @map("KycStatus") @db.VarChar(10)
+  kycData              String?   @map("KycData") @db.NVarChar(1000) // AES-256 encrypted JSON — needs ~2x plaintext size
+  canReceiveGift       Boolean   @default(false) @map("CanReceiveGift")
+  customLimitPerTx     Decimal?  @map("CustomLimitPerTx") @db.Decimal(12, 0)
+  customLimitPerDay    Decimal?  @map("CustomLimitPerDay") @db.Decimal(12, 0)
+  emailNotification    Boolean   @default(true) @map("EmailNotification")
+  pushNotification     Boolean   @default(true) @map("PushNotification")
+  partnerTier          String?   @map("PartnerTier") @db.VarChar(10)
+  totalTradeInVolume   Decimal?  @map("TotalTradeInVolume") @db.Decimal(12, 0)
+  partnerSince         DateTime? @map("PartnerSince")
+  bankName             String?   @map("BankName") @db.NVarChar(15)
+  bankCode             String?   @map("BankCode") @db.VarChar(4)
+  accountNumber        String?   @map("AccountNumber") @db.VarChar(100)
+  accountHolder        String?   @map("AccountHolder") @db.NVarChar(15)
+  bankVerifiedAt       DateTime? @map("BankVerifiedAt")
+  verifyAttemptCount   Int       @default(0) @map("VerifyAttemptCount") @db.TinyInt
+  failedLoginAttempts  Int       @default(0) @map("FailedLoginAttempts") @db.TinyInt
+  lockedUntil          DateTime? @map("LockedUntil")
+  lastLoginAt          DateTime? @map("LastLoginAt")
+  passwordResetToken   String?   @map("PasswordResetToken") @db.VarChar(64)
+  passwordResetExpiry  DateTime? @map("PasswordResetExpiry")
+  mfaEnabled           Boolean   @default(false) @map("MfaEnabled")
+  totpSecret           String?   @map("TotpSecret") @db.VarChar(200) // AES-256 encrypted TOTP secret
+  kycVerifiedBy        String?   @map("KycVerifiedBy") @db.VarChar(15)
+  kycVerifiedByAdminId Int?      @map("KycVerifiedByAdminId")
+  createdAt            DateTime  @default(now()) @map("CreatedAt")
+  updatedAt            DateTime  @updatedAt @map("UpdatedAt")
+  deletedAt            DateTime? @map("DeletedAt")
+
+  orders            Order[]
+  tradeIns          TradeIn[]
+  cart              CartItem[]
+  refreshTokens     RefreshToken[]
+  sentGifts         Gift[]         @relation("SentGifts")
+  receivedGifts     Gift[]         @relation("ReceivedGifts")
+  auditLogs         AuditLog[]
+  inquiries         Inquiry[]
+  answeredInquiries Inquiry[]      @relation("InquiryAnswerer")
+
+  @@index([role], map: "IX_Users_Role")
+  @@index([kycStatus], map: "IX_Users_KycStatus")
+  @@index([deletedAt], map: "IX_Users_DeletedAt")
+  @@index([canReceiveGift, role], map: "IX_Users_CanReceiveGift_Role")
+  @@map("Users")
+}
+
+// ============================================
+//  RefreshToken — JWT 리프레시 토큰
+// ============================================
+model RefreshToken {
+  id        Int      @id @default(autoincrement()) @map("Id")
+  token     String   @map("Token") @db.VarChar(400)
+  userId    Int      @map("UserId")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("ExpiresAt")
+  userAgent String?  @map("UserAgent") @db.VarChar(256)
+  ipAddress String?  @map("IpAddress") @db.VarChar(45)
+  createdAt DateTime @default(now()) @map("CreatedAt")
+
+  @@unique([token], map: "UQ_RefreshTokens_Token")
+  @@index([userId], map: "IX_RefreshTokens_UserId")
+  @@index([expiresAt], map: "IX_RefreshTokens_ExpiresAt")
+  @@map("RefreshTokens")
+}
+
+// ============================================
+//  Brand — 브랜드 마스터
+// ============================================
+model Brand {
+  code        String    @id @map("Code") @db.VarChar(20)
+  name        String    @unique @map("Name") @db.NVarChar(20)
+  color       String?   @map("Color") @db.VarChar(7)
+  order       Int       @default(99) @map("Order") @db.SmallInt
+  description String?   @map("Description") @db.NVarChar(100)
+  imageUrl    String?   @map("ImageUrl") @db.VarChar(300)
+  isActive    Boolean   @default(true) @map("IsActive")
+  pinConfig   String?   @map("PinConfig") @db.VarChar(300)
+  createdAt   DateTime  @default(now()) @map("CreatedAt")
+  updatedAt   DateTime  @updatedAt @map("UpdatedAt")
+  deletedAt   DateTime? @map("DeletedAt")
+
+  products Product[]
+
+  @@map("Brands")
+}
+
+// ============================================
+//  Product — 상품 (상품권 권종)
+// ============================================
+model Product {
+  id           Int     @id @default(autoincrement()) @map("Id")
+  brandCode    String  @map("BrandCode") @db.VarChar(20)
+  brandRel     Brand?  @relation(fields: [brandCode], references: [code], onDelete: NoAction, onUpdate: Cascade)
+  name         String  @map("Name") @db.NVarChar(30)
+  description  String? @map("Description") @db.NVarChar(200)
+  price        Decimal @map("Price") @db.Decimal(10, 0)
+  discountRate Decimal @default(0) @map("DiscountRate") @db.Decimal(5, 2)
+  buyPrice     Decimal @map("BuyPrice") @db.Decimal(10, 0)
+  tradeInRate  Decimal @default(0) @map("TradeInRate") @db.Decimal(5, 2)
+  allowTradeIn Boolean @default(false) @map("AllowTradeIn")
+  imageUrl     String? @map("ImageUrl") @db.VarChar(300)
+
+  isActive       Boolean   @default(true) @map("IsActive")
+  type           String    @default("PHYSICAL") @map("Type") @db.VarChar(10) // PHYSICAL, DIGITAL, ENVELOPE
+  shippingMethod String    @default("DELIVERY") @map("ShippingMethod") @db.VarChar(10) // NONE, DELIVERY, PICKUP, BOTH
+  createdAt      DateTime  @default(now()) @map("CreatedAt")
+  updatedAt      DateTime  @updatedAt @map("UpdatedAt")
+  deletedAt      DateTime? @map("DeletedAt")
+
+  orderItems   OrderItem[]
+  cartItems    CartItem[]
+  voucherCodes VoucherCode[]
+  tradeIns     TradeIn[]
+
+  @@index([isActive], map: "IX_Products_IsActive")
+  @@index([brandCode, isActive], map: "IX_Products_BrandCode_IsActive")
+  @@index([brandCode, isActive, deletedAt], map: "IX_Products_BrandCode_Active_Deleted")
+  @@index([isActive, price], map: "IX_Products_IsActive_Price")
+  @@map("Products")
+}
+
+// ============================================
+//  VoucherCode — PIN 재고
+// ============================================
+model VoucherCode {
+  id           Int       @id @default(autoincrement()) @map("Id")
+  productId    Int       @map("ProductId")
+  product      Product   @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  pinCode      String    @map("PinCode") @db.VarChar(100)
+  pinHash      String    @unique @map("PinHash") @db.VarChar(64)
+  status       String    @default("AVAILABLE") @map("Status") @db.VarChar(10)
+  securityCode String?   @map("SecurityCode") @db.VarChar(100)
+  giftNumber   String?   @map("GiftNumber") @db.VarChar(100)
+  orderId      Int?      @map("OrderId")
+  order        Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  soldAt       DateTime? @map("SoldAt")
+  usedAt       DateTime? @map("UsedAt")
+  expiredAt    DateTime? @map("ExpiredAt")
+  createdAt    DateTime  @default(now()) @map("CreatedAt")
+  updatedAt    DateTime  @updatedAt @map("UpdatedAt")
+
+  @@index([productId, status], map: "IX_VoucherCodes_ProductId_Status")
+  @@index([productId, status, id], map: "IX_VoucherCodes_ProductId_Status_Id")
+  @@index([orderId], map: "IX_VoucherCodes_OrderId")
+  @@index([status], map: "IX_VoucherCodes_Status")
+  @@map("VoucherCodes")
+}
+
+// ============================================
+//  Order — 주문
+// ============================================
+model Order {
+  id            Int     @id @default(autoincrement()) @map("Id")
+  orderCode     String? @map("OrderCode") @db.VarChar(20)
+  userId        Int     @map("UserId")
+  user          User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  totalAmount   Decimal @map("TotalAmount") @db.Decimal(12, 0)
+  status        String  @default("PENDING") @map("Status") @db.VarChar(12)
+  paymentMethod String? @map("PaymentMethod") @db.VarChar(15)
+
+  paymentKey     String? @map("PaymentKey") @db.VarChar(64)
+  idempotencyKey String? @map("IdempotencyKey") @db.VarChar(36)
+
+  // Shipping Info
+  shippingMethod String? @map("ShippingMethod") @db.VarChar(10)
+  recipientName  String? @map("RecipientName") @db.NVarChar(10)
+  recipientPhone String? @map("RecipientPhone") @db.VarChar(15)
+  recipientAddr  String? @map("RecipientAddr") @db.NVarChar(100)
+  recipientZip   String? @map("RecipientZip") @db.VarChar(5)
+
+  // Cash Receipt (현금영수증)
+  cashReceiptType   String? @map("CashReceiptType") @db.VarChar(10) // PERSONAL, BUSINESS, NO_RECEIPT
+  cashReceiptNumber String? @map("CashReceiptNumber") @db.VarChar(20)
+
+  createdAt DateTime @default(now()) @map("CreatedAt")
+  updatedAt DateTime @updatedAt @map("UpdatedAt")
+
+  items        OrderItem[]
+  voucherCodes VoucherCode[]
+  gift         Gift?
+  refund       Refund?
+  payments     Payment[]
+
+  @@index([userId, createdAt], map: "IX_Orders_UserId_CreatedAt")
+  @@index([userId, status, createdAt], map: "IX_Orders_UserId_Status_CreatedAt")
+  @@index([status], map: "IX_Orders_Status")
+  @@index([createdAt], map: "IX_Orders_CreatedAt")
+  @@index([idempotencyKey], map: "IX_Orders_IdempotencyKey")
+  @@index([orderCode], map: "IX_Orders_OrderCode")
+  @@map("Orders")
+}
+
+// ============================================
+//  OrderItem — 주문 항목
+// ============================================
+model OrderItem {
+  id        Int     @id @default(autoincrement()) @map("Id")
+  orderId   Int     @map("OrderId")
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int     @map("ProductId")
+  product   Product @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  quantity  Int     @map("Quantity") @db.SmallInt
+  price     Decimal @map("Price") @db.Decimal(10, 0)
+
+  @@index([orderId], map: "IX_OrderItems_OrderId")
+  @@index([productId], map: "IX_OrderItems_ProductId")
+  @@map("OrderItems")
+}
+
+// ============================================
+//  TradeIn — 매입
+// ============================================
+model TradeIn {
+  id        Int     @id @default(autoincrement()) @map("Id")
+  userId    Int     @map("UserId")
+  user      User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  productId Int     @map("ProductId")
+  product   Product @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+
+  productName  String?  @map("ProductName") @db.NVarChar(30)
+  productBrand String?  @map("ProductBrand") @db.NVarChar(10)
+  productPrice Decimal? @map("ProductPrice") @db.Decimal(10, 0)
+  quantity     Int      @default(1) @map("Quantity") @db.SmallInt
+
+  pinCode       String? @map("PinCode") @db.VarChar(100)
+  pinHash       String? @map("PinHash") @db.VarChar(64)
+  securityCode  String? @map("SecurityCode") @db.VarChar(100)
+  giftNumber    String? @map("GiftNumber") @db.VarChar(100)
+  bankName      String? @map("BankName") @db.NVarChar(15)
+  accountNum    String? @map("AccountNum") @db.VarChar(100)
+  accountHolder String? @map("AccountHolder") @db.NVarChar(10)
+  payoutAmount  Decimal @map("PayoutAmount") @db.Decimal(10, 0)
+  status        String  @default("REQUESTED") @map("Status") @db.VarChar(10)
+  adminNote     String? @map("AdminNote") @db.NVarChar(500)
+
+  senderName     String?   @map("SenderName") @db.NVarChar(10)
+  senderPhone    String?   @map("SenderPhone") @db.VarChar(15)
+  senderEmail    String?   @map("SenderEmail") @db.VarChar(50)
+  shippingMethod String?   @map("ShippingMethod") @db.VarChar(10)
+  shippingDate   DateTime? @map("ShippingDate")
+  arrivalDate    DateTime? @map("ArrivalDate")
+  message        String?   @map("Message") @db.NVarChar(200)
+
+  createdAt DateTime @default(now()) @map("CreatedAt")
+  updatedAt DateTime @updatedAt @map("UpdatedAt")
+
+  @@index([userId, createdAt], map: "IX_TradeIns_UserId_CreatedAt")
+  @@index([productId], map: "IX_TradeIns_ProductId")
+  @@index([status], map: "IX_TradeIns_Status")
+  @@index([status, createdAt], map: "IX_TradeIns_Status_CreatedAt")
+  @@index([pinHash], map: "IX_TradeIns_PinHash")
+  @@map("TradeIns")
+}
+
+// ============================================
+//  CartItem — 장바구니
+// ============================================
+model CartItem {
+  id        Int      @id @default(autoincrement()) @map("Id")
+  userId    Int      @map("UserId")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId Int      @map("ProductId")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(1) @map("Quantity") @db.SmallInt
+  createdAt DateTime @default(now()) @map("CreatedAt")
+  updatedAt DateTime @updatedAt @map("UpdatedAt")
+
+  @@unique([userId, productId], map: "UQ_CartItems_UserId_ProductId")
+  @@index([userId], map: "IX_CartItems_UserId")
+  @@map("CartItems")
+}
+
+// ============================================
+//  KycVerifySession — 1원 인증 세션 (인메모리 → DB 이관)
+// ============================================
+model KycVerifySession {
+  id            Int      @id @default(autoincrement()) @map("Id")
+  verifyTrNo    String   @unique @map("VerifyTrNo") @db.VarChar(30)
+  verifyTrDt    String   @map("VerifyTrDt") @db.VarChar(10)
+  bankCode      String   @map("BankCode") @db.VarChar(4)
+  bankName      String   @map("BankName") @db.NVarChar(15)
+  accountNumber String   @map("AccountNumber") @db.VarChar(200) // AES-256 ciphertext: IV(32hex)+:+cipher(32+hex) ≥ 65 chars
+  accountHolder String   @map("AccountHolder") @db.NVarChar(10)
+  isVerified    Boolean  @default(false) @map("IsVerified") // 인증 확인 여부 (회원가입 연동용)
+  expiresAt     DateTime @map("ExpiresAt")
+  createdAt     DateTime @default(now()) @map("CreatedAt")
+
+  @@index([expiresAt], map: "IX_KycVerifySessions_ExpiresAt")
+  @@map("KycVerifySessions")
+}
+
+// ============================================
+//  SiteConfig — 동적 설정
+// ============================================
+model SiteConfig {
+  id          Int      @id @default(autoincrement()) @map("Id")
+  key         String   @unique @map("Key") @db.VarChar(30)
+  value       String   @map("Value") @db.NVarChar(MAX)
+  type        String   @map("Type") @db.VarChar(10)
+  description String?  @map("Description") @db.NVarChar(100)
+  updatedAt   DateTime @updatedAt @map("UpdatedAt")
+
+  @@map("SiteConfigs")
+}
+
+// ============================================
+//  Notice — 공지사항
+// ============================================
+model Notice {
+  id        Int      @id @default(autoincrement()) @map("Id")
+  title     String   @map("Title") @db.NVarChar(100)
+  content   String   @map("Content") @db.NVarChar(MAX)
+  isActive  Boolean  @default(true) @map("IsActive")
+  viewCount Int      @default(0) @map("ViewCount")
+  createdAt DateTime @default(now()) @map("CreatedAt")
+  updatedAt DateTime @updatedAt @map("UpdatedAt")
+
+  @@index([isActive, createdAt], map: "IX_Notices_IsActive_CreatedAt")
+  @@map("Notices")
+}
+
+// ============================================
+//  Event — 이벤트/프로모션
+// ============================================
+model Event {
+  id          Int      @id @default(autoincrement()) @map("Id")
+  title       String   @map("Title") @db.NVarChar(100)
+  description String   @map("Description") @db.NVarChar(MAX)
+  imageUrl    String?  @map("ImageUrl") @db.VarChar(300)
+  startDate   DateTime @map("StartDate")
+  endDate     DateTime @map("EndDate")
+  isActive    Boolean  @default(true) @map("IsActive")
+  isFeatured  Boolean  @default(false) @map("IsFeatured")
+  viewCount   Int      @default(0) @map("ViewCount")
+  createdAt   DateTime @default(now()) @map("CreatedAt")
+  updatedAt   DateTime @updatedAt @map("UpdatedAt")
+
+  @@index([isActive], map: "IX_Events_IsActive")
+  @@index([isActive, startDate, endDate], map: "IX_Events_Active_DateRange")
+  @@map("Events")
+}
+
+// ============================================
+//  Faq — 자주 묻는 질문
+// ============================================
+model Faq {
+  id           Int      @id @default(autoincrement()) @map("Id")
+  question     String   @map("Question") @db.NVarChar(200)
+  answer       String   @map("Answer") @db.NVarChar(MAX)
+  category     String   @map("Category") @db.VarChar(20)
+  order        Int      @default(99) @map("Order") @db.SmallInt
+  isActive     Boolean  @default(true) @map("IsActive")
+  helpfulCount Int      @default(0) @map("HelpfulCount")
+  createdAt    DateTime @default(now()) @map("CreatedAt")
+  updatedAt    DateTime @updatedAt @map("UpdatedAt")
+
+  @@index([category], map: "IX_Faqs_Category")
+  @@index([isActive, category, order], map: "IX_Faqs_Active_Category_Order")
+  @@map("Faqs")
+}
+
+// ============================================
+//  Gift — 선물
+// ============================================
+model Gift {
+  id         Int       @id @default(autoincrement()) @map("Id")
+  senderId   Int       @map("SenderId")
+  sender     User      @relation("SentGifts", fields: [senderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  receiverId Int       @map("ReceiverId")
+  receiver   User      @relation("ReceivedGifts", fields: [receiverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  orderId    Int       @unique @map("OrderId")
+  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status     String    @default("SENT") @map("Status") @db.VarChar(10)
+  claimedAt  DateTime? @map("ClaimedAt")
+  expiresAt  DateTime? @map("ExpiresAt")
+  message    String?   @map("Message") @db.NVarChar(200)
+  createdAt  DateTime  @default(now()) @map("CreatedAt")
+
+  @@index([senderId], map: "IX_Gifts_SenderId")
+  @@index([receiverId, createdAt], map: "IX_Gifts_ReceiverId_CreatedAt")
+  @@map("Gifts")
+}
+
+// ============================================
+//  Inquiry — 1:1 문의
+// ============================================
+model Inquiry {
+  id         Int       @id @default(autoincrement()) @map("Id")
+  userId     Int       @map("UserId")
+  category   String    @map("Category") @db.VarChar(20)
+  subject    String    @map("Subject") @db.NVarChar(100)
+  content    String    @map("Content") @db.NVarChar(MAX)
+  status     String    @default("PENDING") @map("Status") @db.VarChar(10)
+  answer     String?   @map("Answer") @db.NVarChar(MAX)
+  answeredAt DateTime? @map("AnsweredAt")
+  answeredBy Int?      @map("AnsweredBy")
+  createdAt  DateTime  @default(now()) @map("CreatedAt")
+  updatedAt  DateTime  @updatedAt @map("UpdatedAt")
+
+  user           User  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  answeredByUser User? @relation("InquiryAnswerer", fields: [answeredBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([userId, createdAt], map: "IX_Inquiries_UserId_CreatedAt")
+  @@index([status], map: "IX_Inquiries_Status")
+  @@map("Inquiries")
+}
+
+// ============================================
+//  Refund — 환불
+// ============================================
+model Refund {
+  id          Int       @id @default(autoincrement()) @map("Id")
+  orderId     Int       @unique @map("OrderId")
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  amount      Decimal   @map("Amount") @db.Decimal(12, 0)
+  reason      String    @map("Reason") @db.NVarChar(200)
+  status      String    @default("REQUESTED") @map("Status") @db.VarChar(10)
+  processedBy Int?      @map("ProcessedBy")
+  processedAt DateTime? @map("ProcessedAt")
+  adminNote   String?   @map("AdminNote") @db.NVarChar(500)
+  createdAt   DateTime  @default(now()) @map("CreatedAt")
+  updatedAt   DateTime  @updatedAt @map("UpdatedAt")
+
+  @@index([status], map: "IX_Refunds_Status")
+  @@index([orderId], map: "IX_Refunds_OrderId")
+  @@map("Refunds")
+}
+
+// ============================================
+//  Payment — 결제 (은행 직접 연동)
+// ============================================
+model Payment {
+  id            Int       @id @default(autoincrement()) @map("Id")
+  orderId       Int       @map("OrderId")
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  method        String    @map("Method") @db.VarChar(20) // CASH, VIRTUAL_ACCOUNT, DEDICATED_ACCOUNT, OPEN_BANKING
+  amount        Decimal   @map("Amount") @db.Decimal(12, 0)
+  status        String    @default("PENDING") @map("Status") @db.VarChar(15) // PENDING, CONFIRMED, CANCELLED, REFUNDED
+  bankCode      String?   @map("BankCode") @db.VarChar(4) // 은행코드 (004=KB, 088=신한 등)
+  bankName      String?   @map("BankName") @db.NVarChar(15) // 은행명
+  accountNumber String?   @map("AccountNumber") @db.VarChar(30) // 가상계좌/전용계좌 번호
+  depositorName String?   @map("DepositorName") @db.NVarChar(15) // 입금자명
+  bankTxId      String?   @map("BankTxId") @db.VarChar(64) // 은행 거래번호
+  confirmedAt   DateTime? @map("ConfirmedAt") // 입금 확인일시
+  cancelledAt   DateTime? @map("CancelledAt")
+  expiresAt     DateTime? @map("ExpiresAt") // 가상계좌 입금기한
+  failReason    String?   @map("FailReason") @db.NVarChar(200)
+  createdAt     DateTime  @default(now()) @map("CreatedAt")
+  updatedAt     DateTime  @updatedAt @map("UpdatedAt")
+
+  @@index([orderId], map: "IX_Payments_OrderId")
+  @@index([status], map: "IX_Payments_Status")
+  @@index([bankTxId], map: "IX_Payments_BankTxId")
+  @@map("Payments")
+}
+
+// ============================================
+//  AuditLog — 감사 로그
+// ============================================
+// ============================================
+//  SmsVerification — Coocon 본인인증 결과
+//  PAYAGENCY_DB.SMS_VERIFICATION 구조와 동기화
+//  외부 Coocon 서버가 직접 INSERT — 컬럼명 수정 금지
+// ============================================
+/// @see docs/14_KYC_INTEGRATION.md
+model SmsVerification {
+  uniqueId    BigInt    @id @default(autoincrement()) @map("_UNIQUEID")
+  affiliateId String?   @default("") @map("_AFFILIATE_ID") @db.NVarChar(20) // 제휴사 ID
+  datetime    DateTime? @default(now()) @map("_DATETIME") @db.DateTime // 인증 시각
+  bankCode    String?   @default("") @map("_BANKCODE") @db.NVarChar(5) // 은행코드
+  bankNumber  String?   @default("") @map("_BANKNUMBER") @db.NVarChar(17) // 계좌번호
+  bankUser    String?   @default("") @map("_BANKUSER") @db.NVarChar(20) // 예금주
+  birth       String?   @default("") @map("_BIRTH") @db.NVarChar(9) // 생년월일
+  gender      String?   @default("") @map("_GENDER") @db.NVarChar(2) // 성별
+  nationality String?   @default("") @map("_NATIONALITY") @db.NVarChar(2) // L=내국인, F=외국인
+  telco       String?   @default("") @map("_TELCO") @db.NVarChar(3) // 통신사
+  phone       String?   @default("") @map("_PHONE") @db.NVarChar(12) // 휴대폰 번호
+  ci          String?   @default("") @map("_CI") @db.NVarChar(150) // 연계정보(CI) 해시값
+
+  @@index([phone], map: "IX_SMS_VERIFICATION_Phone")
+  @@index([ci], map: "IX_SMS_VERIFICATION_CI")
+  @@map("SMS_VERIFICATION")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement()) @map("Id")
+  createdAt  DateTime @default(now()) @map("CreatedAt")
+  userId     Int?     @map("UserId")
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   @map("Action") @db.VarChar(50)
+  resource   String   @map("Resource") @db.VarChar(30)
+  resourceId String?  @map("ResourceId") @db.VarChar(20)
+  method     String?  @map("Method") @db.VarChar(7)
+  statusCode Int?     @map("StatusCode") @db.SmallInt
+  oldValue   String?  @map("OldValue") @db.NVarChar(MAX)
+  newValue   String?  @map("NewValue") @db.NVarChar(MAX)
+  ip         String?  @map("Ip") @db.VarChar(45)
+  userAgent  String?  @map("UserAgent") @db.VarChar(256)
+  isArchived Boolean  @default(false) @map("IsArchived")
+
+  @@index([resource, resourceId], map: "IX_AuditLogs_Resource_ResourceId")
+  @@index([userId], map: "IX_AuditLogs_UserId")
+  @@index([createdAt], map: "IX_AuditLogs_CreatedAt")
+  @@index([action], map: "IX_AuditLogs_Action")
+  @@index([isArchived, createdAt], map: "IX_AuditLogs_IsArchived_CreatedAt")
+  @@map("AuditLogs")
+}

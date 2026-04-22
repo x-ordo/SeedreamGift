@@ -1,0 +1,23 @@
+/**
+ * @file FaqTab.css
+ * @description FAQ 탭 — daisyUI collapse + btn 사용, 최소 CSS만 유지
+ */
+
+/* Scrollbar hide for horizontal category scroll */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Reduced motion 지원 */
+@media (prefers-reduced-motion: reduce) {
+  .collapse,
+  .btn {
+    transition: none;
+    transform: none !important;
+  }
+}

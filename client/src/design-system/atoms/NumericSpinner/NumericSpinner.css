@@ -1,0 +1,163 @@
+/**
+ * NumericSpinner Component Styles
+ * Premium fintech-style quantity selector — Blue-tint aesthetic
+ */
+
+.numeric-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: color-mix(in oklch, var(--color-primary) 2%, white);
+  padding: 3px;
+  border-radius: var(--radius-full);
+  border: 1px solid color-mix(in oklch, var(--color-primary) 6%, var(--color-grey-100));
+  box-shadow: var(--shadow-sm);
+}
+
+/* Size variants */
+.numeric-spinner--xs {
+  gap: 2px;
+  padding: 2px;
+}
+
+.numeric-spinner--lg {
+  gap: var(--space-1);
+  padding: 4px;
+}
+
+/* Button base */
+.numeric-spinner__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 6px rgba(49, 130, 246, 0.25);
+}
+
+.numeric-spinner__button:hover:not(:disabled) {
+  background: var(--color-blue-600);
+  box-shadow: 0 3px 10px rgba(49, 130, 246, 0.35);
+  transform: scale(1.06);
+}
+
+.numeric-spinner__button:active:not(:disabled) {
+  background: var(--color-blue-700);
+  transform: scale(0.94);
+  box-shadow: 0 1px 3px rgba(49, 130, 246, 0.2);
+}
+
+.numeric-spinner__button:disabled {
+  cursor: not-allowed;
+  background: color-mix(in oklch, var(--color-primary) 8%, var(--color-grey-100));
+  color: color-mix(in oklch, var(--color-primary) 20%, var(--color-grey-400));
+  box-shadow: none;
+}
+
+.numeric-spinner__button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Size: xs */
+.numeric-spinner--xs .numeric-spinner__button {
+  width: 24px;
+  height: 24px;
+  font-size: 13px;
+}
+
+/* Size: sm */
+.numeric-spinner--sm .numeric-spinner__button {
+  width: 28px;
+  height: 28px;
+  font-size: 15px;
+}
+
+/* Size: md (default) */
+.numeric-spinner--md .numeric-spinner__button {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+}
+
+/* Size: lg */
+.numeric-spinner--lg .numeric-spinner__button {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+}
+
+/* Value display */
+.numeric-spinner__value {
+  min-width: 32px;
+  padding: 0 var(--space-2);
+  text-align: center;
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-grey-900);
+  background: transparent;
+  line-height: 1;
+  user-select: none;
+}
+
+.numeric-spinner--xs .numeric-spinner__value {
+  min-width: 24px;
+  padding: 0 var(--space-1);
+  font-size: var(--text-caption);
+}
+
+.numeric-spinner--sm .numeric-spinner__value {
+  min-width: 28px;
+  padding: 0 var(--space-1);
+  font-size: var(--text-body);
+}
+
+.numeric-spinner--md .numeric-spinner__value {
+  min-width: 32px;
+  font-size: var(--text-body);
+}
+
+.numeric-spinner--lg .numeric-spinner__value {
+  min-width: 40px;
+  font-size: var(--text-body-lg);
+}
+
+/* Disabled state */
+.numeric-spinner--disabled {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* Icon */
+.numeric-spinner__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+
+/* Touch target — 모바일 접근성 (WCAG 2.5.5 minimum 44px) */
+@media (hover: none) and (pointer: coarse) {
+  .numeric-spinner--xs .numeric-spinner__button,
+  .numeric-spinner--sm .numeric-spinner__button,
+  .numeric-spinner--md .numeric-spinner__button {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .numeric-spinner__button {
+    transition: none;
+  }
+}

@@ -1,0 +1,233 @@
+<body>
+    <div class="page">
+        <h1>KYC 본인인증</h1>
+        <div class="desc">
+            아래 버튼을 눌러 KCB 본인인증 팝업을 진행하세요.
+        </div>
+
+        <div class="card">
+            <label for="affId" class="hidden">고유 아이디 (선택)</label>
+            <input id="affId" placeholder="필요 시 고유 아이디 입력" class="hidden">
+            <div class="actions">
+                <button id="kycStartBtn" onclick="openKycPopup()" style="cursor: pointer;">KYC 인증 시작</button>
+            </div>
+            <div id="kycStatus" class="status hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        let memberChecked = false;
+        let currentAffId = '';
+        let kycTimer = null;
+        let currentKcbAuthId = '';
+        let currentCompany = '';
+        let companyReady = false;
+
+        const COMPANY_ERROR_MESSAGE = '존재하지않는 회사정보입니다.';
+
+        const REQUIRE_AFF_ID = false; // true로 설정하면 고유 아이디 필수.
+
+        function show(el, text, type = '') {
+            el.classList.remove('hidden', 'success', 'error');
+            if (type) el.classList.add(type);
+            el.textContent = text;
+        }
+
+        function hide(el) { el.classList.add('hidden'); }
+
+        async function callApi(path, body, method = 'POST') {
+            const resp = await fetch(path, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: method === 'GET' ? undefined : JSON.stringify(body || {})
+            });
+            const data = await resp.json().catch(() => ({}));
+            return { ok: resp.ok, data };
+        }
+
+        function setKycButtonDisabled(disabled) {
+            const btn = document.getElementById('kycStartBtn');
+            if (!btn) return;
+            btn.disabled = disabled;
+            btn.style.opacity = disabled ? '0.6' : '';
+            btn.style.cursor = disabled ? 'not-allowed' : 'pointer';
+        }
+
+        async function initCompany() {
+            const statusEl = document.getElementById('kycStatus');
+            setKycButtonDisabled(true);
+
+            const params = new URLSearchParams(window.location.search);
+            currentCompany = (params.get('company') || '').trim();
+
+            if (!currentCompany) {
+                show(statusEl, COMPANY_ERROR_MESSAGE, 'error');
+                return;
+            }
+
+            const { ok, data } = await callApi(`/api/coocon/company-check?company=${encodeURIComponent(currentCompany)}`, null, 'GET');
+            if (!ok || !data?.success) {
+                show(statusEl, data?.message || COMPANY_ERROR_MESSAGE, 'error');
+                return;
+            }
+
+            companyReady = true;
+            hide(statusEl);
+            setKycButtonDisabled(false);
+        }
+
+        async function ensureMember() {
+            if (!REQUIRE_AFF_ID) {
+                memberChecked = true;
+                currentAffId = '';
+                return true;
+            }
+
+            const affId = document.getElementById('affId').value.trim();
+            const statusEl = document.getElementById('kycStatus');
+            hide(statusEl);
+
+            if (!affId) {
+                show(statusEl, '고유 아이디를 입력해주세요.', 'error');
+                memberChecked = false;
+                currentAffId = '';
+                return false;
+            }
+            if (affId.length > 20) {
+                show(statusEl, '고유 아이디는 20자 이하로 입력해주세요.', 'error');
+                memberChecked = false;
+                currentAffId = '';
+                return false;
+            }
+
+            const { ok, data } = await callApi('/api/coocon/member-check', { affId });
+            if (!ok || !data?.success) {
+                show(statusEl, data?.message || '고유 아이디 확인에 실패했습니다.', 'error');
+                memberChecked = false;
+                currentAffId = '';
+                return false;
+            }
+
+            memberChecked = true;
+            currentAffId = affId;
+            show(statusEl, '고유 아이디 확인 완료. KYC를 진행해주세요.', 'success');
+            return true;
+        }
+
+        function makeKcbAuthId() {
+            if (crypto.randomUUID) return crypto.randomUUID();
+            return 'kcb-' + Date.now() + '-' + Math.random().toString(16).slice(2, 10);
+        }
+
+        function resetKycView() {
+            hide(document.getElementById('kycStatus'));
+            if (kycTimer) {
+                clearInterval(kycTimer);
+                kycTimer = null;
+            }
+        }
+
+        async function openKycPopup() {
+            if (!companyReady) {
+                show(document.getElementById('kycStatus'), COMPANY_ERROR_MESSAGE, 'error');
+                return;
+            }
+            if (REQUIRE_AFF_ID && (!memberChecked || !currentAffId)) {
+                const ensured = await ensureMember();
+                if (!ensured) return;
+            }
+
+            resetKycView();
+            const statusEl = document.getElementById('kycStatus');
+            show(statusEl, 'KYC 팝업을 여는 중입니다...', '');
+
+            const kcbAuthId = makeKcbAuthId();
+            currentKcbAuthId = kcbAuthId;
+            const params = new URLSearchParams({ kcbAuthId });
+            if (currentCompany) {
+                params.set('company', currentCompany);
+            }
+            if (REQUIRE_AFF_ID && currentAffId) {
+                params.set('affId', currentAffId);
+            }
+            const url = `/api/kcb/phone/start?${params.toString()}`;
+            const popup = window.open(url, 'kcbPhoneAuth', 'width=430,height=640,scrollbars=yes,resizable=yes');
+            if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+                show(statusEl, '팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.', 'error');
+                return;
+            }
+
+            beginKycPoll(kcbAuthId);
+        }
+
+        function beginKycPoll(kcbAuthId) {
+            if (kycTimer) clearInterval(kycTimer);
+            kycTimer = setInterval(async () => {
+                const resp = await fetch(`/api/kcb/checkStatus?kcbAuthId=${encodeURIComponent(kcbAuthId)}`);
+                const data = await resp.json().catch(() => ({}));
+                const statusEl = document.getElementById('kycStatus');
+
+                if (data.status === 'success' && data.result) {
+                    clearInterval(kycTimer);
+                    kycTimer = null;
+                    show(statusEl, 'KYC 본인인증 완료', 'success');
+                    const { ok, data: logData } = await callApi('/api/coocon/kyc-log', {
+                        company: currentCompany,
+                        affId: REQUIRE_AFF_ID ? currentAffId : null,
+                        name: data.result?.RSLT_NAME || null,
+                        birth: data.result?.RSLT_BIRTHDAY || null,
+                        gender: data.result?.RSLT_SEX_CD || null,
+                        nationality: data.result?.RSLT_NTV_FRNR_CD || null,
+                        ci: data.result?.CI || data.result?.ci || null,
+                        telco: data.result?.TEL_COM_CD || null,
+                        phone: data.result?.TEL_NO || null
+                    });
+                    if (!ok || !logData?.success) {
+                        show(statusEl, logData?.message || COMPANY_ERROR_MESSAGE, 'error');
+                    }
+                } else if (data.status === 'expired') {
+                    clearInterval(kycTimer);
+                    kycTimer = null;
+                    show(statusEl, 'KYC 세션이 만료되었습니다. 다시 시도해주세요.', 'error');
+                }
+            }, 1500);
+        }
+
+        window.handleKcbPhoneResult = async function (result) {
+            if (!result) return;
+            const statusEl = document.getElementById('kycStatus');
+            if (result.RSLT_CD && result.RSLT_CD !== 'B000') {
+                show(statusEl, result.RSLT_MSG || 'KYC 본인인증에 실패했습니다.', 'error');
+                if (kycTimer) clearInterval(kycTimer);
+                return;
+            }
+            show(statusEl, 'KYC 본인인증 완료', 'success');
+            if (kycTimer) clearInterval(kycTimer);
+            const { ok, data: logData } = await callApi('/api/coocon/kyc-log', {
+                company: currentCompany,
+                affId: REQUIRE_AFF_ID ? currentAffId : null,
+                name: result?.RSLT_NAME || null,
+                birth: result?.RSLT_BIRTHDAY || null,
+                gender: result?.RSLT_SEX_CD || null,
+                nationality: result?.RSLT_NTV_FRNR_CD || null,
+                ci: result?.CI || result?.ci || null,
+                telco: result?.TEL_COM_CD || null,
+                phone: result?.TEL_NO || null
+            });
+            if (!ok || !logData?.success) {
+                show(statusEl, logData?.message || COMPANY_ERROR_MESSAGE, 'error');
+            }
+        };
+
+        if (!REQUIRE_AFF_ID) {
+            const affLabel = document.querySelector('label[for="affId"]');
+            const affInput = document.getElementById('affId');
+            if (affLabel) affLabel.classList.add('hidden');
+            if (affInput) affInput.classList.add('hidden');
+        }
+
+        initCompany();
+    </script>
+
+
+</body>

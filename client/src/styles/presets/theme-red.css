@@ -1,0 +1,30 @@
+/**
+ * @file theme-red.css
+ * @description 레드 테마 프리셋 예시
+ *
+ * 사용법:
+ * 1. tokens.css 상단에 @import './presets/theme-red.css'; 추가
+ * 2. index.css daisyUI theme에서 --color-primary oklch 값 변경:
+ *    --color-primary: oklch(0.55 0.22 27);
+ */
+
+:root {
+  /* Primary — 레드 계열 */
+  --color-primary: #dc2626;
+  --color-primary-hover: #b91c1c;
+  --color-primary-active: #991b1b;
+  --color-primary-light: #fef2f2;
+
+  /* Point — 앰버 액센트 */
+  --color-point: #f59e0b;
+  --color-point-hover: #d97706;
+  --color-point-active: #b45309;
+
+  /* Colored Shadows */
+  --shadow-primary: 0 8px 24px rgba(220, 38, 38, 0.2);
+  --shadow-point: 0 8px 24px rgba(245, 158, 11, 0.2);
+
+  /* Gradient Presets */
+  --gradient-primary: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  --gradient-point: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}

@@ -1,0 +1,29 @@
+/**
+ * FloatingParticles Component Styles
+ * 떠다니는 파티클 배경 효과
+ */
+
+.floating-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: var(--z-base);
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    /* filter: blur 제거 — compositor-only 애니메이션을 위해 */
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .particle {
+        animation: none !important;
+        transform: none !important;
+    }
+}

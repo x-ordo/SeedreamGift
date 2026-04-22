@@ -1,0 +1,177 @@
+/**
+ * Result Component Styles
+ * Toss-style result/status page
+ */
+
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-8) var(--space-6);
+  min-height: 200px;
+}
+
+/* 섹션 내 인라인 사용 시 더 컴팩트하게 */
+.home-main .result,
+.brands-section .result,
+.notice-section .result {
+  min-height: 120px;
+  padding: var(--space-6) var(--space-4);
+}
+
+.home-main .result .result__icon,
+.brands-section .result .result__icon {
+  width: 56px;
+  height: 56px;
+  font-size: 24px;
+}
+
+.home-main .result .result__title,
+.brands-section .result .result__title {
+  font-size: var(--text-title);
+  margin-bottom: var(--space-2);
+}
+
+.home-main .result .result__figure,
+.brands-section .result .result__figure {
+  margin-bottom: var(--space-4);
+}
+
+/* Full height variant */
+.result--full-height {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Figure (icon/image) */
+.result__figure {
+  margin-bottom: var(--space-6);
+}
+
+.result__figure svg,
+.result__figure img {
+  max-width: 120px;
+  max-height: 120px;
+}
+
+/* Icon variants */
+.result__icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+}
+
+.result__icon--success {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.result__icon--error {
+  background: var(--color-error-light);
+  color: var(--color-error);
+}
+
+.result__icon--warning {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.result__icon--info {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+/* Title */
+.result__title {
+  font-size: var(--text-headline);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+  margin: 0 0 var(--space-3);
+  line-height: 1.4;
+}
+
+/* Description */
+.result__description {
+  font-size: var(--text-body);
+  color: var(--color-grey-500);
+  line-height: 1.6;
+  margin: 0 0 var(--space-6);
+  max-width: 320px;
+}
+
+/* Button area */
+.result__button {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 280px;
+}
+
+.result__button > button {
+  width: 100%;
+}
+
+/* Additional content */
+.result__extra {
+  margin-top: var(--space-6);
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+}
+
+/* Animation */
+@keyframes result-icon-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.result--animated .result__icon {
+  animation: result-icon-pop 0.4s ease-out;
+}
+
+@keyframes result-content-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result--animated .result__title,
+.result--animated .result__description,
+.result--animated .result__button {
+  animation: result-content-fade 0.4s ease-out 0.2s both;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .result--animated .result__icon {
+    animation: none;
+  }
+
+  .result--animated .result__title,
+  .result--animated .result__description,
+  .result--animated .result__button {
+    animation: none;
+  }
+}

@@ -1,0 +1,107 @@
+/**
+ * @file utilities.css
+ * @description 유틸리티 클래스 (Tailwind/DaisyUI와 충돌하지 않는 커스텀 유틸 only)
+ *
+ * 포함 내용:
+ * - 카드 스타일 (purchase-card)
+ * - 스켈레톤 로딩 (shimmer 효과)
+ * - 아이콘-텍스트 조합
+ */
+
+@layer components {
+  /* ============================================
+     PAGE CONTAINERS - Standardized Layout
+     ============================================ */
+  .page-container {
+    min-height: 100vh;
+    background-color: var(--color-bg-base);
+    padding: clamp(16px, 3vw, 48px) clamp(16px, 4vw, 48px);
+  }
+
+  .page-content-narrow {
+    max-width: var(--container-md);
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 var(--space-4);
+  }
+
+  .page-content-wide {
+    max-width: var(--container-xl);
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .page-content-narrow,
+    .page-content-wide {
+      padding: 0;
+    }
+  }
+
+  /* ============================================
+     CARD STYLES - Swift Trust 2.0
+     ============================================ */
+  .purchase-card {
+    padding: var(--space-6);
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-normal) var(--transition-bounce), 
+                box-shadow var(--transition-normal) var(--transition-ease-out), 
+                border-color var(--transition-normal) var(--transition-ease-out);
+    border: 1px solid transparent;
+  }
+
+  .purchase-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-grey-100);
+  }
+
+  .purchase-card:active {
+    transform: scale(0.98);
+  }
+
+  /* ============================================
+     SKELETON LOADING
+     ============================================ */
+  .skeleton {
+    background: linear-gradient(90deg,
+        var(--color-grey-100) 25%,
+        var(--color-grey-200) 50%,
+        var(--color-grey-100) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-sm);
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .purchase-card {
+      transition: none;
+    }
+
+    .skeleton {
+      animation: none;
+    }
+  }
+}
+
+@layer utilities {
+  /* ============================================
+     ICON-TEXT UTILITIES
+     ============================================ */
+  .icon-text { display: inline-flex; align-items: center; gap: var(--icon-gap-md); }
+  .icon-text--sm { gap: var(--icon-gap-sm); }
+  .icon-text--lg { gap: var(--icon-gap-lg); }
+}

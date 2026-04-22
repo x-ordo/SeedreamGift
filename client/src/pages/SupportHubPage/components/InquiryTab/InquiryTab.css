@@ -1,0 +1,14 @@
+/**
+ * @file InquiryTab.css
+ * @description 1:1 문의 탭 — daisyUI card/fieldset/btn 사용, 최소 CSS만 유지
+ */
+
+/* Reduced motion 지원 */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .card,
+  .transition-transform {
+    transition: none;
+    transform: none !important;
+  }
+}

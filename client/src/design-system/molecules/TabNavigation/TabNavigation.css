@@ -1,0 +1,310 @@
+/**
+ * @file TabNavigation.css
+ * @description 탭 네비게이션 컴포넌트 스타일
+ */
+
+/* ============================================================================
+   Base Tab Navigation
+   ============================================================================ */
+
+.tab-navigation {
+  display: flex;
+  gap: var(--space-xs, 4px);
+  border-bottom: 1px solid var(--color-border, #e5e8eb);
+  margin-bottom: var(--space-md, 16px);
+}
+
+.tab-navigation--full-width {
+  width: 100%;
+}
+
+.tab-navigation--full-width .tab-navigation__tab {
+  flex: 1;
+  justify-content: center;
+}
+
+/* ============================================================================
+   Tab Button
+   ============================================================================ */
+
+.tab-navigation__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs, 4px);
+  padding: var(--space-sm, 8px) var(--space-md, 16px);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted, #8b95a1);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  position: relative;
+  transition: color var(--transition-fast, 150ms), background-color var(--transition-fast, 150ms);
+  white-space: nowrap;
+}
+
+.tab-navigation__tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background-color var(--transition-fast, 150ms);
+}
+
+.tab-navigation__tab:hover:not(.tab-navigation__tab--disabled) {
+  color: var(--color-text, #333d4b);
+  background: var(--color-background, #f7f8f9);
+}
+
+.tab-navigation__tab:focus-visible {
+  outline: 2px solid var(--color-primary, #3182f6);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm, 8px);
+}
+
+/* Active State */
+.tab-navigation__tab--active {
+  color: var(--color-primary, #3182f6);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.tab-navigation__tab--active::after {
+  background: var(--color-primary, #3182f6);
+}
+
+/* Disabled State */
+.tab-navigation__tab--disabled {
+  color: var(--color-text-disabled, #6B7684);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ============================================================================
+   Tab Icon
+   ============================================================================ */
+
+.tab-navigation__icon {
+  font-size: 1.1em;
+}
+
+/* ============================================================================
+   Tab Label
+   ============================================================================ */
+
+.tab-navigation__label {
+  /* Default styles */
+}
+
+/* ============================================================================
+   Tab Badge
+   ============================================================================ */
+
+.tab-navigation__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 var(--space-xs, 4px);
+  background: var(--color-error, #ff4b4b);
+  color: white;
+  font-size: var(--text-caption, 11px);
+  font-weight: var(--font-weight-bold, 700);
+  border-radius: var(--radius-full, 9999px);
+}
+
+.tab-navigation__tab--active .tab-navigation__badge {
+  background: var(--color-primary, #3182f6);
+}
+
+/* ============================================================================
+   Size Variants
+   ============================================================================ */
+
+/* Small */
+.tab-navigation--sm .tab-navigation__tab {
+  padding: var(--space-xs, 4px) var(--space-sm, 8px);
+  font-size: var(--text-caption, 12px);
+}
+
+.tab-navigation--sm .tab-navigation__badge {
+  min-width: 16px;
+  height: 16px;
+  font-size: 10px;
+}
+
+/* Medium (default) */
+.tab-navigation--md .tab-navigation__tab {
+  padding: var(--space-sm, 8px) var(--space-md, 16px);
+  font-size: var(--text-body, 14px);
+}
+
+/* Large */
+.tab-navigation--lg .tab-navigation__tab {
+  padding: var(--space-md, 16px) var(--space-lg, 24px);
+  font-size: var(--text-body-lg, 16px);
+}
+
+.tab-navigation--lg .tab-navigation__icon {
+  font-size: 1.2em;
+}
+
+/* ============================================================================
+   Style Variants
+   ============================================================================ */
+
+/* Pills */
+.tab-navigation--pills {
+  border-bottom: none;
+  gap: var(--space-xs, 4px);
+  background: var(--color-background, #f2f4f6);
+  padding: var(--space-xs, 4px);
+  border-radius: var(--radius-lg, 18px);
+  /* 컨텐츠에 맞게 자동 조절 */
+  width: fit-content;
+  max-width: 100%;
+}
+
+.tab-navigation--pills .tab-navigation__tab {
+  border-radius: var(--radius-md, 14px);
+  padding: var(--space-xs, 6px) var(--space-sm, 12px);
+  font-size: var(--text-caption, 13px);
+  white-space: nowrap;
+}
+
+.tab-navigation--pills .tab-navigation__tab::after {
+  display: none;
+}
+
+.tab-navigation--pills .tab-navigation__tab--active {
+  background: var(--color-surface, #fff);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(49, 130, 246, 0.08));
+}
+
+/* Pills - 중간 사이즈 조정 */
+.tab-navigation--pills.tab-navigation--md .tab-navigation__tab {
+  padding: var(--space-sm, 8px) var(--space-md, 14px);
+  font-size: var(--text-body, 14px);
+}
+
+@media (min-width: 768px) {
+  .tab-navigation--pills {
+    gap: var(--space-sm, 6px);
+  }
+
+  .tab-navigation--pills .tab-navigation__tab {
+    padding: var(--space-sm, 8px) var(--space-md, 16px);
+    font-size: var(--text-body, 14px);
+  }
+
+  .tab-navigation--pills.tab-navigation--md .tab-navigation__tab {
+    padding: var(--space-sm, 10px) var(--space-lg, 18px);
+  }
+}
+
+/* Underline */
+.tab-navigation--underline {
+  border-bottom: 2px solid var(--color-border, #e5e8eb);
+}
+
+.tab-navigation--underline .tab-navigation__tab::after {
+  height: 3px;
+  bottom: -2px;
+  border-radius: var(--radius-sm, 8px) var(--radius-sm, 8px) 0 0;
+}
+
+/* Card */
+.tab-navigation--card {
+  border-bottom: none;
+  background: var(--color-surface, #fff);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(49, 130, 246, 0.08));
+  border-radius: var(--radius-lg, 18px);
+  padding: var(--space-xs, 4px);
+}
+
+.tab-navigation--card .tab-navigation__tab {
+  border-radius: var(--radius-md, 14px);
+}
+
+.tab-navigation--card .tab-navigation__tab::after {
+  display: none;
+}
+
+.tab-navigation--card .tab-navigation__tab--active {
+  background: var(--color-primary, #3182f6);
+  color: white;
+}
+
+/* ============================================================================
+   Tab Panel
+   ============================================================================ */
+
+.tab-panel {
+  outline: none;
+}
+
+.tab-panel:focus-visible {
+  outline: 2px solid var(--color-primary, #3182f6);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 8px);
+}
+
+/* ============================================================================
+   Tabs Container
+   ============================================================================ */
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs__content {
+  flex: 1;
+}
+
+/* ============================================================================
+   Responsive
+   ============================================================================ */
+
+@media (max-width: 575px) {
+  .tab-navigation {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .tab-navigation::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-navigation__tab {
+    flex-shrink: 0;
+  }
+
+  /* 모바일에서 아이콘만 표시 옵션 */
+  .tab-navigation--mobile-icons-only .tab-navigation__label {
+    display: none;
+  }
+
+  .tab-navigation--mobile-icons-only .tab-navigation__tab {
+    padding: var(--space-sm, 8px) var(--space-md, 16px);
+  }
+
+  .tab-navigation--mobile-icons-only .tab-navigation__icon {
+    font-size: 1.3em;
+  }
+}
+
+/* ============================================================================
+   Reduced Motion
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-navigation__tab,
+  .tab-navigation__tab::after {
+    transition: none;
+  }
+}

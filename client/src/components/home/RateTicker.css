@@ -1,0 +1,301 @@
+/**
+ * @file RateTicker.css
+ * @description 실시간 시세 티커 컴포넌트 스타일 - 브랜드별 할인율/매입율 순환 표시
+ * @module components/home
+ */
+
+/* =====================================================
+   기본 티커 컨테이너
+   ===================================================== */
+.rate-ticker {
+  display: flex;
+  align-items: center;
+  background: color-mix(in oklch, var(--color-primary) 4%, var(--color-grey-100));
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background var(--transition-fast) ease;
+  overflow: hidden;
+  user-select: none;
+  border: 1px solid color-mix(in oklch, var(--color-primary) 8%, var(--color-grey-200));
+}
+
+.rate-ticker:hover {
+  background: color-mix(in oklch, var(--color-primary) 6%, var(--color-grey-200));
+}
+
+.rate-ticker:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* =====================================================
+   내부 레이아웃 (아이콘 + 슬라이더 + 인디케이터)
+   ===================================================== */
+.rate-ticker-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  position: relative;
+}
+
+.rate-ticker-icon {
+  font-size: var(--text-body-lg);
+  flex-shrink: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* 슬라이더 컨테이너 (브랜드명 + 시세 슬라이드 영역) */
+.rate-ticker-slider-container {
+  flex: 1 1 auto;
+  min-width: 160px;
+  height: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.rate-ticker-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  white-space: nowrap;
+  width: max-content;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  backface-visibility: hidden;
+}
+
+/* =====================================================
+   브랜드명
+   ===================================================== */
+.rate-ticker-brand {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+/* =====================================================
+   시세 배지 (할인/매입 - 토스 스타일 필 형태)
+   ===================================================== */
+.rate-ticker-rate {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--icon-gap-sm);
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption);
+  white-space: nowrap;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* 할인율 - 파란색 계열 */
+.rate-ticker-discount {
+  background: var(--color-blue-50);
+}
+
+.rate-ticker-discount .rate-label {
+  color: var(--color-blue-600);
+  font-weight: var(--font-weight-medium);
+}
+
+.rate-ticker-discount .rate-value {
+  color: var(--color-blue-600);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 매입율 - 초록색 계열 */
+.rate-ticker-tradein {
+  background: var(--color-green-50);
+}
+
+.rate-ticker-tradein .rate-label {
+  color: var(--color-green-600);
+  font-weight: var(--font-weight-medium);
+}
+
+.rate-ticker-tradein .rate-value {
+  color: var(--color-green-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.rate-label {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.rate-value {
+  font-size: var(--text-caption);
+}
+
+/* =====================================================
+   인디케이터 점 (현재 브랜드 위치 표시)
+   ===================================================== */
+.rate-ticker-indicators {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.rate-ticker-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-grey-300);
+  border: none;
+  padding: 10px;
+  background-clip: content-box;
+  cursor: pointer;
+  transition: width 200ms ease, background 200ms ease, border-radius 200ms ease;
+}
+
+.rate-ticker-dot:hover {
+  background: var(--color-grey-500);
+}
+
+.rate-ticker-dot:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.rate-ticker-dot.active {
+  background: var(--color-primary);
+  width: 12px;
+  border-radius: 2px;
+}
+
+/* =====================================================
+   로딩 상태
+   ===================================================== */
+.rate-ticker-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption);
+  color: var(--color-text-tertiary);
+}
+
+.rate-ticker-loading .rate-ticker-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-grey-300);
+  animation: tickerPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes tickerPulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* =====================================================
+   컴팩트 모드 (헤더 바 내 축소 표시용)
+   ===================================================== */
+.rate-ticker-compact {
+  background: transparent;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  border: none;
+}
+
+.rate-ticker-compact:hover {
+  background: var(--color-grey-opacity-100);
+}
+
+.rate-ticker-compact .rate-ticker-icon {
+  font-size: var(--text-body);
+}
+
+.rate-ticker-compact .rate-ticker-brand {
+  font-size: 13px;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rate-ticker-compact .rate-ticker-slider-container {
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 140px;
+}
+
+.rate-ticker-compact .rate-ticker-rate {
+  padding: 2px 6px;
+}
+
+.rate-ticker-compact .rate-label {
+  font-size: 10px;
+}
+
+.rate-ticker-compact .rate-value {
+  font-size: 11px;
+}
+
+.rate-ticker-compact .rate-ticker-indicators {
+  display: none;
+}
+
+/* =====================================================
+   모바일 반응형
+   ===================================================== */
+@media (max-width: 575px) {
+  .rate-ticker {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .rate-ticker-inner {
+    gap: var(--space-2);
+  }
+
+  .rate-ticker-icon {
+    font-size: var(--text-body);
+  }
+
+  .rate-ticker-brand {
+    font-size: 13px;
+    max-width: 64px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rate-ticker-rate {
+    padding: 3px 6px;
+    gap: 3px;
+  }
+
+  .rate-label {
+    font-size: 10px;
+  }
+
+  .rate-ticker-indicators {
+    display: none;
+  }
+}
+
+/* =====================================================
+   접근성: 모션 감소 설정 대응
+   ===================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rate-ticker-content {
+    transition: none;
+  }
+
+  .rate-ticker-dot {
+    transition: none;
+  }
+
+  .rate-ticker-loading .rate-ticker-dot {
+    animation: none;
+  }
+}

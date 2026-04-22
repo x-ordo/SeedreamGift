@@ -1,0 +1,13 @@
+# robots.txt for wowgift.co.kr
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://wowgift.co.kr/sitemap.xml
+
+# Block admin pages from indexing
+Disallow: /admin/
+Disallow: /admin/*
+
+# Block API endpoints
+Disallow: /api/

@@ -1,0 +1,25 @@
+/* Card.module.css — daisyUI supplemental (interactive hover only) */
+
+.interactive {
+    cursor: pointer;
+    transition: transform var(--transition-normal) var(--transition-bounce), 
+                box-shadow var(--transition-normal) var(--transition-ease-out), 
+                border-color var(--transition-normal) var(--transition-ease-out);
+    border: 1px solid transparent;
+}
+
+.interactive:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-grey-100);
+    transform: translateY(-4px);
+}
+
+.interactive:active {
+    transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interactive {
+    transition: none;
+  }
+}

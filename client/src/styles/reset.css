@@ -1,0 +1,190 @@
+/**
+ * @file reset.css
+ * @description 브라우저 리셋 및 기본 스타일
+ *
+ * 포함 내용:
+ * - Body 기본 스타일
+ * - 컨테이너 유틸리티
+ * - 페이지 래퍼 스타일
+ */
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--text-caption);
+  background-color: var(--color-bg-primary);
+  color: var(--color-grey-900);
+  line-height: var(--text-line-height);
+  letter-spacing: var(--text-letter-spacing);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* Heading Scale — @layer base로 감싸서 Tailwind 유틸리티(@layer utilities)가 오버라이드 가능 */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  h1 { font-size: var(--text-hero); line-height: var(--line-height-hero); }
+  h2 { font-size: var(--text-display); line-height: var(--line-height-display); }
+  h3 { font-size: var(--text-headline); line-height: var(--line-height-headline); }
+  h4 { font-size: var(--text-title); line-height: var(--line-height-title); }
+  h5 { font-size: var(--text-body-lg); line-height: var(--line-height-body-lg); }
+  h6 { font-size: var(--text-body); line-height: var(--line-height-body); }
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-grey-300) transparent;
+}
+
+/* 모든 인터랙티브 요소에 일관된 터치 하이라이트 */
+a, button, [role="button"], input, select, textarea {
+  -webkit-tap-highlight-color: rgba(49, 130, 246, 0.06);
+}
+
+/* 브라우저 자동완성(autofill) 배경 — 둥근 모서리를 따르고 프로젝트 디자인에 통일 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-grey-900, #191f28);
+  -webkit-box-shadow: 0 0 0 1000px color-mix(in oklch, var(--color-primary, #3182F6) 4%, white) inset;
+  transition: background-color 5000s ease-in-out 0s;
+  border-radius: inherit;
+}
+
+/* Text selection */
+::selection {
+  background: var(--color-primary-light);
+  color: var(--color-grey-900);
+}
+
+/* Layout Containers */
+@layer components {
+  .container-custom {
+    width: 100%;
+    max-width: var(--container-xl);
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .container-custom {
+      padding: 0 var(--space-6);
+    }
+  }
+
+  .page-narrow {
+    max-width: 480px;
+  }
+
+  .page-wrapper {
+    padding-top: clamp(24px, 4vw, 40px);
+    padding-bottom: clamp(48px, 8vw, 80px);
+  }
+
+  /* page-container/page-content는 @layer 밖에서 정의 (line 158+) — Tailwind 우선순위 보장 */
+
+  /* Adaptive Grid */
+  .adaptive-grid {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+
+  @media (max-width: 575px) {
+    .adaptive-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3);
+    }
+  }
+}
+
+/* Home Page Overrides — unlayered로 Tailwind preflight보다 우선 */
+.home-page {
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding-bottom: 0;
+  overflow-x: visible;
+  overflow: visible;
+}
+
+.page-container:has(.home-page) {
+  padding: 0;
+  overflow-x: visible;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--color-primary) 6%, white) 0%,
+    color-mix(in oklch, var(--color-primary) 3%, white) 300px,
+    var(--color-grey-50) 600px,
+    white 1200px
+  );
+}
+
+html:has(.home-page) {
+  overflow-x: hidden;
+}
+
+.main-content-wrapper:has(.home-page) {
+  flex: none;
+}
+
+.layout-root:has(.home-page)>.site-footer {
+  margin-top: 0;
+}
+
+/* Page Layout — @layer 밖에서 정의하여 Tailwind 유틸리티에 덮이지 않도록 보장 */
+.page-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(180deg, color-mix(in oklch, var(--color-primary) 3%, var(--color-bg-primary)) 0%, var(--color-bg-primary) 600px);
+  padding: clamp(16px, 3vw, 48px) clamp(16px, 4vw, 48px);
+}
+
+.page-content {
+  max-width: clamp(var(--container-lg), 90vw, var(--container-xl));
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* BottomNav 있을 때 콘텐츠 하단 여백 (모바일) */
+@media (max-width: 767px) {
+  .page-container {
+    padding-bottom: calc(var(--bottom-nav-height, 56px) + env(safe-area-inset-bottom, 0px) + 16px);
+  }
+}
+
+/* FixedBottomCTA가 있을 때 콘텐츠 하단 여백 확보 (모바일) */
+@media (max-width: 1023px) {
+  /* CTA가 page-container의 형제이거나 후손일 때 모두 대응 */
+  .page-container:has(~ .bottom-cta--fixed),
+  .page-container:has(.bottom-cta--fixed),
+  .main-content-wrapper:has(.bottom-cta--fixed) {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* JS 폴백: :has() 미지원 브라우저용 (BottomNav.tsx에서 body에 클래스 토글) */
+  body.has-fixed-cta .page-container {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+  }
+}

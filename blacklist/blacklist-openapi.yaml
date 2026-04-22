@@ -1,0 +1,1004 @@
+openapi: 3.1.0
+info:
+  title: Blacklist-DB Partner API
+  version: 3.0.0
+  description: |
+    B2B Risk Intelligence Platform — 게이밍 산업 블랙리스트 데이터베이스 **파트너 API**.
+
+    ---
+
+    ## 빠른 시작 (Quick Start)
+
+    ### 1단계: 인증 헤더 구성
+    모든 요청에 아래 **2개 헤더**가 필수입니다:
+
+    ```
+    X-API-KEY: <발급받은 API Key>
+    X-Partner-Id: <이메일 @ 앞부분>
+    ```
+
+    예시: 이메일이 `admin@wowgift.co.kr`인 경우
+    ```
+    X-API-KEY: <발급받은 32자리 키>
+    X-Partner-Id: admin
+    ```
+
+    ### 2단계: 스크리닝 테스트 (핵심 API)
+    ```bash
+    curl -X POST "http://<서버>/v1/partner/screening/check" \
+      -H "X-API-KEY: <키>" \
+      -H "X-Partner-Id: <파트너ID>" \
+      -H "Content-Type: application/json; charset=utf-8" \
+      -d '{"candidates":[{"refId":"test-1","candidateName":"홍길동","phone":"01012345678"}]}'
+    ```
+
+    ### 3단계: 응답 확인
+    ```json
+    {
+      "success": true,
+      "data": {
+        "requestId": 1,
+        "candidateCount": 1,
+        "blockedCount": 1,
+        "clearedCount": 0,
+        "results": [{
+          "refId": "test-1",
+          "status": "BLOCKED",
+          "matchCode": "11000",
+          "incidentCount": 2
+        }]
+      }
+    }
+    ```
+
+    ---
+
+    ## 인증 (Authentication)
+
+    | 헤더 | 필수 | 설명 |
+    |------|------|------|
+    | `X-API-KEY` | **필수** | 발급받은 32자리 API Key |
+    | `X-Partner-Id` | **필수** | 계정 이메일의 `@` 앞부분 (예: `admin@wowgift.co.kr` → `admin`) |
+    | `Content-Type` | POST 요청 시 | `application/json; charset=utf-8` |
+
+    > **주의**: `X-Partner-Id`가 없거나 이메일 prefix와 불일치하면 `401` 에러가 반환됩니다.
+
+    ### 인증 검증 순서
+    1. `X-API-KEY` → SHA-256 해시 후 DB 대조
+    2. API Key 만료일 확인
+    3. 키 소유자(User) 조회
+    4. `X-Partner-Id` ↔ 이메일 prefix 일치 확인
+    5. 계정 활성 상태 확인
+    6. PARTNER 역할 확인
+    7. IP 허용목록 확인 (설정된 경우)
+
+    ---
+
+    ## 응답 형식
+
+    ### 성공 응답
+    ```json
+    {
+      "success": true,
+      "data": { ... }
+    }
+    ```
+
+    ### 에러 응답
+    ```json
+    {
+      "success": false,
+      "error": "사용자 친화적 메시지",
+      "code": "ERROR_CODE",
+      "statusCode": 400,
+      "timestamp": "2026-03-27T12:00:00Z",
+      "path": "/v1/partner/screening/check",
+      "requestId": "uuid"
+    }
+    ```
+
+    ---
+
+    ## 인코딩
+
+    **요청 본문은 반드시 UTF-8으로 인코딩**해야 합니다.
+    한글 이름이 포함된 JSON은 `Content-Type: application/json; charset=utf-8` 헤더를 사용하세요.
+    JSON 표준 유니코드 이스케이프(`\uXXXX`)도 지원됩니다.
+
+    ```json
+    {"candidateName": "홍길동"}
+    {"candidateName": "\ud64d\uae38\ub3d9"}
+    ```
+    위 두 형식 모두 동일하게 처리됩니다.
+
+    ---
+
+    ## 에러 코드 레퍼런스
+
+    | HTTP | code | 원인 | 조치 |
+    |------|------|------|------|
+    | 400 | `VALIDATION_ERROR` | 요청 파라미터 형식 오류 | 파라미터 확인 |
+    | 400 | `NAME_TOO_SHORT` | 이름 2자 미만 (검색 API) | 2자 이상 입력 |
+    | 400 | `INVALID_PHONE_LAST4` | 전화번호 뒤 4자리 형식 오류 (검색 API) | 숫자 4자리 확인 |
+    | 401 | - | API Key 누락/만료/불일치, X-Partner-Id 불일치 | 키 및 헤더 확인 |
+    | 402 | `INSUFFICIENT_BALANCE` | 잔액 부족 | 관리자에게 충전 요청 |
+    | 403 | - | IP 차단 또는 권한 부족 | 관리자에게 IP 등록 요청 |
+    | 429 | `SCREENING_RATE_LIMIT` | Rate Limit 초과 | 잠시 후 재시도 |
+    | 503 | `THECHEAT_NOT_CONFIGURED` | 더치트 서비스 미설정 | 관리자 문의 |
+
+    ---
+
+    ## Rate Limit
+
+    | 엔드포인트 | 제한 | 버스트 |
+    |-----------|------|--------|
+    | `/partner/search` | 전역 제한 적용 | - |
+    | `/partner/screening/check` | **140회/분** | 200 |
+    | `/partner/thecheat/search` | **140회/분** | 200 |
+
+    Rate Limit 초과 시 `429 Too Many Requests` 응답이 반환됩니다.
+    IP + API Key 조합별로 별도 버킷이 적용됩니다.
+
+    ---
+
+    ## 과금 규칙
+
+    | API | 단가 (기본값) | 비고 |
+    |-----|--------------|------|
+    | 블랙리스트 검색 | 1 USDT/건 | 결과 유무 무관, 60초 멱등성 |
+    | 스크리닝 | 1 USDT × 후보자 수 | 최대 100명/요청 |
+    | 더치트 사기조회 | 1 USDT/건 | 5분 멱등성 (재과금 없음) |
+
+    > 과금 면제 계정은 모든 API 호출 비용이 0입니다.
+
+    ---
+
+    ## 금액 단위
+    - 기본 통화: **USDT**
+    - 환율: 1 USDT = 1,500 KRW (고정)
+
+  contact:
+    name: Blacklist-DB 관리자
+
+servers:
+  - url: /v1
+    description: API 서버
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      description: |
+        발급받은 32자리 API Key.
+        **반드시 `X-Partner-Id` 헤더와 함께 전송해야 합니다.**
+
+  parameters:
+    XPartnerIdHeader:
+      name: X-Partner-Id
+      in: header
+      required: true
+      schema:
+        type: string
+      description: "계정 이메일의 @ 앞부분 (예: admin@wowgift.co.kr → `admin`)"
+
+  schemas:
+    # ── 블랙리스트 검색 ──
+    SearchResultItem:
+      type: object
+      description: 블랙리스트 매칭 결과 단건
+      properties:
+        id:
+          type: integer
+          description: 블랙게이머 고유 ID
+        name:
+          type: string
+          description: 이름
+        phoneLast4:
+          type: string
+          description: 전화번호 뒤 4자리
+          example: "6595"
+        accountLast4:
+          type: string
+          nullable: true
+          description: 주계좌 뒤 4자리
+          example: "5036"
+        bankName:
+          type: string
+          nullable: true
+          description: 은행명
+          example: "국민은행"
+        incidentAmount:
+          type: string
+          nullable: true
+          description: "사고 총액 (소수점 2자리 문자열)"
+          example: "6570000.00"
+        incidentCount:
+          type: integer
+          description: 사고 건수
+          example: 1
+        lastIncidentDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: 최근 사고일 (ISO 8601)
+          example: "2025-01-03T00:00:00Z"
+        riskType:
+          type: string
+          description: "위험 유형 (TONGHYUP, 자금이체, 보증사기, 선금사기, 보이스피싱, OTHER 등)"
+          example: "TONGHYUP"
+        category:
+          type: string
+          description: riskType과 동일값 (하위 호환용)
+        createdAt:
+          type: string
+          format: date-time
+          description: 블랙리스트 등록일
+        isUnlocked:
+          type: boolean
+          description: 현재 계정이 이 게이머의 PII를 잠금해제 했는지 여부
+          example: false
+        piiAvailability:
+          type: object
+          description: 상세 PII 데이터 보유 현황
+          properties:
+            hasPhone:
+              type: boolean
+              description: 전화번호 원본 보유 여부
+            hasAccount:
+              type: boolean
+              description: 계좌번호 보유 여부
+            hasIncidentDetail:
+              type: boolean
+              description: 사고 상세 정보 보유 여부
+
+    SearchResponse:
+      type: object
+      properties:
+        found:
+          type: boolean
+          description: 결과 존재 여부
+        searchType:
+          type: string
+          description: 항상 `"API"` (파트너 검색)
+          example: "API"
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResultItem'
+        total:
+          type: integer
+          description: 결과 건수
+        billing:
+          $ref: '#/components/schemas/BillingInfo'
+
+    BillingInfo:
+      type: object
+      description: 이 요청의 과금 정보
+      properties:
+        type:
+          type: string
+          example: "BALANCE"
+        searchType:
+          type: string
+          example: "API"
+        charged:
+          type: boolean
+          description: "실제 과금 여부. 멱등성 히트(60초 내 동일 쿼리) 시 `false`"
+        deducted:
+          type: number
+          description: 차감 금액 (USDT). 과금면제 계정은 항상 0.
+          example: 0
+        remainingBalance:
+          type: number
+          description: 차감 후 잔여 잔액 (USDT)
+          example: 999999
+
+    # ── 스크리닝 (핵심 API) ──
+    ScreeningCandidate:
+      type: object
+      required: [refId, candidateName, phone]
+      properties:
+        refId:
+          type: string
+          description: |
+            클라이언트 참조 ID. 응답의 `refId`로 그대로 반환되므로
+            요청/응답 매칭에 사용하세요.
+          example: "emp-001"
+        candidateName:
+          type: string
+          description: |
+            후보자 이름 (**정확 일치** 비교).
+            DB에 등록된 이름과 글자 하나라도 다르면 이름 매칭 실패.
+            반드시 UTF-8 인코딩.
+          example: "홍길동"
+        phone:
+          type: string
+          description: |
+            전화번호 (전체 번호). 서버에서 자동 정규화 후 해시 비교:
+            - `010-5823-6595` → `01058236595` (하이픈 제거)
+            - `82-10-5823-6595` → `01058236595` (국가코드 82→0)
+            - `010 5823 6595` → `01058236595` (공백 제거)
+            - `1058236595` → `01058236595` (Excel 선행0 복구)
+          example: "01012345678"
+        account:
+          type: string
+          nullable: true
+          description: |
+            계좌번호 (선택, 전체 번호). 서버에서 자동 정규화 후 해시 비교:
+            - `7726-0201-075036` → `77260201075036` (하이픈 제거)
+          example: "77260201075036"
+
+    ScreeningResult:
+      type: object
+      properties:
+        refId:
+          type: string
+          description: 요청 시 전달한 클라이언트 참조 ID
+          example: "emp-001"
+        status:
+          type: string
+          enum: [BLOCKED, CLEARED]
+          description: "`BLOCKED` = 블랙리스트 매칭됨, `CLEARED` = 매칭 없음"
+          example: "BLOCKED"
+        matchCode:
+          type: string
+          description: |
+            5자리 매칭 비트맵 (0=불일치, 1=일치):
+            ```
+            위치: [이름][전화][계좌][예비][예비]
+
+            "11000" → 이름+전화 일치 (가장 일반적인 BLOCKED)
+            "11100" → 이름+전화+계좌 모두 일치
+            "00100" → 계좌만 일치 (이름/전화 불일치여도 BLOCKED)
+            "00000" → 매칭 없음 (CLEARED)
+            ```
+
+            **매칭 규칙**:
+            - 이름(0번)+전화(1번): 둘 다 일치해야 비트가 켜짐 (AND 조건)
+            - 계좌(2번): 독립 매칭 (이름/전화와 무관)
+            - 어느 하나라도 매칭되면 `BLOCKED`
+          example: "11000"
+        incidentCount:
+          type: integer
+          description: "매칭된 블랙게이머의 사고 건수. CLEARED면 0, BLOCKED면 1 이상."
+          example: 2
+
+    # ── 더치트 사기조회 ──
+    TheCheatSearchRequest:
+      type: object
+      required: [keyword, keywordType]
+      properties:
+        keyword:
+          type: string
+          minLength: 7
+          maxLength: 20
+          description: |
+            전화번호 또는 계좌번호 (숫자만, 하이픈 제거).
+            - 전화번호: 7~11자리 (예: `01012345678`)
+            - 계좌번호: 7~20자리 (예: `1201123456789`)
+          example: "01012345678"
+        keywordType:
+          type: string
+          enum: [phone, account]
+          description: "`phone` = 전화번호 검색, `account` = 계좌번호 검색"
+          example: "phone"
+        bankCode:
+          type: string
+          minLength: 3
+          maxLength: 3
+          description: |
+            금융기관 공동코드 3자리 (선택).
+            `keywordType: account`일 때 AND 조건으로 사용됩니다.
+            생략 시 계좌번호만으로 검색합니다.
+          example: "004"
+
+    TheCheatSearchResponse:
+      type: object
+      properties:
+        logId:
+          type: integer
+          description: "검색 로그 ID. 멱등성 캐시 히트 시 이전 logId와 동일."
+          example: 1
+        keyword:
+          type: string
+          description: "마스킹된 키워드 (원본 아님)"
+          example: "010****0000"
+        keywordType:
+          type: string
+          enum: [phone, account]
+        bankCode:
+          type: string
+          description: "요청한 bankCode (없으면 빈 문자열)"
+          example: ""
+        caution:
+          type: string
+          enum: ["Y", "N"]
+          description: "`Y` = 피해사례 등록됨 (주의 필요), `N` = 등록 없음"
+          example: "N"
+        dateStart:
+          type: string
+          description: "검색기간 시작 (형식: yyyyMMddHHmmss)"
+          example: "20251227042000"
+        dateEnd:
+          type: string
+          description: "검색기간 종료 (형식: yyyyMMddHHmmss)"
+          example: "20260327042000"
+        keywordUrl:
+          type: string
+          description: "피해사례 열람 URL. caution=N이어도 URL이 존재할 수 있음."
+          example: "https://api.thecheat.co.kr/web/redirect.php?keyword=..."
+        charged:
+          type: number
+          description: "과금액 (USDT). 과금면제 계정은 `0` 또는 `\"0\"`."
+          example: 0
+        cached:
+          type: boolean
+          description: |
+            멱등성 캐시 히트 여부.
+            - `true`: 5분 이내 동일 키워드 재검색 → 이전 결과 반환, **재과금 없음**, 동일 `logId`
+            - `false`: 새로운 검색 실행
+          example: false
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: 사용자 친화적 에러 메시지
+          example: "잔액이 부족합니다."
+        code:
+          type: string
+          description: 머신-리더블 에러 코드
+          example: "INSUFFICIENT_BALANCE"
+        statusCode:
+          type: integer
+          example: 402
+        timestamp:
+          type: string
+          example: "2026-03-27T12:00:00Z"
+        path:
+          type: string
+          example: "/v1/partner/screening/check"
+        requestId:
+          type: string
+          description: 문의 시 이 값을 전달하세요
+          example: "a1b2c3d4-e5f6-..."
+
+paths:
+  # ═══════════════════════════════════════════
+  #  스크리닝 (핵심 API)
+  # ═══════════════════════════════════════════
+
+  /partner/screening/check:
+    post:
+      tags: [스크리닝 (핵심)]
+      operationId: screenCandidates
+      summary: 블랙리스트 스크리닝
+      description: |
+        후보자의 **이름(전체)**, **전화번호(전체)**, **계좌번호(전체, 선택)**를 블랙리스트와 대조합니다.
+        단건/다건 모두 이 엔드포인트를 사용합니다 (단건 = candidates 배열에 1명).
+
+        **과금**: 후보자당 1 USDT (예: 50명 → 50 USDT)
+        **Rate Limit**: 140회/분
+        **제한**: 요청당 최소 1명, 최대 100명
+
+        ### 요청 예시 (cURL)
+        ```bash
+        curl -X POST "http://<서버>/v1/partner/screening/check" \
+          -H "X-API-KEY: <your-api-key>" \
+          -H "X-Partner-Id: admin" \
+          -H "Content-Type: application/json; charset=utf-8" \
+          -d '{
+            "candidates": [
+              { "refId": "001", "candidateName": "홍길동", "phone": "01012345678" },
+              { "refId": "002", "candidateName": "김철수", "phone": "01098765432", "account": "77260201075036" }
+            ]
+          }'
+        ```
+
+        ### 매칭 규칙 (검증 완료)
+        1. **이름 + 전화번호** (AND): 서버가 전화번호를 정규화→해시 후 DB PhoneHash와 비교. 해시 일치 시 이름을 **정확 일치** 비교. 둘 다 일치하면 matchCode `[1][1][_][0][0]`
+        2. **계좌번호** (독립): 서버가 계좌번호를 정규화→해시 후 DB AccountHash와 비교. 일치하면 matchCode `[_][_][1][0][0]`
+        3. **어느 하나라도 매칭** → `BLOCKED`
+
+        ### 전화번호 자동 정규화 (검증 완료)
+        | 입력 | 정규화 결과 | 비고 |
+        |------|------------|------|
+        | `010-5823-6595` | `01058236595` | 하이픈 제거 |
+        | `821058236595` | `01058236595` | 국가코드 82→0 |
+        | `010 5823 6595` | `01058236595` | 공백 제거 |
+        | `1058236595` | `01058236595` | Excel 선행0 복구 |
+
+        ### 중요
+        - `candidateName`은 **UTF-8 인코딩 필수**. 잘못된 인코딩은 이름 매칭 실패의 원인.
+        - `phone`은 전체 전화번호 (뒤 4자리 아님). 서버가 정규화+해시 처리.
+        - `account`는 선택이지만, 제공 시 계좌 독립 매칭으로 탐지율 향상.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XPartnerIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [candidates]
+              properties:
+                candidates:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ScreeningCandidate'
+                  minItems: 1
+                  maxItems: 100
+            examples:
+              single:
+                summary: 단건 스크리닝
+                value:
+                  candidates:
+                    - refId: "001"
+                      candidateName: "홍길동"
+                      phone: "01012345678"
+              with_account:
+                summary: 전화번호 + 계좌번호
+                value:
+                  candidates:
+                    - refId: "001"
+                      candidateName: "홍길동"
+                      phone: "01012345678"
+                      account: "77260201075036"
+              batch:
+                summary: 다건 혼합 (5명)
+                value:
+                  candidates:
+                    - refId: "001"
+                      candidateName: "홍길동"
+                      phone: "01058236595"
+                      account: "77260201075036"
+                    - refId: "002"
+                      candidateName: "김철수"
+                      phone: "01090834354"
+                    - refId: "003"
+                      candidateName: "이영희"
+                      phone: "01035383456"
+                    - refId: "004"
+                      candidateName: "가짜유저"
+                      phone: "01077778888"
+                    - refId: "005"
+                      candidateName: "테스트"
+                      phone: "01055559999"
+                      account: "9999888877776666"
+      responses:
+        '200':
+          description: 스크리닝 완료
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      requestId:
+                        type: integer
+                        description: 스크리닝 요청 ID (이력 조회용)
+                      candidateCount:
+                        type: integer
+                        description: 요청 후보자 수
+                      blockedCount:
+                        type: integer
+                        description: 블랙리스트 매칭된 수
+                      clearedCount:
+                        type: integer
+                        description: 매칭 없는 수
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ScreeningResult'
+              examples:
+                name_phone_match:
+                  summary: "이름+전화 매칭 → BLOCKED 11000"
+                  value:
+                    success: true
+                    data:
+                      requestId: 48
+                      candidateCount: 1
+                      blockedCount: 1
+                      clearedCount: 0
+                      results:
+                        - refId: "001"
+                          status: "BLOCKED"
+                          matchCode: "11000"
+                          incidentCount: 1
+                all_match:
+                  summary: "이름+전화+계좌 전부 매칭 → BLOCKED 11100"
+                  value:
+                    success: true
+                    data:
+                      requestId: 51
+                      candidateCount: 1
+                      blockedCount: 1
+                      clearedCount: 0
+                      results:
+                        - refId: "001"
+                          status: "BLOCKED"
+                          matchCode: "11100"
+                          incidentCount: 1
+                account_only:
+                  summary: "계좌만 매칭 (이름/전화 불일치) → BLOCKED 00100"
+                  value:
+                    success: true
+                    data:
+                      requestId: 55
+                      candidateCount: 1
+                      blockedCount: 1
+                      clearedCount: 0
+                      results:
+                        - refId: "001"
+                          status: "BLOCKED"
+                          matchCode: "00100"
+                          incidentCount: 1
+                cleared:
+                  summary: "매칭 없음 → CLEARED 00000"
+                  value:
+                    success: true
+                    data:
+                      requestId: 54
+                      candidateCount: 1
+                      blockedCount: 0
+                      clearedCount: 1
+                      results:
+                        - refId: "001"
+                          status: "CLEARED"
+                          matchCode: "00000"
+                          incidentCount: 0
+                batch_mixed:
+                  summary: "다건 혼합 (3 BLOCKED + 2 CLEARED)"
+                  value:
+                    success: true
+                    data:
+                      requestId: 59
+                      candidateCount: 5
+                      blockedCount: 3
+                      clearedCount: 2
+                      results:
+                        - refId: "001"
+                          status: "BLOCKED"
+                          matchCode: "11100"
+                          incidentCount: 1
+                        - refId: "002"
+                          status: "BLOCKED"
+                          matchCode: "11000"
+                          incidentCount: 2
+                        - refId: "003"
+                          status: "BLOCKED"
+                          matchCode: "11000"
+                          incidentCount: 1
+                        - refId: "004"
+                          status: "CLEARED"
+                          matchCode: "00000"
+                          incidentCount: 0
+                        - refId: "005"
+                          status: "CLEARED"
+                          matchCode: "00000"
+                          incidentCount: 0
+        '400':
+          description: 요청 오류
+          content:
+            application/json:
+              examples:
+                empty:
+                  summary: 빈 배열
+                  value: { "success": false, "error": "잘못된 형식의 요청입니다: Key: 'ScreeningRequestDto.Candidates' Error:Field validation for 'Candidates' failed on the 'min' tag", "code": "VALIDATION_ERROR" }
+                missing_phone:
+                  summary: phone 필드 누락
+                  value: { "success": false, "error": "잘못된 형식의 요청입니다: Key: 'ScreeningRequestDto.Candidates[0].Phone' Error:Field validation for 'Phone' failed on the 'required' tag", "code": "VALIDATION_ERROR" }
+                missing_name:
+                  summary: candidateName 필드 누락
+                  value: { "success": false, "error": "잘못된 형식의 요청입니다: Key: 'ScreeningRequestDto.Candidates[0].CandidateName' Error:Field validation for 'CandidateName' failed on the 'required' tag", "code": "VALIDATION_ERROR" }
+        '401':
+          description: 인증 실패
+          content:
+            application/json:
+              examples:
+                missing_key:
+                  value: { "success": false, "error": "API Key가 필요합니다." }
+                invalid_key:
+                  value: { "success": false, "error": "유효하지 않은 API Key입니다." }
+        '402':
+          description: 잔액 부족 (후보자 수 × 단가 > 잔액)
+          content:
+            application/json:
+              example: { "success": false, "error": "잔액이 부족합니다.", "code": "INSUFFICIENT_BALANCE" }
+        '429':
+          description: Rate Limit 초과 (140회/분)
+
+  # ═══════════════════════════════════════════
+  #  블랙리스트 검색 (간편 조회)
+  # ═══════════════════════════════════════════
+
+  /partner/search:
+    get:
+      tags: [블랙리스트 검색]
+      operationId: searchBlacklist
+      summary: 블랙리스트 간편 검색
+      description: |
+        이름 **AND** 전화번호 뒤 4자리로 블랙리스트를 검색합니다.
+        스크리닝과 달리 전체 전화번호가 아닌 **뒤 4자리**만으로 조회합니다.
+
+        **과금**: 요청당 1 USDT (결과 유무 무관)
+        **멱등성**: 동일 쿼리 60초 이내 재검색 시 재과금 없음 (`charged: false`)
+
+        ### 요청 예시
+        ```bash
+        curl -X GET \
+          "http://<서버>/v1/partner/search?name=홍길동&phoneLast4=5678" \
+          -H "X-API-KEY: <your-api-key>" \
+          -H "X-Partner-Id: admin"
+        ```
+
+        ### 매칭 규칙
+        - `name`: 서버에서 특수문자 제거 후 **정확 일치** 비교 (최소 2자)
+        - `phoneLast4`: 정확히 4자리 숫자 매칭
+        - 두 조건이 **모두** 일치하는 블랙게이머만 반환 (APPROVED 상태만)
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XPartnerIdHeader'
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+          description: "검색 이름 (최소 2자, 특수문자 자동 제거)"
+          example: "홍길동"
+        - name: phoneLast4
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: '^\d{4}$'
+            minLength: 4
+            maxLength: 4
+          description: "전화번호 뒤 4자리 (정확히 숫자 4자리)"
+          example: "6595"
+      responses:
+        '200':
+          description: 검색 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/SearchResponse'
+              examples:
+                found:
+                  summary: 결과 있음
+                  value:
+                    success: true
+                    data:
+                      found: true
+                      searchType: "API"
+                      total: 1
+                      results:
+                        - id: 583
+                          name: "위광문"
+                          phoneLast4: "6595"
+                          accountLast4: "5036"
+                          bankName: "국민은행"
+                          incidentAmount: "6570000.00"
+                          incidentCount: 1
+                          lastIncidentDate: "2025-01-03T00:00:00Z"
+                          riskType: "TONGHYUP"
+                          category: "TONGHYUP"
+                          createdAt: "2026-03-23T10:48:24Z"
+                          isUnlocked: false
+                          piiAvailability:
+                            hasPhone: true
+                            hasAccount: true
+                            hasIncidentDetail: true
+                      billing:
+                        type: "BALANCE"
+                        searchType: "API"
+                        charged: true
+                        deducted: 0
+                        remainingBalance: 999999
+                not_found:
+                  summary: 결과 없음 (과금은 됨)
+                  value:
+                    success: true
+                    data:
+                      found: false
+                      searchType: "API"
+                      total: 0
+                      results: []
+                      billing:
+                        type: "BALANCE"
+                        searchType: "API"
+                        charged: true
+                        deducted: 0
+                        remainingBalance: 999999
+                idempotent:
+                  summary: 60초 이내 동일 검색 (재과금 없음)
+                  value:
+                    success: true
+                    data:
+                      found: true
+                      searchType: "API"
+                      total: 1
+                      results:
+                        - id: 583
+                          name: "위광문"
+                          phoneLast4: "6595"
+                      billing:
+                        type: "BALANCE"
+                        searchType: "API"
+                        charged: false
+                        deducted: 0
+                        remainingBalance: 999999
+        '400':
+          description: 파라미터 오류
+          content:
+            application/json:
+              examples:
+                missing_name:
+                  value: { "success": false, "error": "Key: 'SearchRequest.Name' Error:Field validation for 'Name' failed on the 'required' tag", "code": "BAD_REQUEST" }
+                invalid_phone:
+                  value: { "success": false, "error": "INVALID_PHONE_LAST4", "code": "BAD_REQUEST" }
+                short_phone:
+                  value: { "success": false, "error": "Key: 'SearchRequest.PhoneLast4' Error:Field validation for 'PhoneLast4' failed on the 'len' tag", "code": "BAD_REQUEST" }
+        '401':
+          description: 인증 실패
+        '402':
+          description: 잔액 부족
+        '403':
+          description: IP 차단 또는 미승인 계정
+        '429':
+          description: Rate Limit 초과
+
+  # ═══════════════════════════════════════════
+  #  더치트 사기조회
+  # ═══════════════════════════════════════════
+
+  /partner/thecheat/search:
+    post:
+      tags: [더치트 사기조회]
+      operationId: searchTheCheat
+      summary: 더치트 사기조회
+      description: |
+        전화번호 또는 계좌번호로 [더치트](https://thecheat.co.kr) 피해사례를 조회합니다.
+
+        **과금**: 건당 1 USDT
+        **Rate Limit**: 140회/분
+        **멱등성**: 동일 키워드 5분 이내 재검색 시 캐시 반환 (**재과금 없음**, 동일 `logId`)
+
+        ### 요청 예시
+        ```bash
+        # 전화번호 검색
+        curl -X POST "http://<서버>/v1/partner/thecheat/search" \
+          -H "X-API-KEY: <your-api-key>" \
+          -H "X-Partner-Id: admin" \
+          -H "Content-Type: application/json" \
+          -d '{"keyword": "01044440000", "keywordType": "phone"}'
+        ```
+
+        ### 응답 해석
+        - `caution: "Y"` → 피해사례 등록됨. `keywordUrl`로 상세 확인 가능.
+        - `caution: "N"` → 등록된 피해사례 없음.
+        - `cached: true` → 5분 이내 동일 검색. 동일 `logId` 반환, 재과금 없음.
+        - `keyword` → 마스킹된 값 반환 (예: `010****0000`). 원본은 반환하지 않음.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XPartnerIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TheCheatSearchRequest'
+            examples:
+              phone:
+                summary: 전화번호 검색
+                value:
+                  keyword: "01044440000"
+                  keywordType: "phone"
+              account:
+                summary: 계좌번호 검색
+                value:
+                  keyword: "12010123456"
+                  keywordType: "account"
+              account_with_bank:
+                summary: 계좌번호 + 은행코드
+                value:
+                  keyword: "12010123456"
+                  keywordType: "account"
+                  bankCode: "004"
+      responses:
+        '200':
+          description: 검색 결과
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/TheCheatSearchResponse'
+              examples:
+                new_search:
+                  summary: 신규 검색 (caution=N)
+                  value:
+                    success: true
+                    data:
+                      logId: 1
+                      keyword: "010****0000"
+                      keywordType: "phone"
+                      bankCode: ""
+                      caution: "N"
+                      dateStart: "20251227042000"
+                      dateEnd: "20260327042000"
+                      keywordUrl: "https://api.thecheat.co.kr/web/redirect.php?keyword=...&enc=1"
+                      charged: 0
+                      cached: false
+                cached_hit:
+                  summary: 5분 이내 동일 검색 (캐시)
+                  value:
+                    success: true
+                    data:
+                      logId: 1
+                      keyword: "010****0000"
+                      keywordType: "phone"
+                      bankCode: ""
+                      caution: "N"
+                      dateStart: "20251227042000"
+                      dateEnd: "20260327042000"
+                      keywordUrl: "https://api.thecheat.co.kr/web/redirect.php?keyword=...&enc=1"
+                      charged: 0
+                      cached: true
+                account_search:
+                  summary: 계좌번호 검색
+                  value:
+                    success: true
+                    data:
+                      logId: 2
+                      keyword: "1201****456"
+                      keywordType: "account"
+                      bankCode: ""
+                      caution: "N"
+                      dateStart: "20251227042001"
+                      dateEnd: "20260327042001"
+                      keywordUrl: "https://api.thecheat.co.kr/web/redirect.php?keyword=...&enc=1"
+                      charged: 0
+                      cached: false
+        '400':
+          description: 입력값 오류
+          content:
+            application/json:
+              examples:
+                keyword_short:
+                  summary: keyword 7자 미만
+                  value: { "success": false, "error": "잘못된 형식의 요청입니다: Key: 'TheCheatSearchDto.Keyword' Error:Field validation for 'Keyword' failed on the 'min' tag", "code": "VALIDATION_ERROR" }
+                invalid_type:
+                  summary: keywordType 잘못된 값
+                  value: { "success": false, "error": "잘못된 형식의 요청입니다: Key: 'TheCheatSearchDto.KeywordType' Error:Field validation for 'KeywordType' failed on the 'oneof' tag", "code": "VALIDATION_ERROR" }
+        '401':
+          description: 인증 실패
+        '402':
+          description: 잔액 부족
+        '429':
+          description: Rate Limit 초과 (140회/분)
+        '503':
+          description: 더치트 서비스 장애 또는 미설정

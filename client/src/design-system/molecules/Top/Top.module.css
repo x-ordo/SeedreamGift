@@ -1,0 +1,273 @@
+/* Top.module.css - Toss Design System Top Component */
+
+/* Main Container */
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-left: var(--space-5);
+  padding-right: var(--space-5);
+}
+
+/* Content Area - Main layout */
+.contentArea {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.contentMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.contentRight {
+  flex-shrink: 0;
+  display: flex;
+}
+
+.contentRightCenter {
+  align-items: center;
+}
+
+.contentRightEnd {
+  align-items: flex-end;
+}
+
+/* Upper Area */
+.upper {
+  margin-bottom: var(--space-4);
+}
+
+.upperAssetContent {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Title Area */
+.titleArea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Title Paragraph */
+.titleParagraph {
+  margin: 0;
+  line-height: 1.3;
+}
+
+.titleSize22 {
+  font-size: 22px;
+}
+
+.titleSize28 {
+  font-size: 28px;
+}
+
+/* Title Text Button */
+.titleTextButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: opacity var(--transition-fast) ease;
+}
+
+.titleTextButton:hover {
+  opacity: 0.7;
+}
+
+.titleTextButton:active {
+  opacity: 0.5;
+}
+
+.titleTextButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+  border-radius: var(--radius-sm);
+}
+
+/* Title Selector */
+.titleSelector {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: opacity var(--transition-fast) ease;
+}
+
+.titleSelector:hover {
+  opacity: 0.7;
+}
+
+.titleSelector:active {
+  opacity: 0.5;
+}
+
+.titleSelector:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+  border-radius: var(--radius-sm);
+}
+
+.selectorArrow {
+  transition: transform var(--transition-fast) ease;
+}
+
+.titleSelector:hover .selectorArrow {
+  transform: translateY(2px);
+}
+
+/* Subtitle Area */
+.subtitleTop {
+  margin-bottom: var(--space-1);
+}
+
+.subtitleBottom {
+  margin-top: var(--space-1);
+}
+
+/* Subtitle Paragraph */
+.subtitleParagraph {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.subtitleSize13 {
+  font-size: 13px;
+}
+
+.subtitleSize15 {
+  font-size: 15px;
+}
+
+.subtitleSize17 {
+  font-size: 17px;
+}
+
+/* Subtitle Text Button */
+.subtitleTextButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: opacity var(--transition-fast) ease;
+  font-size: var(--text-body);
+}
+
+.subtitleTextButton:hover {
+  opacity: 0.7;
+}
+
+.subtitleTextButtonArrow {
+  font-size: 12px;
+}
+
+.subtitleTextButtonUnderline {
+  text-decoration: underline;
+}
+
+.subtitleTextButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+  border-radius: var(--radius-sm);
+}
+
+/* Subtitle Selector */
+.subtitleSelector {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: opacity var(--transition-fast) ease;
+}
+
+.subtitleSelector:hover {
+  opacity: 0.7;
+}
+
+.subtitleSelector:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+  border-radius: var(--radius-sm);
+}
+
+/* Subtitle Badges */
+.subtitleBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/* Right Area */
+.rightAssetContent {
+  display: flex;
+  align-items: center;
+}
+
+.rightButton {
+  flex-shrink: 0;
+}
+
+/* Lower Area */
+.lower {
+  margin-top: var(--space-4);
+}
+
+.lowerButton {
+  display: inline-flex;
+}
+
+/* Lower CTA */
+.lowerCTA {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.lowerCTAButton {
+  flex: 1;
+}
+
+.lowerCTAButtonBlock {
+  display: block;
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .titleTextButton,
+  .titleSelector,
+  .selectorArrow,
+  .subtitleTextButton,
+  .subtitleSelector {
+    transition: none;
+  }
+}

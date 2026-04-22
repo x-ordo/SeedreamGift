@@ -1,0 +1,845 @@
+/**
+ * @file Rates.css
+ * @description Rate table, brand chip filter, live page styles
+ * Shared between LiveDashboard and TransactionsPage
+ * Extracted from index.css
+ */
+
+/* ============================================
+   LIVE PAGE
+   ============================================ */
+
+/* Keyframes */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.live-page {
+  max-width: var(--container-lg);
+  margin: 0 auto;
+}
+
+/* ---- Header ---- */
+.live-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--section-gap-sm);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-grey-100);
+}
+
+.live-header-content {
+  flex: 1;
+}
+
+.live-header-badges {
+  margin-bottom: var(--space-2);
+}
+
+.live-indicator-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-red-500);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-tiny);
+  font-weight: var(--font-weight-extrabold);
+  color: white;
+  letter-spacing: 0.08em;
+}
+
+.live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  background: white;
+  border-radius: 50%;
+  animation: live-pulse 1.5s ease-in-out infinite;
+}
+
+.live-header-title {
+  font-size: var(--text-display);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+  margin: 0 0 var(--space-1) 0;
+  line-height: 1.3;
+}
+
+.live-header-subtitle {
+  font-size: var(--text-body);
+  color: var(--color-grey-600);
+  margin: 0;
+}
+
+.live-date {
+  font-size: var(--text-caption);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: var(--space-1);
+}
+
+/* ---- Back Button ---- */
+.live-back-button {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid var(--color-grey-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--text-headline);
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-normal), color var(--transition-normal), box-shadow var(--transition-normal);
+  flex-shrink: 0;
+}
+
+.live-back-button:hover {
+  background: var(--color-grey-50);
+  color: var(--color-text-primary);
+}
+
+.live-back-button:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--a11y-focus-ring-shadow);
+}
+
+/* ---- Guide Section ---- */
+.rates-guide-section {
+  margin-bottom: var(--section-gap-sm);
+}
+
+.rates-guide-intro {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-700);
+  margin: 0 0 var(--space-3);
+}
+
+.rates-guide-intro i {
+  color: var(--color-point);
+  font-size: var(--text-body-lg);
+}
+
+.rates-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.rates-guide-card {
+  appearance: none;
+  font: inherit;
+  border: 1px solid var(--color-grey-200);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow var(--transition-normal), transform var(--transition-normal), border-color var(--transition-normal);
+}
+
+.rates-guide-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.rates-guide-card:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--a11y-focus-ring-shadow);
+}
+
+.rates-guide-card[data-accent="blue"]:hover { border-color: var(--color-primary); }
+.rates-guide-card[data-accent="green"]:hover { border-color: var(--color-green-500); }
+.rates-guide-card[data-accent="orange"]:hover { border-color: var(--color-orange-500); }
+
+.rates-guide-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-body-lg);
+  background: var(--color-grey-100);
+  color: var(--color-grey-600);
+  flex-shrink: 0;
+}
+
+.rates-guide-icon[data-accent="blue"] {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.rates-guide-icon[data-accent="green"] {
+  background: var(--color-success-light);
+  color: var(--color-green-600);
+}
+
+.rates-guide-icon[data-accent="orange"] {
+  background: var(--color-warning-light);
+  color: var(--color-orange-500);
+}
+
+.rates-guide-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.rates-guide-title {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+}
+
+.rates-guide-desc {
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rates-guide-action {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: auto;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-grey-100);
+  width: 100%;
+}
+
+.rates-guide-action[data-accent="blue"] { color: var(--color-primary); }
+.rates-guide-action[data-accent="green"] { color: var(--color-green-600); }
+.rates-guide-action[data-accent="orange"] { color: var(--color-orange-500); }
+
+/* ---- Column Header Tooltip ---- */
+.table-header-row {
+  overflow: visible;
+}
+
+.col-header-tip {
+  position: relative;
+  cursor: default;
+  text-decoration: underline dotted var(--color-grey-400);
+  text-underline-offset: 3px;
+}
+
+.col-header-tip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-grey-800);
+  color: #fff;
+  font-size: var(--text-tiny);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: 1.4;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: var(--z-tooltip);
+}
+
+.col-header-tip:hover::after {
+  opacity: 1;
+}
+
+/* ---- Guide: Mobile ---- */
+@media (max-width: 575px) {
+  .rates-guide-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+
+  .rates-guide-card {
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-3);
+    gap: var(--space-2);
+    text-align: center;
+  }
+
+  .rates-guide-body {
+    gap: 2px;
+  }
+
+  .rates-guide-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .rates-guide-desc {
+    display: none;
+  }
+
+  .rates-guide-action {
+    display: none;
+  }
+
+  .rates-guide-title {
+    font-size: var(--text-caption);
+  }
+}
+
+.live-card {
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.live-card-header.list-header {
+  padding: var(--space-3) 0;
+  background: var(--color-bg-primary);
+  margin-bottom: var(--space-4);
+  border-radius: 0;
+}
+
+/* /rates table: same style as homepage */
+.live-card .table-header-row {
+  background: var(--color-bg-primary);
+  border-bottom: none;
+}
+
+.live-card .table-header-row .col-brand {
+  text-align: left;
+  padding-left: 16px;
+}
+
+.live-card .table-header-row .col-face,
+.live-card .table-header-row .col-sale,
+.live-card .table-header-row .col-buy {
+  text-align: right;
+}
+
+.live-card .table-data-row {
+  background: #fff;
+}
+
+.live-card .table-data-row .col-face {
+  text-align: right;
+}
+
+.live-card .table-data-row .col-sale,
+.live-card .table-data-row .col-buy {
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* /rates page — expanded table */
+.live-card .table-header-row,
+.live-card .table-data-row {
+  grid-template-columns: 1.2fr 1fr 1.2fr 1.2fr;
+}
+
+.live-card .table-header-row {
+  padding: var(--space-3) 0;
+  font-size: var(--text-caption);
+}
+
+/* /rates data row: no border-left */
+.live-card .table-data-row--clickable {
+  border-left: none;
+}
+
+.live-card .table-data-row {
+  padding: 0;
+  height: 64px;
+}
+
+.live-card .product-name {
+  font-size: var(--text-body-lg);
+}
+
+.live-card .price-value {
+  font-size: var(--text-body-lg);
+}
+
+.live-card .rate-value {
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.live-card .rate-badge {
+  font-size: var(--text-tiny);
+}
+
+.live-card .brand-color-dot {
+  width: 10px;
+  height: 10px;
+}
+
+.refresh-info {
+  font-size: var(--text-tiny);
+  color: var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.refresh-info::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--color-green-500);
+  border-radius: 50%;
+}
+
+/* ---- Rate Table ---- */
+.rate-table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 60px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-grey-50);
+  border-bottom: 2px solid var(--color-grey-100);
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-secondary);
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.rate-table-header--product {
+  grid-template-columns: 2.5fr 1fr 1.2fr 1.2fr;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-tiny);
+}
+
+.rate-table-header .col-brand,
+.rate-table-header .col-name {
+  text-align: left;
+}
+
+.rate-table-body {
+  flex: 1;
+}
+
+.rate-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 60px;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-grey-100);
+  align-items: center;
+  text-align: center;
+  transition: background var(--transition-fast), border-left-color var(--transition-fast);
+  border-left: 3px solid transparent;
+}
+
+.rate-row--product {
+  grid-template-columns: 2.5fr 1fr 1.2fr 1.2fr;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-caption);
+}
+
+.rate-row:hover {
+  background: var(--color-blue-50);
+  border-left-color: var(--color-primary);
+}
+
+.rate-row:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: inset var(--a11y-focus-ring-shadow);
+}
+
+/* ---- Brand Chip Filter Strip (TransactionsPage) ---- */
+.brand-chip-strip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-2) var(--space-4);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+}
+
+.brand-chip-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.brand-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--color-grey-50);
+  border: 1px solid var(--color-grey-200);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-600);
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.brand-chip:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-blue-50);
+}
+
+.brand-chip.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+  font-weight: var(--font-weight-bold);
+}
+
+.brand-chip:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--a11y-focus-ring-shadow);
+}
+
+.brand-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.brand-chip.active .brand-chip-dot {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.brand-chip-count {
+  font-size: var(--text-tiny);
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+/* Mobile chip strip */
+@media (max-width: 575px) {
+  .brand-chip-strip {
+    padding: 4px 12px;
+    gap: 4px;
+  }
+
+  .brand-chip {
+    padding: 3px 8px;
+    font-size: var(--text-tiny);
+  }
+
+  .brand-chip-dot {
+    width: 5px;
+    height: 5px;
+  }
+}
+
+/* ---- Shared Table Header Row (LiveDashboard + TransactionsPage) ---- */
+.table-header-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-grey-50);
+  border-bottom: 1px solid var(--color-grey-100);
+  font-size: var(--text-tiny);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+.table-header-row .col-brand { text-align: left; }
+
+/* ---- Shared Table Data Row ---- */
+.table-data-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-grey-100);
+  align-items: center;
+  text-align: center;
+}
+
+.table-data-row .col-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: left;
+  min-width: 0;
+}
+
+/* ---- Button reset for clickable rows ---- */
+button.table-data-row {
+  appearance: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+}
+
+/* ---- Clickable Row Variant ---- */
+.table-data-row--clickable {
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background-color var(--transition-fast), border-left-color var(--transition-fast);
+}
+.table-data-row--clickable:hover {
+  background: var(--color-blue-50);
+  border-left-color: var(--color-primary);
+}
+.table-data-row--clickable:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: inset var(--a11y-focus-ring-shadow);
+}
+
+/* Alternating row background */
+.table-data-row--alt {
+  background: var(--color-grey-50);
+}
+.table-data-row--alt:hover {
+  background: var(--color-blue-50);
+}
+
+/* Brand color dot in rate table */
+.brand-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.col-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: left;
+}
+
+.col-name {
+  text-align: left;
+}
+
+.product-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.rate-value {
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.rate-value.buy {
+  color: var(--color-blue-600);
+}
+
+.rate-value.sell {
+  color: var(--color-green-600);
+}
+
+.rate-badge {
+  display: inline-block;
+  font-size: var(--text-tiny);
+  font-weight: var(--font-weight-bold);
+  padding: 1px 4px;
+  border-radius: var(--radius-sm);
+  margin-left: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rate-badge.discount {
+  background: var(--color-green-50);
+  color: var(--color-green-700);
+}
+
+.rate-badge.tradein {
+  background: var(--color-blue-50);
+  color: var(--color-blue-700);
+}
+
+.trend-up {
+  color: var(--color-red-500);
+}
+
+.trend-down {
+  color: var(--color-blue-500);
+}
+
+.trend-stable {
+  color: var(--color-grey-400);
+}
+
+/* ---- CTA Section ---- */
+.live-cta-section {
+  position: relative;
+  background: linear-gradient(135deg, var(--color-blue-50), var(--color-grey-50), rgba(34, 197, 94, 0.05));
+  border-radius: var(--radius-lg);
+  padding: var(--space-10) var(--space-8);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  border: 1px solid var(--color-grey-200);
+  overflow: hidden;
+}
+
+.live-cta-glow {
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(49, 130, 246, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.live-cta-title {
+  font-size: var(--text-headline);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+  margin: 0;
+  position: relative;
+}
+
+.live-cta-desc {
+  font-size: var(--text-body);
+  color: var(--color-grey-500);
+  margin: 0;
+  position: relative;
+}
+
+.live-cta-buttons {
+  display: flex;
+  gap: var(--space-3);
+  position: relative;
+}
+
+/* ============================
+   LIVE PAGE Responsive
+   ============================ */
+
+/* < 480px: Extra small */
+@media (max-width: 575px) {
+  .live-header {
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+  }
+
+  .live-header .live-back-button {
+    align-self: flex-start;
+  }
+
+  .live-date {
+    margin-top: var(--space-1);
+  }
+
+  .live-cta-section {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .live-cta-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+
+/* >= 1400px: Wide */
+@media (min-width: 1280px) {
+  .live-page {
+    max-width: var(--container-xl);
+    margin: 0 auto;
+  }
+}
+
+/* ---- Mobile Card View (575px and below) ---- */
+@media (max-width: 575px) {
+  .live-card .table-header-row,
+  .live-card .table-data-row {
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+  }
+
+  .live-card .table-header-row {
+    font-size: var(--text-tiny);
+    padding: var(--space-2) 0;
+  }
+
+  .live-card .table-data-row {
+    padding: 0;
+    height: 52px;
+  }
+
+  .live-card .product-name {
+    font-size: var(--text-caption);
+  }
+
+  .live-card .rate-value,
+  .live-card .price-value {
+    font-size: var(--text-caption);
+  }
+
+  .live-card .rate-badge {
+    font-size: var(--text-tiny);
+  }
+}
+
+/* ---- Accessibility ---- */
+@media (prefers-reduced-motion: reduce) {
+  .live-pulse-dot {
+    animation: none;
+  }
+
+  .rate-row,
+  .live-back-button,
+  .brand-chip,
+  .table-data-row--clickable {
+    transition: none;
+  }
+
+  .brand-chip-strip {
+    scroll-behavior: auto;
+  }
+}

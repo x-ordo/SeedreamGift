@@ -1,0 +1,165 @@
+/* Radio.module.css */
+/* Swift Trust Design System - Radio 컴포넌트 */
+
+/* ============================================
+   RadioGroup 스타일
+   ============================================ */
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+.groupLabel {
+  font-size: var(--text-body, 14px);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary, #191F28);
+  margin-bottom: var(--space-1, 4px);
+}
+
+.radioList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+/* 수평 레이아웃 */
+.horizontal .radioList {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-4, 16px);
+}
+
+/* 에러 텍스트 */
+.errorText {
+  font-size: var(--text-caption, 12px);
+  color: var(--color-error, #E74C3C);
+  margin-top: var(--space-1, 4px);
+}
+
+/* ============================================
+   Radio 아이템 스타일
+   ============================================ */
+
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  cursor: pointer;
+  user-select: none;
+}
+
+.container.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* 시각적으로 숨김 처리된 네이티브 input */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 커스텀 라디오 외관 */
+.radio {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background-color: var(--color-surface-default, #FFFFFF);
+  border: 2px solid var(--color-border-default, #D1D6DB);
+  border-radius: 50%;
+  transition: background-color var(--transition-fast, 150ms) ease,
+              border-color var(--transition-fast, 150ms) ease,
+              box-shadow var(--transition-fast, 150ms) ease;
+}
+
+/* 라디오 내부 원 (선택 표시) */
+.radioInner {
+  display: block;
+  width: 8px;
+  height: 8px;
+  background-color: transparent;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: transform var(--transition-fast, 150ms) ease,
+              background-color var(--transition-fast, 150ms) ease;
+}
+
+/* 선택된 상태 */
+.input:checked + .radio {
+  border-color: var(--color-primary, #3182F6);
+}
+
+.input:checked + .radio .radioInner {
+  background-color: var(--color-primary, #3182F6);
+  transform: scale(1);
+}
+
+/* 호버 상태 */
+.container:not(.disabled):hover .radio {
+  border-color: var(--color-primary, #3182F6);
+}
+
+.container:not(.disabled):hover .input:checked + .radio {
+  border-color: var(--color-primary-hover, #1B64DA);
+}
+
+.container:not(.disabled):hover .input:checked + .radio .radioInner {
+  background-color: var(--color-primary-hover, #1B64DA);
+}
+
+/* 포커스 상태 */
+.input:focus-visible + .radio {
+  outline: 2px solid var(--color-primary, #3182F6);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px var(--color-primary-light, rgba(49, 130, 246, 0.15));
+}
+
+/* 레이블 */
+.label {
+  font-size: var(--text-body, 14px);
+  color: var(--color-text-primary, #191F28);
+  line-height: 20px;
+}
+
+/* 비활성화 상태에서 레이블 색상 */
+.container.disabled .label {
+  color: var(--color-text-disabled, #6B7684);
+}
+
+/* 모바일 터치 타겟 */
+@media (hover: none) and (pointer: coarse) {
+  .radio {
+    width: 24px;
+    height: 24px;
+  }
+
+  .radioInner {
+    width: 10px;
+    height: 10px;
+  }
+
+  .label {
+    line-height: 24px;
+  }
+}
+
+/* 동작 감소 모드 지원 */
+@media (prefers-reduced-motion: reduce) {
+  .radio,
+  .radioInner {
+    transition: none;
+  }
+}

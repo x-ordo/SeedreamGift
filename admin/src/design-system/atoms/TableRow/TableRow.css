@@ -1,0 +1,82 @@
+/**
+ * TableRow Component Styles
+ * Toss Design System - key-value display
+ */
+
+.table-row {
+  display: flex;
+  padding: var(--space-3, 12px) 0;
+  line-height: 1.5;
+}
+
+/* Alignment variants */
+.table-row--align-left {
+  justify-content: flex-start;
+  gap: var(--space-4, 16px);
+}
+
+.table-row--align-space-between {
+  justify-content: space-between;
+}
+
+/* Left column */
+.table-row__left {
+  color: var(--color-grey-500, #6B7684);
+  font-size: var(--text-body, 15px);
+  flex-shrink: 0;
+}
+
+.table-row--align-left .table-row__left {
+  min-width: 80px;
+}
+
+/* Right column */
+.table-row__right {
+  color: var(--color-grey-900, #191F28);
+  font-size: var(--text-body, 15px);
+  text-align: right;
+  word-break: break-word;
+}
+
+.table-row--align-left .table-row__right {
+  text-align: left;
+  flex: 1;
+}
+
+/* Emphasized style */
+.table-row--emphasized .table-row__right {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Numeric values */
+.table-row__right.text-numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+/* With border */
+.table-row--with-border {
+  border-bottom: var(--border-width) solid var(--border-color-subtle);
+}
+
+.table-row--with-border:last-child {
+  border-bottom: none;
+}
+
+/* Size variants */
+.table-row--size-small {
+  padding: var(--space-2, 8px) 0;
+}
+
+.table-row--size-small .table-row__left,
+.table-row--size-small .table-row__right {
+  font-size: var(--text-caption, 13px);
+}
+
+.table-row--size-large {
+  padding: var(--space-4, 16px) 0;
+}
+
+.table-row--size-large .table-row__left,
+.table-row--size-large .table-row__right {
+  font-size: var(--text-body-lg, 17px);
+}

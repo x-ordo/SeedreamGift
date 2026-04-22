@@ -1,0 +1,538 @@
+/**
+ * @file TransactionsPage.css
+ * @description 시세 조회 페이지 — Toss-style rate table
+ */
+
+/* ============================================
+   GUIDE SECTION
+   ============================================ */
+.rates-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--color-grey-100);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-8);
+  box-shadow: var(--shadow-sm);
+}
+
+.rates-guide-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease;
+}
+
+.rates-guide-item:hover {
+  background: var(--color-grey-50);
+}
+
+.rates-guide-item:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: inset var(--a11y-focus-ring-shadow);
+}
+
+.rates-guide-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rates-guide-item--primary .rates-guide-item-icon {
+  background: color-mix(in oklch, var(--color-primary) 10%, transparent);
+  color: var(--color-primary);
+}
+
+.rates-guide-item--success .rates-guide-item-icon {
+  background: color-mix(in oklch, var(--color-success) 10%, transparent);
+  color: var(--color-success);
+}
+
+.rates-guide-item--warning .rates-guide-item-icon {
+  background: color-mix(in oklch, var(--color-warning) 12%, transparent);
+  color: var(--color-warning);
+}
+
+.rates-guide-item-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rates-guide-item-title {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-base-content);
+}
+
+.rates-guide-item-desc {
+  font-size: var(--text-caption);
+  color: var(--color-base-content-secondary);
+  line-height: 1.4;
+}
+
+.rates-guide-item-arrow {
+  flex-shrink: 0;
+  color: var(--color-grey-300);
+}
+
+@media (max-width: 575px) {
+  .rates-guide-item-desc {
+    display: none;
+  }
+
+  .rates-guide-item {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .rates-guide-item-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .rates-guide-item-title {
+    font-size: var(--text-caption);
+  }
+
+  .rates-guide-item-arrow {
+    display: none;
+  }
+
+  .rates-guide {
+    margin-bottom: var(--space-5);
+  }
+}
+
+/* ============================================
+   STATS STRIP
+   ============================================ */
+.rates-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--color-grey-100);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-8);
+  box-shadow: var(--shadow-sm);
+}
+
+.rates-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4) var(--space-5);
+  background: white;
+}
+
+.rates-stat-label {
+  font-size: var(--text-caption);
+  font-weight: 500;
+  color: var(--color-base-content-secondary);
+}
+
+.rates-stat-value {
+  font-size: var(--text-headline);
+  font-weight: 700;
+  color: var(--color-base-content);
+  line-height: 1.2;
+}
+
+.rates-stat--success .rates-stat-label {
+  color: color-mix(in oklch, var(--color-success) 70%, var(--color-base-content));
+}
+
+.rates-stat--success .rates-stat-value {
+  color: var(--color-success);
+}
+
+.rates-stat--primary .rates-stat-label {
+  color: color-mix(in oklch, var(--color-primary) 70%, var(--color-base-content));
+}
+
+.rates-stat--primary .rates-stat-value {
+  color: var(--color-primary);
+}
+
+@media (max-width: 575px) {
+  .rates-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rates-stat {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .rates-stat-value {
+    font-size: var(--text-subheading);
+  }
+}
+
+/* ============================================
+   FILTER CHIPS
+   ============================================ */
+.rates-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-grey-100);
+}
+
+.rates-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--color-base-content-secondary);
+  background: var(--color-grey-50);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.rates-chip:hover {
+  background: var(--color-grey-100);
+  color: var(--color-base-content);
+}
+
+.rates-chip--active {
+  background: var(--color-grey-900);
+  color: white;
+}
+
+.rates-chip--active:hover {
+  background: var(--color-grey-800);
+  color: white;
+}
+
+.rates-chip:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--a11y-focus-ring-shadow);
+}
+
+.rates-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.rates-chip--active .rates-chip-dot {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 575px) {
+  .rates-filter {
+    padding: var(--space-3) var(--space-4);
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 var(--space-4);
+  }
+
+  .rates-filter::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rates-chip {
+    padding: 5px 12px;
+    font-size: 11px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+}
+
+/* ============================================
+   TABLE WRAPPER
+   ============================================ */
+.rates-table-wrap {
+  background: transparent;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* ============================================
+   TABLE
+   ============================================ */
+.rates-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Header */
+.rates-table-head th {
+  padding: var(--space-2) var(--space-3);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-base-content-secondary);
+  text-align: right;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--color-grey-100);
+  background: transparent;
+}
+
+.rates-table-head .rates-col-brand {
+  text-align: left;
+  width: 30%;
+}
+
+.rates-table-head .rates-col-face {
+  width: 20%;
+}
+
+.rates-table-head .rates-col-buy,
+.rates-table-head .rates-col-sell {
+  width: 25%;
+}
+
+/* Column dot legend */
+.rates-col-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
+.rates-col-dot--success {
+  background: var(--color-success);
+}
+
+.rates-col-dot--primary {
+  background: var(--color-primary);
+}
+
+/* Data Rows */
+.rates-row {
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.rates-row:hover {
+  background: var(--color-grey-50);
+}
+
+.rates-row:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: inset var(--a11y-focus-ring-shadow);
+}
+
+.rates-row td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-grey-100);
+  vertical-align: middle;
+}
+
+.rates-row:last-child td {
+  border-bottom: none;
+}
+
+.rates-row--skeleton td {
+  cursor: default;
+}
+
+/* Brand column */
+.rates-col-brand {
+  text-align: left;
+}
+
+.rates-row .rates-col-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.rates-brand-bar {
+  width: 3px;
+  height: 24px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.rates-brand-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rates-brand-name {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-base-content);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rates-brand-face-mobile {
+  display: none;
+  font-size: 11px;
+  color: var(--color-base-content-secondary);
+  margin-top: 1px;
+}
+
+/* Face value column */
+.rates-col-face {
+  text-align: right;
+  font-size: var(--text-body);
+  color: var(--color-base-content-secondary);
+}
+
+/* Price columns */
+.rates-col-buy,
+.rates-col-sell {
+  text-align: right;
+}
+
+.rates-price {
+  display: block;
+  font-size: var(--text-body);
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.rates-price--success {
+  color: var(--color-success);
+}
+
+.rates-price--primary {
+  color: var(--color-primary);
+}
+
+.rates-discount {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  margin-top: 1px;
+  line-height: 1;
+}
+
+.rates-discount--success {
+  color: color-mix(in oklch, var(--color-success) 50%, transparent);
+}
+
+.rates-discount--primary {
+  color: color-mix(in oklch, var(--color-primary) 50%, transparent);
+}
+
+/* Empty state */
+.rates-empty {
+  text-align: center;
+  padding: var(--space-16) var(--space-4) !important;
+  color: var(--color-base-content-secondary);
+  font-size: var(--text-body);
+}
+
+/* Footer */
+.rates-table-footer {
+  padding: var(--space-2) var(--space-3);
+  text-align: center;
+  font-size: var(--text-caption);
+  color: var(--color-base-content-secondary);
+  border-top: 1px solid var(--color-grey-50);
+}
+
+.rates-table-footer strong {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 575px) {
+  .rates-table-head .rates-col-face,
+  .rates-row .rates-col-face {
+    display: none;
+  }
+
+  .rates-brand-face-mobile {
+    display: block;
+  }
+
+  .rates-table-head .rates-col-brand {
+    width: 40%;
+  }
+
+  .rates-table-head .rates-col-buy,
+  .rates-table-head .rates-col-sell {
+    width: 30%;
+  }
+
+  .rates-row td {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .rates-table-head th {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .rates-brand-bar {
+    height: 20px;
+  }
+
+  .rates-brand-name {
+    font-size: var(--text-tiny);
+  }
+
+  .rates-price {
+    font-size: var(--text-tiny);
+  }
+
+  .rates-discount {
+    font-size: 9px;
+  }
+}
+
+@media (min-width: 768px) {
+  .rates-row td {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .rates-table-head th {
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .rates-filter {
+    padding: var(--space-3) var(--space-5);
+  }
+
+  .rates-brand-name {
+    font-size: var(--text-subheading);
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .rates-row,
+  .rates-guide-item,
+  .rates-chip {
+    transition: none;
+  }
+}

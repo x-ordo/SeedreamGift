@@ -1,0 +1,117 @@
+/**
+ * @file PageHeader.css
+ * @description 통합 페이지 헤더 스타일 — 디자인 토큰 기반
+ */
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  margin-bottom: var(--space-6);
+}
+
+.page-header__back {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-grey-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 20px;
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-normal),
+              color var(--transition-normal),
+              box-shadow var(--transition-normal);
+  flex-shrink: 0;
+}
+
+.page-header__back:hover {
+  background: var(--color-grey-50);
+  color: var(--color-text-primary);
+}
+
+.page-header__back:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--a11y-focus-ring-shadow);
+}
+
+.page-header__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-header__title {
+  font-size: var(--text-headline);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-grey-900);
+  margin: 0 0 var(--space-1) 0;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.page-header__icon {
+  font-size: 0.85em;
+  color: var(--color-primary);
+}
+
+.page-header__subtitle {
+  font-size: var(--text-caption);
+  color: var(--color-grey-600);
+  margin: 0;
+  line-height: var(--text-line-height);
+}
+
+.page-header__meta {
+  font-size: var(--text-caption);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: var(--space-1);
+}
+
+/* ---- Responsive ---- */
+
+/* Mobile: compact but readable */
+@media (max-width: 575px) {
+  .page-header {
+    padding: var(--space-2) 0;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .page-header__title {
+    font-size: var(--text-body-lg);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .page-header__subtitle {
+    font-size: 11px;
+  }
+
+  .page-header__back {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+}
+
+/* Desktop: generous spacing */
+@media (min-width: 768px) {
+  .page-header {
+    padding: var(--space-6) 0 var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .page-header__back {
+    transition: none;
+  }
+}

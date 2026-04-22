@@ -1,0 +1,210 @@
+/**
+ * @file ToastContext.css
+ * @description 토스트 알림 스타일 (큐 시스템)
+ * @module contexts
+ */
+
+/* Toast Stack Container */
+.toast-stack {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height, 56px) + var(--space-4));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-2);
+  pointer-events: none;
+  width: calc(100% - var(--space-8));
+  max-width: 400px;
+  transition: bottom var(--transition-normal) var(--transition-ease-out);
+}
+
+/* 고정 CTA가 있을 때 토스트 위치를 위로 올림 */
+.layout-root:has(.bottom-cta--fixed) .toast-stack {
+  bottom: calc(var(--space-4) + 100px); /* CTA 높이 + 여백 */
+}
+
+@media (min-width: 768px) {
+  .toast-stack {
+    bottom: var(--space-6);
+    left: auto;
+    right: var(--space-6);
+    transform: none;
+  }
+}
+
+/* Toast Container */
+.toast-container {
+  background: var(--color-grey-900);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(16px) scale(0.95);
+  transition: opacity var(--transition-normal) var(--transition-ease-out), transform var(--transition-normal) var(--transition-ease-out);
+  pointer-events: auto;
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+.toast-container.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.toast-container.exiting {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.95);
+}
+
+/* Toast Content */
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  color: white;
+}
+
+.toast-content i {
+  font-size: var(--icon-lg);
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  font-size: var(--text-body);
+  line-height: var(--line-height-body);
+  word-break: keep-all;
+}
+
+/* Action Button */
+.toast-action {
+  background: none;
+  border: none;
+  color: inherit;
+  font-weight: 600;
+  font-size: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  margin-left: var(--space-2);
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+.toast-action:hover {
+  opacity: 1;
+}
+
+.toast-action:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* Close Button */
+.toast-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  background: none;
+  border: none;
+  color: var(--color-grey-400);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast) var(--transition-ease-out), color var(--transition-fast) var(--transition-ease-out);
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  background: var(--color-white-opacity-10);
+  color: white;
+}
+
+.toast-close:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.toast-close i {
+  font-size: var(--icon-md);
+}
+
+/* Progress Bar */
+.toast-progress {
+  height: 3px;
+  background: var(--color-white-opacity-20);
+}
+
+.toast-progress-bar {
+  height: 100%;
+  background: currentColor;
+  animation: toast-progress linear forwards;
+  transform-origin: left;
+}
+
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Type-specific Styles */
+.toast-container.success {
+  background: var(--color-green-600);
+}
+
+.toast-container.success .toast-progress-bar {
+  background: var(--color-green-200);
+}
+
+.toast-container.error {
+  background: var(--color-red-600);
+}
+
+.toast-container.error .toast-progress-bar {
+  background: var(--color-red-200);
+}
+
+.toast-container.warning {
+  background: var(--color-orange-600);
+}
+
+.toast-container.warning .toast-progress-bar {
+  background: var(--color-orange-200);
+}
+
+.toast-container.info {
+  background: var(--color-blue-600);
+}
+
+.toast-container.info .toast-progress-bar {
+  background: var(--color-blue-200);
+}
+
+/* Stacking effect */
+.toast-container:nth-child(n + 2) {
+  opacity: 0.9;
+}
+
+.toast-container:nth-child(n + 3) {
+  opacity: 0.8;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .toast-container {
+    transition: none;
+    will-change: auto;
+  }
+
+  .toast-progress-bar {
+    animation: none;
+  }
+}

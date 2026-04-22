@@ -1,0 +1,248 @@
+/**
+ * @file StepIndicator.css
+ * @description 스텝 인디케이터 컴포넌트 스타일
+ */
+
+/* ============================================================================
+   Base Step Indicator
+   ============================================================================ */
+
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-lg, 24px);
+}
+
+/* ============================================================================
+   Direction Variants
+   ============================================================================ */
+
+.step-indicator--horizontal {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-md, 16px);
+}
+
+.step-indicator--horizontal .step-indicator__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs, 4px);
+  position: relative;
+}
+
+/* Connector line between horizontal steps */
+.step-indicator--horizontal .step-indicator__item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: calc(100% + 4px);
+  width: calc(var(--space-md, 16px) - 8px);
+  height: 2px;
+  background: var(--color-border, #e0e0e0);
+  transform: translateX(0);
+}
+
+.step-indicator--horizontal .step-indicator__item--completed:not(:last-child)::after {
+  background: var(--color-primary, #3182f6);
+}
+
+.step-indicator--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-lg, 24px);
+}
+
+.step-indicator--vertical .step-indicator__item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-md, 16px);
+  position: relative;
+}
+
+/* Connector line between vertical steps */
+.step-indicator--vertical .step-indicator__item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 32px;
+  left: 15px;
+  width: 2px;
+  height: calc(var(--space-lg, 24px));
+  background: var(--color-border, #e0e0e0);
+}
+
+.step-indicator--vertical .step-indicator__item--completed:not(:last-child)::after {
+  background: var(--color-primary, #3182f6);
+}
+
+/* ============================================================================
+   Size Variants
+   ============================================================================ */
+
+/* Small */
+.step-indicator--sm .step-indicator__number {
+  width: 24px;
+  height: 24px;
+  font-size: var(--text-caption, 12px);
+}
+
+.step-indicator--sm .step-indicator__label {
+  font-size: var(--text-caption, 12px);
+}
+
+/* Medium (default) */
+.step-indicator--md .step-indicator__number {
+  width: 32px;
+  height: 32px;
+  font-size: var(--text-body, 14px);
+}
+
+.step-indicator--md .step-indicator__label {
+  font-size: var(--text-body-sm, 13px);
+}
+
+/* Large */
+.step-indicator--lg .step-indicator__number {
+  width: 40px;
+  height: 40px;
+  font-size: var(--text-body-lg, 16px);
+}
+
+.step-indicator--lg .step-indicator__label {
+  font-size: var(--text-body, 14px);
+}
+
+/* ============================================================================
+   Step Item
+   ============================================================================ */
+
+.step-indicator__item {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: default;
+  transition: opacity var(--transition-fast, 150ms);
+}
+
+.step-indicator__item:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.step-indicator__item--clickable {
+  cursor: pointer;
+}
+
+.step-indicator__item--clickable:hover {
+  opacity: 0.8;
+}
+
+.step-indicator__item--clickable:focus-visible {
+  outline: 2px solid var(--color-primary, #3182f6);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 8px);
+}
+
+/* ============================================================================
+   Step Number
+   ============================================================================ */
+
+.step-indicator__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: var(--font-weight-semibold, 600);
+  transition: background-color var(--transition-fast, 150ms), color var(--transition-fast, 150ms), border-color var(--transition-fast, 150ms), box-shadow var(--transition-fast, 150ms);
+  flex-shrink: 0;
+}
+
+/* Pending state */
+.step-indicator__item--pending .step-indicator__number {
+  background: var(--color-background, #f2f4f6);
+  color: var(--color-text-muted, #8b95a1);
+  border: 2px solid var(--color-border, #e0e0e0);
+}
+
+/* Active state */
+.step-indicator__item--active .step-indicator__number {
+  background: var(--color-primary, #3182f6);
+  color: white;
+  border: 2px solid var(--color-primary, #3182f6);
+  box-shadow: 0 0 0 4px var(--color-primary-light, rgba(49, 130, 246, 0.2));
+}
+
+/* Completed state */
+.step-indicator__item--completed .step-indicator__number {
+  background: var(--color-primary, #3182f6);
+  color: white;
+  border: 2px solid var(--color-primary, #3182f6);
+}
+
+/* ============================================================================
+   Step Label
+   ============================================================================ */
+
+.step-indicator__label {
+  color: var(--color-text-muted, #8b95a1);
+  font-weight: var(--font-weight-medium, 500);
+  white-space: nowrap;
+  transition: color var(--transition-fast, 150ms);
+}
+
+/* Hide label on small screens by default */
+@media (max-width: 575px) {
+  .step-indicator__label:not(.step-indicator__label--always) {
+    display: none;
+  }
+}
+
+/* Active label */
+.step-indicator__item--active .step-indicator__label {
+  color: var(--color-primary, #3182f6);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+/* Completed label */
+.step-indicator__item--completed .step-indicator__label {
+  color: var(--color-text, #333d4b);
+}
+
+/* ============================================================================
+   Progress Step Indicator
+   ============================================================================ */
+
+.progress-step-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md, 16px);
+}
+
+.progress-step-indicator__bar {
+  width: 100%;
+  height: 4px;
+  background: var(--color-background, #f2f4f6);
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+}
+
+.progress-step-indicator__fill {
+  height: 100%;
+  width: 100%;
+  background: var(--color-primary, #3182f6);
+  border-radius: var(--radius-full, 9999px);
+  transform-origin: left;
+  transition: transform var(--transition-normal, 300ms) ease-out;
+}
+
+/* ============================================================================
+   Reduced Motion
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .step-indicator__number,
+  .step-indicator__label,
+  .progress-step-indicator__fill {
+    transition: none;
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "company": {
+    "name": "주식회사 바우처팩토리",
+    "nameShort": "W기프트",
+    "nameEn": "Voucher Factory Inc.",
+    "brand": "W GIFT",
+    "owner": "고정희",
+    "licenseNo": "841-88-04007",
+    "address": "서울특별시 강남구 강남대로112길 47, 2층-J859호",
+    "zipCode": "06110",
+    "establishedDate": "2026-03-20"
+  },
+  "contact": {
+    "phone": "010-9780-2486",
+    "phoneHref": "tel:010-9780-2486",
+    "phoneHours": "평일 09:00 - 18:00",
+    "email": "wow_gift@naver.com",
+    "emailHref": "mailto:wow_gift@naver.com",
+    "emailHours": "24시간 접수",
+    "complianceEmail": "wow_gift@naver.com",
+    "kakao": "@W기프트",
+    "kakaoHref": "https://pf.kakao.com/_wgift",
+    "kakaoHours": "연중무휴 응답"
+  },
+  "privacy": {
+    "officer": "고정희",
+    "officerTitle": "대표이사",
+    "handler": "고정희",
+    "handlerTitle": "개인정보처리담당자",
+    "department": "개인정보보호팀",
+    "email": "wow_gift@naver.com",
+    "phone": "010-9780-2486"
+  },
+  "urls": {
+    "domain": "wowgift.co.kr",
+    "home": "https://wowgift.co.kr",
+    "admin": "https://wowgift.co.kr/wow_admin_portal/",
+    "bizCheck": "https://www.ftc.go.kr/bizCommPop.do?wrkr_no=8418804007"
+  },
+  "seo": {
+    "title": "W기프트 - 상품권 최저가 구매 · 최고가 판매",
+    "description": "백화점 상품권(신세계, 현대, 롯데) 최저가 구매 · 최고가 매입. 30초 즉시 PIN 발급. 정품 보장.",
+    "ogImage": "/og-image.png"
+  },
+  "tradeIn": {
+    "recipientName": "주식회사 바우처팩토리",
+    "zipCode": "06110",
+    "address": "서울특별시 강남구 강남대로112길 47, 2층-J859호",
+    "phone": "010-9780-2486",
+    "notice": "상품권 수령 확인 후 영업일 1~2일 내에 입금됩니다."
+  }
+}

@@ -1,0 +1,23 @@
+/**
+ * @file SupportTabs.css
+ * @description 고객지원 탭 네비게이션 스타일
+ */
+
+/* Tab nav container */
+.support-tabs {
+  contain: layout style;
+}
+
+/* Active tab indicator — primary blue */
+.support-tabs .tab-active {
+  border-bottom-color: var(--color-primary) !important;
+  border-bottom-width: 2px;
+  color: var(--color-primary) !important;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .support-tabs .tab {
+    transition: none;
+  }
+}

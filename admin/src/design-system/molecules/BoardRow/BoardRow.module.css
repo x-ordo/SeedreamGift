@@ -1,0 +1,205 @@
+/**
+ * BoardRow.module.css
+ * TDS BoardRow - Q&A 스타일 아코디언
+ */
+
+/* ============================================
+   Board Container
+   ============================================ */
+
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+/* ============================================
+   BoardRow Item
+   ============================================ */
+
+.boardRow {
+  background-color: var(--color-surface-default);
+  border: 1px solid var(--color-grey-150, var(--color-grey-200));
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.boardRow:hover {
+  border-color: var(--color-grey-300);
+}
+
+.boardRowOpen {
+  border-color: var(--color-primary);
+  box-shadow: 0 1px 4px rgba(49, 130, 246, 0.12);
+}
+
+/* ============================================
+   Header (Button)
+   ============================================ */
+
+.header {
+  display: flex;
+  align-items: flex-start; /* 상단 정렬 */
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4) var(--space-5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color var(--transition-fast);
+}
+
+.header:hover {
+  background-color: var(--color-grey-50);
+}
+
+.header:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  border-radius: var(--radius-lg);
+}
+
+/* ============================================
+   Prefix (Q)
+   ============================================ */
+
+.prefixWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px; /* title line-height 보정 */
+}
+
+.prefix {
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+/* ============================================
+   Title (질문)
+   ============================================ */
+
+.title {
+  flex: 1;
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-900);
+  line-height: 1.5;
+  /* 한글 단어 단위 줄바꿈 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* ============================================
+   Icon (화살표)
+   ============================================ */
+
+.iconWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px; /* title line-height 보정 */
+}
+
+.arrowIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-grey-400);
+  transition: transform var(--transition-normal);
+}
+
+.arrowIconOpen {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+/* ============================================
+   Panel (Content Area)
+   ============================================ */
+
+.panel {
+  overflow: hidden;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.panelOpen {
+  animation: slideDown var(--transition-normal) ease;
+}
+
+.panelContent {
+  /* Q 프리픽스 영역(24px) + gap(12px) + 좌측 패딩 */
+  padding: 0 var(--space-5) var(--space-5);
+  padding-left: calc(var(--space-5) + 24px + var(--space-3));
+  border-top: 1px solid var(--color-grey-100);
+  background-color: var(--color-grey-50);
+}
+
+/* ============================================
+   Text (답변)
+   ============================================ */
+
+.text {
+  padding-top: var(--space-4);
+  font-size: var(--text-body);
+  color: var(--color-grey-700);
+  line-height: 1.8;
+  /* 한글 문단 처리 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+/* ============================================
+   Animation
+   ============================================ */
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .boardRow {
+    transition: none;
+  }
+
+  .header {
+    transition: none;
+  }
+
+  .arrowIcon {
+    transition: none;
+  }
+
+  .panelOpen {
+    animation: none;
+  }
+}

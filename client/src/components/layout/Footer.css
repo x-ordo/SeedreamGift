@@ -1,0 +1,263 @@
+/**
+ * @file Footer.css
+ * @description 미니멀 푸터 — 디자인 토큰 기반, 헤더와 텍스트 크기 일관성 유지
+ */
+
+/* =====================================================
+   컨테이너
+   ===================================================== */
+.footer {
+  background: var(--color-grey-50);
+  border-top: 1px solid var(--color-grey-100);
+  color: var(--color-text-secondary);
+  margin-top: 0;
+}
+
+.footer-inner {
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-6);
+}
+
+/* =====================================================
+   상단: 로고 + 네비 + 연락처
+   ===================================================== */
+.footer-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.footer-brand {
+  flex-shrink: 0;
+}
+
+.footer-logo-link {
+  display: inline-block;
+  transition: opacity 0.15s ease;
+}
+
+.footer-logo-link:hover {
+  opacity: 0.7;
+}
+
+.footer-slogan {
+  margin-top: var(--space-2);
+  font-size: var(--text-small);
+  color: var(--color-grey-400);
+  line-height: 1.4;
+}
+
+/* 네비게이션 — 헤더 nav-item과 동일 토큰 사용 */
+.footer-nav {
+  display: flex;
+  gap: var(--space-8);
+}
+
+.footer-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.footer-nav-group a {
+  font-size: var(--text-small);
+  color: var(--color-grey-500);
+  text-decoration: none;
+  transition: color 0.15s ease;
+  white-space: nowrap;
+}
+
+.footer-nav-group a:hover {
+  color: var(--color-grey-900);
+}
+
+/* 연락처 */
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.footer-phone {
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--color-grey-800);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.15s ease;
+}
+
+.footer-phone:hover {
+  color: var(--color-primary);
+}
+
+.footer-hours {
+  margin-top: var(--space-1);
+  font-size: var(--text-tiny);
+  color: var(--color-grey-400);
+}
+
+/* =====================================================
+   구분선
+   ===================================================== */
+.footer-divider {
+  border: none;
+  border-top: 1px solid var(--color-grey-100);
+  margin: var(--space-5) 0;
+}
+
+/* =====================================================
+   하단: 사업자 정보 + 법적 링크
+   ===================================================== */
+.footer-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.footer-legal-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  font-size: var(--text-tiny);
+  color: var(--color-grey-400);
+  line-height: 1.7;
+}
+
+.footer-sep {
+  display: inline-block;
+  width: 1px;
+  height: 10px;
+  background: var(--color-grey-200);
+  margin: 0 var(--space-2);
+  vertical-align: middle;
+}
+
+.footer-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-legal-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.footer-legal-links a {
+  font-size: var(--text-tiny);
+  color: var(--color-grey-400);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-legal-links a:hover {
+  color: var(--color-grey-700);
+}
+
+.footer-privacy {
+  font-weight: 600;
+  color: var(--color-grey-600) !important;
+}
+
+.footer-copyright {
+  font-size: var(--text-tiny);
+  color: var(--color-grey-300);
+}
+
+/* =====================================================
+   태블릿 (768px 이하)
+   ===================================================== */
+@media (max-width: 767px) {
+  .footer-inner {
+    padding: var(--space-6) var(--space-4) var(--space-5);
+  }
+
+  .footer-top {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .footer-slogan {
+    margin-top: 0;
+  }
+
+  .footer-nav {
+    gap: var(--space-6);
+  }
+
+  .footer-nav-group {
+    gap: var(--space-1);
+  }
+
+  .footer-contact {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: var(--space-2);
+    align-items: baseline;
+  }
+
+  .footer-divider {
+    margin: var(--space-4) 0;
+  }
+
+  .footer-bottom-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .footer-legal-links {
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+}
+
+/* =====================================================
+   모바일 (480px 이하)
+   ===================================================== */
+@media (max-width: 479px) {
+  .footer-inner {
+    padding: var(--space-5) var(--space-4) var(--space-4);
+  }
+
+  .footer-top {
+    gap: var(--space-4);
+  }
+
+  .footer-nav {
+    gap: var(--space-5);
+  }
+
+  /* 모바일에서 주소는 별도 줄 */
+  .footer-sep:last-of-type {
+    display: none;
+  }
+
+  .footer-legal-info span:last-child {
+    display: block;
+    width: 100%;
+    margin-top: 2px;
+  }
+}
+
+/* =====================================================
+   접근성: 포커스
+   ===================================================== */
+.footer a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

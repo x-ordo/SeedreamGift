@@ -1,0 +1,52 @@
+/**
+ * @file Border.css
+ * @description Border/Divider 컴포넌트 스타일 - TDS 스타일
+ */
+
+/* Base */
+.border-divider {
+  flex-shrink: 0;
+  width: 100%;
+}
+
+/* Full variant - 전체 너비 선 */
+.border-divider--full {
+  height: var(--border-width);
+  background-color: var(--border-color);
+}
+
+/* Padding24 variant - 양쪽 24px 여백 */
+.border-divider--padding24 {
+  height: var(--border-width);
+  background-color: var(--border-color);
+  margin-left: var(--border-padding-horizontal);
+  margin-right: var(--border-padding-horizontal);
+  width: calc(100% - var(--border-padding-horizontal) * 2);
+}
+
+/* Height16 variant - 섹션 구분 (두꺼운 배경) */
+.border-divider--height16 {
+  height: var(--border-section-height);
+  background-color: var(--border-section-bg);
+}
+
+/* Spacing variants */
+.border-divider--spacing-none {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.border-divider--spacing-small {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.border-divider--spacing-medium {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.border-divider--spacing-large {
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-6);
+}

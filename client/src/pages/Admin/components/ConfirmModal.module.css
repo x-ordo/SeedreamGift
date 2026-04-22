@@ -1,0 +1,26 @@
+/**
+ * @file ConfirmModal.module.css
+ * @description 어드민 공통 확인 모달 스타일
+ */
+
+.body {
+  color: var(--color-grey-700);
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.dangerButton {
+  background-color: var(--color-error) !important;
+  border-color: var(--color-error) !important;
+}
+
+.dangerButton:hover {
+  opacity: 0.9;
+}

@@ -1,0 +1,82 @@
+/* Input.module.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    width: 100%;
+}
+
+.label {
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-body-lg);
+    font-family: var(--default-font);
+    color: var(--color-text-primary);
+    background-color: var(--color-surface-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+.input:focus {
+    outline: none;
+}
+
+.input:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-color: var(--input-focus-border);
+    box-shadow: var(--input-focus-shadow);
+}
+
+.input:disabled {
+    background-color: var(--color-surface-muted);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+}
+
+.input.error {
+    border-color: var(--color-error);
+}
+
+.input.error:focus {
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-error) 12%, transparent);
+}
+
+.helperText {
+    font-size: var(--text-caption);
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-1);
+}
+
+.errorText {
+    color: var(--color-error);
+}
+
+/* 브라우저 자동완성(autofill) 배경이 둥근 모서리를 따르도록 */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-text-primary);
+  -webkit-box-shadow: 0 0 0 1000px color-mix(in oklch, var(--color-primary) 4%, white) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input {
+    transition: none;
+  }
+}

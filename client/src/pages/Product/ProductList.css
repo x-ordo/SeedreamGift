@@ -1,0 +1,2278 @@
+/**
+ * @file ProductList.css
+ * @description Product list page, product cards, brand selection, trade-in, product detail
+ * Extracted from index.css
+ */
+
+/* ============================================
+   PRODUCT LIST PAGE
+   ============================================ */
+
+.product-list-page {
+  background: linear-gradient(to bottom,
+      color-mix(in oklch, var(--color-primary) 4%, var(--color-bg-primary)) 0%,
+      color-mix(in oklch, var(--color-primary) 2%, var(--color-grey-50)) 50%,
+      var(--color-bg-primary) 100%);
+  min-height: calc(100vh - var(--header-height, 60px));
+  min-height: calc(100dvh - var(--header-height, 60px));
+}
+
+/* ProductList Page - layout override (sticky footer pattern) */
+.main-content-wrapper:has(.product-list-page) {
+  flex: none;
+}
+
+.layout-root:has(.product-list-page)>.site-footer {
+  margin-top: auto;
+  padding-top: var(--space-4);
+}
+
+/* ============================================
+   PRODUCT LIST - 2-column layout
+   ============================================ */
+.pl-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap-sm);
+}
+
+/* Cross-brand 2-column layout (no BrandSideNav) */
+.pl-layout--cross-brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap-sm);
+}
+@media (min-width: 768px) {
+  .pl-layout--cross-brand {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: var(--section-gap);
+    align-items: start;
+  }
+  .pl-layout--cross-brand .pl-right-column {
+    position: sticky;
+    top: calc(var(--header-height, 60px) + var(--space-6));
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+}
+@media (max-width: 767px) {
+  .pl-layout--cross-brand .pl-right-column {
+    display: none;
+  }
+}
+
+.pl-left-column {
+  min-width: 0;
+}
+
+/* Mobile: hide right column */
+@media (max-width: 767px) {
+  .pl-right-column {
+    display: none;
+  }
+}
+
+/* Desktop: 3-column grid (BrandSideNav + Content + Summary) */
+@media (min-width: 768px) {
+  .pl-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr 340px;
+    gap: var(--section-gap);
+    align-items: start;
+  }
+
+  .pl-left-sidebar {
+    position: sticky;
+    top: calc(var(--header-height, 60px) + var(--space-6));
+  }
+
+  .pl-center-column {
+    min-width: 0;
+  }
+
+  .pl-right-column {
+    position: sticky;
+    top: calc(var(--header-height, 60px) + var(--space-6));
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+}
+
+/* Tablet: squeeze columns */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .pl-layout {
+    grid-template-columns: 200px 1fr 280px;
+    gap: var(--space-4);
+  }
+}
+
+/* Right panel: order summary */
+.pl-summary-section {
+  background: color-mix(in oklch, var(--color-primary) 2%, white);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 3px rgba(49, 130, 246, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
+  border: 1px solid color-mix(in oklch, var(--color-primary) 6%, var(--color-grey-200));
+  padding: var(--space-4);
+}
+
+.pl-summary-content {
+  margin: var(--space-3) 0;
+}
+
+.pl-summary-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+  color: var(--color-grey-500);
+}
+
+.pl-summary-empty i {
+  font-size: var(--text-headline);
+}
+
+.pl-cta-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.pl-cta-buttons > button {
+  width: 100%;
+}
+
+.pl-gift-hint {
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  text-align: center;
+  margin: calc(-1 * var(--space-1)) 0;
+}
+
+/* Digital PIN info banner */
+.pl-info-banner {
+  font-size: var(--text-body);
+  margin-bottom: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.pl-info-banner svg {
+  flex-shrink: 0;
+}
+
+/* =====================================================
+   Mode tabs (buy/sell toggle)
+   ===================================================== */
+.product-mode-tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  padding: var(--space-1);
+  background: var(--color-grey-100);
+  border-radius: var(--radius-lg);
+  width: fit-content;
+}
+
+.product-mode-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-500);
+  cursor: pointer;
+  transition: background var(--transition-fast),
+              color var(--transition-fast),
+              box-shadow var(--transition-fast);
+}
+
+.product-mode-tab:hover {
+  color: var(--color-grey-700);
+}
+
+.product-mode-tab--active {
+  background: white;
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.product-mode-tab--sell.product-mode-tab--active {
+  color: var(--color-point);
+}
+
+.product-mode-tab i {
+  font-size: var(--text-body-lg);
+}
+
+@media (min-width: 768px) {
+  .product-mode-tabs {
+    margin-bottom: var(--space-5);
+  }
+
+  .product-mode-tab {
+    padding: var(--space-3) var(--space-6);
+  }
+}
+
+/* Sell mode brand card styling */
+.brand-card-vertical--sell {
+  --brand-color: var(--color-point);
+}
+
+.brand-card-vertical--sell .brand-card-price {
+  color: var(--color-point);
+}
+
+.brand-card-sell-badge {
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-point-light, #FFF5E6);
+  color: var(--color-point);
+  font-size: var(--text-tiny);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-sm);
+}
+
+/* Sell mode container width */
+.product-list-page--sell .tradein-container {
+  max-width: var(--container-sm);
+  margin: 0 auto;
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.product-list-container {
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding: var(--space-4) 0;
+}
+
+@media (min-width: 768px) {
+  .product-list-container {
+    padding: var(--space-5) var(--space-4);
+  }
+}
+
+/* Header */
+.product-list-header {
+  max-width: var(--container-xl);
+  margin: 0 auto var(--space-6);
+  padding: 0 var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .product-list-header {
+    margin-bottom: var(--space-8);
+    padding: 0;
+  }
+}
+
+/* Header with Back Button */
+.product-list-header--with-back {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.product-list-header--with-back .product-list-header-content {
+  flex: 1;
+}
+
+.notice-section {}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-grey-600);
+  background: var(--color-grey-100);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.back-button:hover {
+  background: var(--color-grey-200);
+  color: var(--color-grey-800);
+}
+
+.back-button:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--a11y-focus-ring-shadow);
+}
+
+.back-button i {
+  font-size: var(--text-body-lg);
+}
+
+/* ============================================
+   BRAND SELECTION GRID
+   ============================================ */
+.brand-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  max-width: var(--container-xl);
+  margin: var(--space-4) auto 0;
+  padding: 0 var(--space-4) var(--space-12);
+}
+
+/* Stagger 애니메이션 래퍼가 그리드 셀을 완전히 채우도록 (가로+세로) */
+.brand-selection-grid > div {
+  display: flex;
+  min-width: 0;
+}
+
+/* 카드가 래퍼 너비를 100% 채움 */
+.brand-selection-grid > div > .brand-card-toss {
+  width: 100%;
+}
+
+@media (min-width: 576px) {
+  .brand-selection-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+}
+
+@media (min-width: 768px) {
+  .brand-selection-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-6);
+    padding: 0 0 var(--space-16);
+  }
+}
+
+@media (min-width: 1280px) {
+  .brand-selection-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Brand Card — blue tint aesthetic */
+.brand-card-btn {
+  background: color-mix(in oklch, var(--color-primary) 2%, white);
+  border: 1px solid color-mix(in oklch, var(--color-primary) 6%, var(--color-grey-100));
+  box-shadow: 0 1px 3px rgba(49, 130, 246, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .brand-card-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md), 0 8px 24px rgba(49, 130, 246, 0.10);
+    border-color: color-mix(in oklch, var(--color-primary) 15%, var(--color-grey-100));
+  }
+}
+
+.brand-card-btn:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+/* ============================================
+   BRAND CARD (판매 브랜드 선택 — 통일 디자인)
+   ============================================ */
+/* ============================================
+   BRAND CARD — 커머스 브랜드 카드
+   이미지 상단 + 정보 하단 (상품 카드와 통일)
+   ============================================ */
+.brand-card-toss {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: white;
+  border: 1px solid var(--color-grey-100);
+  border-top: 3px solid var(--brand-color, var(--color-primary));
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  padding: 0;
+}
+
+@media (hover: hover) {
+  .brand-card-toss:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .brand-card-toss:hover .brand-card-toss__image {
+    transform: scale(1.06);
+  }
+
+  .brand-card-toss:hover .brand-card-toss__cta {
+    color: var(--color-primary);
+    gap: 6px;
+  }
+}
+
+.brand-card-toss:active {
+  transform: scale(0.98);
+}
+
+/* ── 이미지 영역 ── */
+.brand-card-toss__visual {
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.brand-card-toss__image {
+  width: 50%;
+  height: 50%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.brand-card-toss__image-fallback {
+  font-size: 40px;
+  font-weight: 900;
+  opacity: 0.15;
+}
+
+/* ── 정보 영역 ── */
+.brand-card-toss__body {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1px;
+}
+
+.brand-card-toss__name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-grey-900);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand-card-toss__count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-grey-400);
+}
+
+.brand-card-toss__price {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  word-break: keep-all;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+.brand-card-toss__cta {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-grey-400);
+  margin-top: auto;
+  padding-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  transition: color 0.2s ease, gap 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-card-toss { transition: none; }
+  .brand-card-toss__image { transition: none; }
+}
+
+@media (max-width: 575px) {
+  .brand-card-toss__visual {
+    aspect-ratio: 5 / 3;
+  }
+
+  .brand-card-toss__body {
+    padding: var(--space-2);
+  }
+
+  .brand-card-toss__name {
+    font-size: 13px;
+  }
+
+  .brand-card-toss__price {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-card-btn { transition: none; }
+  .brand-card-btn:hover { transform: none; }
+}
+
+/* ============================================
+   PRODUCT GRID
+   ============================================ */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding: 0 var(--space-4) var(--space-20);
+}
+
+@media (min-width: 576px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-5);
+    padding: 0 0 var(--space-20);
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Product grid small mobile: tighter gap */
+@media (max-width: 575px) {
+  .product-grid {
+    gap: var(--space-2);
+    padding: 0 var(--space-3) var(--space-20);
+  }
+
+  .brand-selection-grid {
+    gap: var(--space-3);
+    padding: 0 var(--space-3) var(--space-20);
+  }
+
+  .product-list-header {
+    padding: 0 var(--space-3);
+  }
+
+  .product-list-container {
+    padding: var(--space-3) 0;
+  }
+
+  .product-list-filter {
+    padding: 0 var(--space-3);
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-list-container {
+    padding: var(--space-6) var(--space-6);
+  }
+}
+
+/* ============================================
+   PRODUCT CARD -- DaisyUI card + design token radius
+   ============================================ */
+.product-card {
+  min-width: 0;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.product-card--selected {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 1px var(--color-primary), var(--shadow-sm);
+}
+
+.product-card__image-btn {
+  cursor: pointer;
+}
+.product-card__image {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  background: var(--color-grey-50);
+  padding: 2px;
+}
+.product-card__image-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--color-grey-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-title);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-400);
+}
+
+.product-card__name {
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+.product-card__name:hover {
+  color: var(--color-primary);
+}
+
+.product-card__face-value {
+  font-size: var(--text-body);
+  color: var(--color-grey-500);
+}
+
+.product-card__pricing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-grey-50);
+  border-radius: var(--radius-sm);
+}
+.product-card__pricing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--text-body);
+}
+.product-card__pricing-label {
+  color: var(--color-grey-500);
+}
+.product-card__pricing-value {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5, 6px);
+}
+.product-card__buy-price {
+  font-size: var(--text-title);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-error);
+  font-variant-numeric: tabular-nums;
+}
+.product-card__stock {
+  text-align: right;
+  font-size: var(--text-caption);
+  color: var(--color-grey-400);
+}
+
+/* Cross-brand layout product-grid override */
+.pl-layout--cross-brand .product-grid {
+  max-width: none;
+  padding: 0;
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 576px) {
+  .pl-layout--cross-brand .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 768px) {
+  .pl-layout--cross-brand .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0;
+  }
+}
+@media (min-width: 1024px) {
+  .pl-layout--cross-brand .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ============================================
+   TRADE-IN DENOMINATION CARD
+   ============================================ */
+.tradein-denomination-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  overflow-y: auto;
+  padding: var(--space-1);
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (min-width: 576px) {
+  .tradein-denomination-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-height: 400px;
+  }
+}
+@media (min-width: 768px) {
+  .tradein-denomination-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.tradein-denomination-card {
+  background: color-mix(in oklch, var(--color-primary) 2%, white);
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid color-mix(in oklch, var(--color-primary) 6%, var(--color-grey-100));
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 3px rgba(49, 130, 246, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  min-width: 0;
+  overflow: hidden;
+}
+@media (hover: hover) {
+  .tradein-denomination-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md), 0 8px 24px rgba(49, 130, 246, 0.10);
+  }
+}
+.tradein-denomination-card--selected {
+  background: color-mix(in oklch, var(--color-primary) 5%, transparent);
+  box-shadow: 0 0 0 2px var(--color-primary), 0 4px 16px rgba(49, 130, 246, 0.16);
+}
+
+/* Denomination card inner layout */
+.tradein-denom-content {
+  padding: var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 80px;
+}
+.tradein-denom-face {
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--color-base-content);
+  line-height: 1.2;
+}
+.tradein-denom-payout {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.tradein-denom-rate {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-error);
+  background: color-mix(in oklch, var(--color-error) 8%, transparent);
+  padding: 1px 5px;
+  border-radius: var(--radius-full);
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+.tradein-denom-amount {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--color-success);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Selected state enhancements */
+.tradein-denomination-card--selected .tradein-denom-face {
+  color: var(--color-primary);
+}
+
+@media (min-width: 576px) {
+  .tradein-denom-content {
+    padding: var(--space-5) var(--space-4);
+    min-height: 88px;
+  }
+  .tradein-denom-face {
+    font-size: var(--text-subheading);
+  }
+  .tradein-denom-amount {
+    font-size: var(--text-body);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .tradein-denomination-card {
+    transition: none;
+  }
+  .product-card:hover {
+    transform: none;
+  }
+}
+
+/* Product Discount Badge */
+.product-discount-badge {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+}
+
+/* Filter (TabNavigation) */
+.product-list-filter {
+  max-width: var(--container-lg);
+  margin: 0 auto var(--space-4);
+  padding: 0 var(--space-4);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.product-list-filter::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .product-list-filter {
+    margin-bottom: var(--space-5);
+    padding: 0;
+    overflow-x: visible;
+  }
+}
+
+/* ============================================
+   PRODUCT CARD - TDS Card based
+   ============================================ */
+.product-card[class] {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface-default);
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 4px rgba(49, 130, 246, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: box-shadow var(--transition-normal),
+    transform var(--transition-normal);
+  overflow: visible;
+  padding: 0;
+}
+
+/* Hover effect - desktop only */
+@media (hover: hover) {
+  .product-card[class]:hover {
+    box-shadow: var(--shadow-md), 0 8px 24px rgba(49, 130, 246, 0.10);
+    transform: translateY(-2px);
+  }
+}
+
+/* Product Card Image */
+.product-card-image {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, color-mix(in oklch, var(--color-primary) 3%, var(--color-grey-50)) 0%, color-mix(in oklch, var(--color-primary) 2%, var(--color-grey-100)) 100%);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  overflow: hidden;
+}
+
+/* Mobile: reduce image area */
+@media (max-width: 575px) {
+  .product-card-image {
+    aspect-ratio: 1 / 1;
+    padding: var(--space-3);
+  }
+}
+
+.product-card-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform var(--transition-slow);
+}
+
+@media (hover: hover) {
+  .product-card:hover .product-card-image img {
+    transform: scale(1.05);
+  }
+}
+
+/* Product Card Content */
+.product-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+}
+
+/* Mobile: compact but readable */
+@media (max-width: 575px) {
+  .product-card-content {
+    padding: var(--space-3);
+    gap: var(--space-1);
+  }
+}
+
+/* Product Card Header - face value */
+.product-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+/* Face Value */
+.product-card-face {
+  font-size: var(--text-display);
+  font-weight: var(--font-weight-extrabold, 800);
+  color: var(--color-grey-900);
+  letter-spacing: var(--letter-spacing);
+  text-align: center;
+}
+
+/* Mobile: reduce face value size */
+@media (max-width: 575px) {
+  .product-card-face {
+    font-size: var(--text-headline);
+  }
+}
+
+/* ============================================
+   PRODUCT CARD PRICE
+   ============================================ */
+.product-card-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.product-card-buy-price {
+  font-size: var(--text-title);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.product-card-original-price {
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  text-decoration: line-through;
+}
+
+/* Subtotal */
+.product-card-subtotal {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ============================================
+   PRODUCT CARD ACTIVE STATE
+   ============================================ */
+.product-card.active[class] {
+  box-shadow: 0 0 0 2px var(--color-primary), 0 4px 16px rgba(49, 130, 246, 0.15);
+}
+
+.product-card.active .product-card-image {
+  background: linear-gradient(180deg, var(--color-primary-bg) 0%, var(--color-grey-50) 100%);
+}
+
+/* Discount badge */
+.product-card-discount {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-semibold, 600);
+  flex-shrink: 0;
+}
+
+/* Brand label */
+.product-card-brand {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-grey-500);
+  text-align: center;
+  padding: var(--space-1) 0;
+}
+
+/* ============================================
+   PRODUCT CARD CONTROLS - quantity + subtotal
+   ============================================ */
+.product-card-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-grey-50);
+}
+
+/* Mobile: adjust controls */
+@media (max-width: 575px) {
+  .product-card-controls {
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+    padding-top: var(--space-2);
+  }
+}
+
+/* Cart Summary Info - FixedBottomCTA.Double topAccessory */
+.cart-summary-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 var(--space-2);
+}
+
+.cart-summary-count {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-grey-700);
+}
+
+.cart-summary-count i {
+  color: var(--color-primary);
+  font-size: var(--text-body-lg);
+}
+
+.cart-summary-text {
+  font-size: var(--text-body);
+  color: var(--color-grey-600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cart-summary-total {
+  text-align: right;
+}
+
+.cart-summary-total-price {
+  font-size: var(--text-headline);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   PRODUCT CARD WITH CONTROLS
+   ============================================ */
+.product-card--with-controls .product-card-controls {
+  justify-content: space-between;
+  border-top: none;
+  margin-top: var(--space-1);
+  padding-top: 0;
+}
+
+.product-card-add-button {
+  margin-top: var(--space-3);
+}
+
+/* Mobile: adjust add button */
+@media (max-width: 575px) {
+  .product-card-add-button {
+    margin-top: var(--space-2);
+  }
+}
+
+/* Recently Added Toast */
+.recently-added-toast {
+  position: fixed;
+  top: calc(var(--header-height) + var(--space-4));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-success);
+  color: white;
+  border-radius: var(--radius-full);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium);
+  z-index: var(--z-toast);
+  animation: fadeInDown 0.3s ease-out;
+  box-shadow: var(--shadow-lg);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.recently-added-toast i {
+  font-size: 1.2em;
+}
+
+/* ============================================
+   PRICE SELECT MODAL
+   ============================================ */
+
+.price-select-modal {
+  padding: var(--space-2) 0;
+}
+
+.price-select-section {
+  padding: var(--space-4) 0;
+}
+
+.price-select-label {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-700);
+  margin: 0 0 var(--space-3);
+}
+
+/* Price options grid */
+.price-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+@media (min-width: 576px) {
+  .price-options-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.price-option-chip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-2);
+  background: var(--color-grey-50);
+  border: 2px solid var(--color-grey-200);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.price-option-chip:hover {
+  background: var(--color-grey-100);
+  border-color: var(--color-grey-300);
+}
+
+.price-option-chip:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: var(--a11y-focus-ring-shadow);
+}
+
+.price-option-chip.selected {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.price-option-chip.selected .price-option-face {
+  color: var(--color-primary);
+}
+
+.price-option-face {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-800);
+  font-variant-numeric: tabular-nums;
+}
+
+.price-option-discount {
+  font-size: var(--text-caption);
+}
+
+/* Quantity selector */
+.quantity-selector {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-2) 0;
+}
+
+/* Payment total */
+.price-select-total {
+  padding: var(--space-5);
+  background: var(--color-primary-light);
+  border-radius: var(--radius-lg);
+  margin: var(--space-4) 0;
+}
+
+.price-select-total .total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-select-total .total-row+.total-row {
+  margin-top: var(--space-2);
+}
+
+.price-select-total .total-label {
+  font-size: var(--text-body);
+  color: var(--color-grey-600);
+}
+
+.price-select-total .total-price {
+  font-size: var(--text-body-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.price-select-total .discount-info .original-label {
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+}
+
+.price-select-total .discount-info .original-price {
+  font-size: var(--text-body);
+  color: var(--color-grey-500);
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
+}
+
+.price-select-total .total-amount {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: var(--border-width) solid var(--color-primary);
+}
+
+.price-select-total .total-amount .total-label {
+  font-size: var(--text-title);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-800);
+}
+
+.price-select-total .total-amount .total-value {
+  font-size: var(--text-headline);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* CTA buttons */
+.price-select-cta {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.price-select-cta>button {
+  flex: 1;
+  height: var(--size-touch-lg);
+}
+
+/* Selection hint */
+.price-select-hint {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.price-select-hint p {
+  font-size: var(--text-body-lg);
+  color: var(--color-grey-500);
+  margin: 0;
+}
+
+/* Contact Section */
+.contact-row-section {
+  max-width: var(--container-lg);
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.contact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+}
+
+.contact-row-text {
+  font-size: var(--text-body);
+  color: var(--color-grey-500);
+}
+
+.contact-row button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.contact-row button i {
+  font-size: var(--text-caption);
+}
+
+@media (min-width: 768px) {
+  .contact-row-section {
+    padding: 0;
+  }
+}
+
+/* ============================================
+   TRADEIN PAGE
+   ============================================ */
+
+.tradein-container {
+  max-width: var(--container-sm);
+  margin: 0 auto;
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .tradein-container {
+    padding: var(--space-6) var(--space-4) var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .tradein-container {
+    padding: var(--space-10) var(--space-4) var(--space-8);
+  }
+}
+
+/* TradeIn Step Indicator */
+.tradein-step-indicator {
+  margin-bottom: var(--section-card-padding);
+}
+
+/* TradeIn Step Section */
+.tradein-step-section {
+  overflow: hidden;
+  min-width: 0;
+  animation: stepFadeIn 0.25s ease;
+}
+
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tradein-step-section { animation: none; }
+}
+
+/* TradeIn Step Title */
+.tradein-step-title {
+  font-size: var(--text-title);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-800);
+  margin: 0 0 var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.tradein-step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--color-primary);
+  color: white;
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-full);
+}
+
+/* TradeIn Brand Grid Image */
+.voucher-brand-image {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+}
+
+.tradein-field-error {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-red-500);
+}
+
+.tradein-field-helper {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+}
+
+/* Info banner */
+.tradein-info-banner {
+  font-size: var(--text-body);
+  margin-bottom: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.tradein-info-banner svg {
+  flex-shrink: 0;
+}
+
+/* Name mismatch warning */
+.tradein-name-warning {
+  font-size: var(--text-caption);
+  margin-top: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+.tradein-name-warning svg {
+  flex-shrink: 0;
+}
+
+.tradein-pin-input {
+  letter-spacing: 2px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+/* TradeIn Payout Box */
+.tradein-payout-box {
+  padding: var(--space-5) var(--section-card-padding);
+  background: var(--color-success-light);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-green-200);
+  box-shadow: 0 4px 16px rgba(3, 178, 108, 0.1);
+  text-align: center;
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.tradein-payout-label {
+  font-size: var(--text-body);
+  color: var(--color-grey-600);
+  margin-bottom: var(--space-2);
+}
+
+.tradein-payout-amount {
+  font-size: var(--text-display);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-success);
+  font-variant-numeric: tabular-nums;
+}
+
+.tradein-payout-info {
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  margin-top: var(--space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* TradeIn CTA Buttons */
+.tradein-cta-center {
+  margin-top: var(--space-5);
+  text-align: center;
+}
+
+.tradein-cta-buttons {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.tradein-cta-buttons>button {
+  height: var(--size-touch-lg);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-bold);
+}
+
+.tradein-cta-buttons>button svg {
+  flex-shrink: 0;
+}
+
+.tradein-cta-buttons>button:first-child svg {
+  margin-right: var(--space-1);
+}
+
+.tradein-cta-buttons>button:last-child svg {
+  margin-left: var(--space-1);
+}
+
+/* TradeIn Bank Card */
+.tradein-bank-empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  text-align: center;
+}
+
+.tradein-bank-empty-text {
+  font-size: var(--text-body);
+  color: var(--color-grey-500);
+  margin: 0;
+}
+
+.tradein-bank-readonly-card {
+  padding: var(--space-4);
+}
+
+.tradein-bank-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.tradein-bank-icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.tradein-bank-name {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+}
+
+.tradein-bank-account {
+  font-size: var(--text-caption);
+  color: var(--color-grey-600);
+  margin-top: var(--space-1);
+}
+
+.tradein-bank-notice {
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.tradein-bank-loading {
+  padding: var(--space-4);
+  text-align: center;
+  font-size: var(--text-body);
+  color: var(--color-grey-500);
+}
+
+.tradein-receiving-notice {
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-grey-500);
+  font-size: var(--text-caption);
+  margin: 0;
+}
+
+.tradein-receiving-address-card {
+  margin-top: var(--space-3);
+}
+
+/* TradeIn Summary Card */
+.tradein-summary-card {
+  background: transparent;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  border-radius: var(--radius-lg);
+}
+
+.tradein-summary-title {
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grey-600);
+  margin: 0 0 var(--space-3);
+}
+
+/* TradeIn Result */
+.tradein-result-card {
+  margin: var(--space-5) 0;
+}
+
+.tradein-action-buttons {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* ============================================
+   PRODUCT DETAIL PAGE (.pd-*)
+   ============================================ */
+
+.product-detail-page {
+  background: linear-gradient(to bottom,
+      var(--color-bg-primary) 0%,
+      var(--color-grey-50) 50%,
+      var(--color-bg-primary) 100%);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.product-detail-container {
+  max-width: var(--container-sm);
+  margin: 0 auto;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .product-detail-container {
+    padding: var(--space-6);
+    gap: var(--space-5);
+  }
+}
+
+/* ProductDetail Page - sticky footer pattern */
+.main-content-wrapper:has(.product-detail-page) {
+  flex: none;
+}
+
+.layout-root:has(.product-detail-page)>.site-footer {
+  margin-top: auto;
+  padding-top: var(--space-4);
+}
+
+/* Breadcrumb Navigation */
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-small);
+  color: var(--color-grey-500);
+  cursor: pointer;
+}
+
+.breadcrumb-nav .current {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+  cursor: default;
+}
+
+/* Product Image */
+.product-image-wrapper {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+}
+
+.product-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Mobile Header (below image) */
+.pd-mobile-header {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.pd-brand-label {
+  margin-bottom: var(--space-2);
+  color: var(--color-grey-500);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-caption);
+}
+
+.pd-brand-label i {
+  font-size: var(--text-tiny);
+}
+
+.pd-title {
+  font-size: var(--text-display);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.pd-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.pd-discount-rate {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-headline);
+}
+
+.pd-buy-price {
+  color: var(--color-grey-900);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-headline);
+}
+
+.pd-original-price {
+  color: var(--color-grey-500);
+  text-decoration: line-through;
+  font-size: var(--text-caption);
+}
+
+/* Mobile Quantity Selector */
+.pd-quantity-box {
+  background: var(--color-grey-50);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pd-quantity-label {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-700);
+}
+
+/* Tabs */
+.pd-tabs-wrapper {
+  margin-top: var(--space-8);
+}
+
+.pd-tab-content {
+  margin-top: var(--space-6);
+  min-height: 400px;
+}
+
+.pd-empty-tab {
+  padding: var(--space-10) 0;
+  text-align: center;
+  color: var(--color-grey-500);
+}
+
+.pd-shipping-title {
+  font-size: var(--text-title);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-4);
+}
+
+.pd-detail-placeholder {
+  text-align: center;
+  padding: var(--space-10) 0;
+  background: var(--color-grey-50);
+  color: var(--color-grey-500);
+  border-radius: var(--radius-lg);
+}
+
+/* Info Table Wrapper */
+.pd-info-table {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-grey-200);
+  overflow: hidden;
+}
+
+/* Right Column (Desktop) */
+.pd-right-brand {
+  margin-bottom: var(--space-2);
+  color: var(--color-grey-500);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-caption);
+}
+
+.pd-right-title {
+  font-size: var(--text-hero);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.pd-right-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+.pd-right-price-row .pd-discount-rate,
+.pd-right-price-row .pd-buy-price {
+  font-size: var(--text-hero);
+}
+
+.pd-right-price-row .pd-original-price {
+  font-size: var(--text-title);
+}
+
+.pd-right-divider {
+  border-top: 1px solid var(--color-grey-200);
+  padding: var(--space-6) 0;
+  margin-bottom: var(--space-6);
+}
+
+.pd-right-qty-row,
+.pd-right-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pd-right-qty-row {
+  margin-bottom: var(--space-4);
+}
+
+.pd-right-qty-row span {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-700);
+}
+
+.pd-right-total-row span:first-child {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-grey-900);
+}
+
+.pd-right-total-price {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-headline);
+  color: var(--color-primary);
+}
+
+.pd-right-cta-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.pd-right-cta-row>* {
+  flex: 1;
+}
+
+/* Login redirect notice */
+.login-redirect-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-blue-50, #e8f3ff);
+  color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-4);
+}
+
+.login-redirect-notice i {
+  font-size: var(--text-subhead);
+  flex-shrink: 0;
+}
+
+/* Trade-in: 좁은 컨테이너 안에서 그리드 컬럼 제한 */
+.tradein-container .products-toss-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 576px) {
+  .tradein-container .products-toss-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Sell page guest notice */
+.tradein-guest-notice {
+  font-size: var(--text-body);
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-sm);
+}
+
+.tradein-guest-notice svg {
+  flex-shrink: 0;
+}
+
+.tradein-guest-notice span {
+  flex: 1;
+}
+
+/* ============================================
+   TOSS-STYLE PRODUCTS PAGE
+   ============================================ */
+
+/* Filter */
+.products-toss-filter {
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-primary) 6%, var(--color-grey-100));
+}
+
+@media (max-width: 575px) {
+  .products-toss-filter {
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    white-space: nowrap;
+    display: flex;
+    gap: var(--space-2);
+  }
+  .products-toss-filter::-webkit-scrollbar { display: none; }
+}
+
+/* Product Grid */
+.products-toss-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+/* 카드 크기 균일화 (가로+세로) */
+.products-toss-grid > * {
+  display: flex;
+  min-width: 0;
+  height: 100%;
+}
+
+.products-toss-grid .product-card-toss {
+  width: 100%;
+  flex: 1;
+}
+
+@media (min-width: 576px) {
+  .products-toss-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+@media (min-width: 768px) {
+  .products-toss-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+/* ============================================
+   TOSS-STYLE PRODUCT CARD
+   ============================================ */
+/* ============================================
+   PRODUCT CARD — 커머스 카드 레이아웃
+   이미지 상단 + 정보 하단 구조 (쿠팡/네이버쇼핑 패턴)
+   ============================================ */
+.product-card-toss {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: white;
+  border: 1px solid var(--color-grey-100);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  contain: layout style paint;
+}
+
+@media (hover: hover) {
+  .product-card-toss:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border-color: var(--color-grey-200);
+  }
+}
+
+/* Selected state */
+.product-card-toss--selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary), 0 4px 16px rgba(49, 130, 246, 0.12);
+  background: color-mix(in oklch, var(--color-primary) 1%, white);
+}
+
+.product-card-toss--selected .product-card-toss__image {
+  filter: drop-shadow(0 4px 12px rgba(49, 130, 246, 0.15));
+}
+
+/* Skeleton */
+.product-card-toss--skeleton {
+  pointer-events: none;
+}
+
+/* ── 이미지 영역 (상단 60%) ── */
+.product-card-toss__image-area {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(160deg, var(--color-grey-50) 0%, color-mix(in oklch, var(--color-primary) 3%, var(--color-grey-50)) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.product-card-toss--selected .product-card-toss__image-area {
+  background: linear-gradient(160deg, color-mix(in oklch, var(--color-primary) 4%, white) 0%, color-mix(in oklch, var(--color-primary) 8%, var(--color-grey-50)) 100%);
+}
+
+.product-card-toss__image {
+  width: 55%;
+  height: 55%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+  transition: transform 0.3s ease;
+  will-change: transform;
+  content-visibility: auto;
+}
+
+@media (hover: hover) {
+  .product-card-toss:hover .product-card-toss__image {
+    transform: scale(1.06);
+  }
+}
+
+.product-card-toss__image-placeholder {
+  font-size: 36px;
+  font-weight: 900;
+  opacity: 0.2;
+}
+
+/* 할인 뱃지 — 이미지 위 좌상단 */
+.product-card-toss__discount-badge {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: 3px 7px;
+  background: var(--color-red-500);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--radius-xs);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  z-index: 1;
+}
+
+/* ── 정보 영역 (하단) ── */
+.product-card-toss__info {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 2px;
+}
+
+.product-card-toss__brand {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-grey-400);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+}
+
+/* 액면가 */
+.product-card-toss__face {
+  padding: 0;
+}
+
+.product-card-toss__face-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-grey-900);
+  letter-spacing: -0.03em;
+  line-height: 1.3;
+}
+
+.product-card-toss__face-value small {
+  font-size: 0.6em;
+  font-weight: 500;
+  color: var(--color-grey-400);
+  margin-left: 1px;
+}
+
+/* 구매가 + 절약 */
+.product-card-toss__price-section {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  margin-top: 2px;
+}
+
+.product-card-toss__buy-price {
+  font-size: var(--text-body);
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}
+
+.product-card-toss__original-price {
+  font-size: var(--text-tiny);
+  font-weight: 400;
+  color: var(--color-grey-300);
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
+}
+
+.product-card-toss__savings {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-success);
+  white-space: nowrap;
+}
+
+/* ── 액션 영역 (최하단) ── */
+.product-card-toss__action {
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-top: 1px solid var(--color-grey-100);
+  margin-top: auto;
+}
+
+.product-card-toss__action:has(.product-card-toss__subtotal) {
+  justify-content: space-between;
+}
+
+.product-card-toss__subtotal {
+  font-size: var(--text-caption);
+  font-weight: 800;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  text-align: right;
+  flex: 1;
+  min-width: 0;
+  background: color-mix(in oklch, var(--color-primary) 6%, transparent);
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+}
+
+/* ── 모바일 최적화 ── */
+@media (max-width: 575px) {
+  .product-card-toss__image-area {
+    aspect-ratio: 5 / 3;
+  }
+
+  .product-card-toss__info {
+    padding: var(--space-2);
+  }
+
+  .product-card-toss__face-value {
+    font-size: 16px;
+  }
+
+  .product-card-toss__buy-price {
+    font-size: var(--text-caption);
+  }
+
+  .product-card-toss__action {
+    padding: var(--space-1) var(--space-2) var(--space-2);
+  }
+
+  .product-card-toss__action:has(.product-card-toss__subtotal) {
+    justify-content: space-between;
+  }
+
+  .product-card-toss__discount-badge {
+    top: var(--space-1);
+    left: var(--space-1);
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+
+  .product-card-toss__savings {
+    font-size: 9px;
+  }
+
+  .product-card-toss__brand {
+    font-size: 10px;
+  }
+
+  .product-card-toss .numeric-spinner__button {
+    min-width: 34px !important;
+    min-height: 34px !important;
+  }
+
+  .product-card-toss .numeric-spinner__value {
+    min-width: 24px;
+    padding: 0 var(--space-1);
+  }
+}
+
+/* ============================================
+   CTA SUMMARY — 토스 스타일
+   ============================================ */
+.cta-summary-toss {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-1);
+}
+
+.cta-summary-toss__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.cta-summary-toss__count {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--color-grey-600);
+}
+
+.cta-summary-toss__discount {
+  font-size: var(--text-tiny);
+  font-weight: 500;
+  color: var(--color-red-500);
+  background: color-mix(in oklch, var(--color-red-500) 8%, transparent);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+}
+
+.cta-summary-toss__gift-link {
+  font-size: var(--text-tiny);
+  font-weight: 600;
+  color: var(--color-grey-400);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px var(--space-1);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.cta-summary-toss__gift-link:hover {
+  color: var(--color-primary);
+}
+
+.cta-summary-toss__total {
+  font-size: var(--text-headline);
+  font-weight: 800;
+  color: var(--color-blue-500);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .product-card-toss,
+  .product-card-toss__image,
+  .product-card-toss__image-area {
+    transition: none;
+  }
+
+  .product-card-toss:hover {
+    transform: none;
+  }
+}

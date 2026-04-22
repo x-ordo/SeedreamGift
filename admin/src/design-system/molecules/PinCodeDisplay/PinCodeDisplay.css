@@ -1,0 +1,49 @@
+/**
+ * PinCodeDisplay molecule styles
+ * Uses design system tokens from index.css
+ */
+
+.pin-code-display {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pin-code-display__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-grey-50);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-grey-200);
+}
+
+.pin-code-display__product-label {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-grey-600);
+  margin-bottom: var(--space-1);
+  font-weight: 500;
+}
+
+.pin-code-display__label {
+  display: block;
+  color: var(--color-grey-500);
+  margin-bottom: 4px;
+}
+
+.pin-code-display__code {
+  display: block;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-grey-900);
+  letter-spacing: 0.5px;
+  word-break: break-all;
+}
+
+.pin-code-display__actions {
+  display: flex;
+  flex-wrap: wrap;
+}

@@ -1,0 +1,299 @@
+/**
+ * @file BulkPinInput.css
+ * @description 대량 PIN 입력 컴포넌트 스타일 - 텍스트 붙여넣기 또는 수동 입력 모드 지원
+ * @module pages/Product
+ */
+
+/* =====================================================
+   컨테이너 및 모드 전환 토글
+   ===================================================== */
+.bulk-pin-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.bulk-pin-mode-toggle {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-1);
+  background: var(--color-grey-50);
+  border-radius: var(--radius-sm);
+}
+
+.bulk-pin-mode-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-grey-500);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--transition-normal) ease, background var(--transition-normal) ease;
+}
+
+.bulk-pin-mode-btn.active {
+  color: var(--color-primary);
+  background: white;
+  box-shadow: 0 1px 3px rgba(49, 130, 246, 0.08);
+}
+
+/* =====================================================
+   텍스트 붙여넣기 입력 영역
+   ===================================================== */
+.bulk-pin-textarea {
+  width: 100%;
+  padding: var(--space-4);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: var(--text-body);
+  line-height: 1.8;
+  color: var(--color-grey-800);
+  background: var(--color-grey-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+  transition: border-color var(--transition-normal) ease;
+}
+
+.bulk-pin-textarea:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+  outline: none;
+}
+
+.bulk-pin-textarea::placeholder {
+  color: var(--color-grey-400);
+}
+
+/* =====================================================
+   미리보기 (유효/무효 PIN 목록 + 통계)
+   ===================================================== */
+.bulk-pin-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.bulk-pin-stats {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.bulk-pin-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-body);
+  font-weight: var(--font-weight-medium);
+}
+
+.bulk-pin-stat.valid {
+  color: var(--color-success);
+}
+
+.bulk-pin-stat.invalid {
+  color: var(--color-error);
+}
+
+.bulk-pin-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.bulk-pin-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-body);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  border-radius: var(--radius-sm);
+}
+
+.bulk-pin-item.valid {
+  background: var(--color-success-bg, #f0fdf4);
+  color: var(--color-success);
+}
+
+.bulk-pin-item.invalid {
+  background: var(--color-error-bg, #fef2f2);
+  color: var(--color-error);
+}
+
+.bulk-pin-code {
+  flex: 1;
+}
+
+.bulk-pin-error {
+  font-size: var(--text-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-error);
+}
+
+.bulk-pin-more {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  text-align: center;
+}
+
+/* =====================================================
+   수동 입력 모드 (행 단위로 PIN 직접 입력)
+   ===================================================== */
+.bulk-pin-manual-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.bulk-pin-manual-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bulk-pin-row-num {
+  width: 24px;
+  font-size: var(--text-caption);
+  color: var(--color-grey-400);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.bulk-pin-manual-input {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: var(--text-body);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition-normal) ease;
+}
+
+.bulk-pin-manual-input:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+  outline: none;
+}
+
+.bulk-pin-manual-input.error {
+  border-color: var(--color-error);
+}
+
+.bulk-pin-manual-input.valid {
+  border-color: var(--color-success);
+}
+
+.bulk-pin-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: none;
+  color: var(--color-grey-400);
+  cursor: pointer;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: color var(--transition-normal) ease, background var(--transition-normal) ease;
+}
+
+.bulk-pin-remove-btn:hover {
+  color: var(--color-error);
+  background: var(--color-error-bg, #fef2f2);
+}
+
+.bulk-pin-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  font-size: var(--text-body);
+  color: var(--color-primary);
+  background: transparent;
+  border: 1px dashed var(--color-primary-light, #93bbfd);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-normal) ease;
+}
+
+.bulk-pin-add-btn:hover {
+  background: var(--color-primary-bg, #e8f3ff);
+}
+
+/* =====================================================
+   하단 요약 + 접근성(모션 감소)
+   ===================================================== */
+.bulk-pin-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-color-light);
+}
+
+.bulk-pin-summary {
+  font-size: var(--text-body);
+  color: var(--color-grey-600);
+}
+
+.bulk-pin-summary strong {
+  color: var(--color-primary);
+}
+
+/* Mobile optimizations */
+@media (max-width: 575px) {
+  .bulk-pin-stats {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .bulk-pin-textarea {
+    padding: var(--space-3);
+    font-size: var(--text-body);
+    min-height: 120px;
+  }
+
+  .bulk-pin-manual-row {
+    gap: var(--space-1);
+  }
+
+  .bulk-pin-remove-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .bulk-pin-add-btn {
+    min-height: 44px;
+  }
+
+  .bulk-pin-footer {
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: stretch;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bulk-pin-mode-btn,
+  .bulk-pin-textarea,
+  .bulk-pin-manual-input,
+  .bulk-pin-remove-btn,
+  .bulk-pin-add-btn {
+    transition: none;
+  }
+}
