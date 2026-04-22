@@ -511,6 +511,22 @@ export const adminApi = {
     return response.data;
   },
 
+  // =====================
+  // Payments Management (결제현황)
+  // =====================
+  getAllPayments: async (params?: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+    method?: string;
+    from?: string;   // YYYY-MM-DD
+    to?: string;
+    search?: string;
+  }) => {
+    const response = await axiosInstance.get('/admin/payments', { params });
+    return response.data;
+  },
+
   // Bank Report
   getBankTransactionReport: async (params: {
     startDate: string;
