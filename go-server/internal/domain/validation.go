@@ -22,12 +22,15 @@ var ValidKycStatuses = map[string]bool{"NONE": true, "PENDING": true, "VERIFIED"
 // ── 주문 상태 상수 ──
 
 const (
-	OrderStatusPending   = "PENDING"
-	OrderStatusPaid      = "PAID"
-	OrderStatusDelivered = "DELIVERED"
-	OrderStatusCompleted = "COMPLETED"
-	OrderStatusCancelled = "CANCELLED"
-	OrderStatusRefunded  = "REFUNDED"
+	OrderStatusPending        = "PENDING"
+	OrderStatusIssued         = "ISSUED" // Seedream: 은행선택 완료, 입금 대기
+	OrderStatusPaid           = "PAID"
+	OrderStatusDelivered      = "DELIVERED"
+	OrderStatusCompleted      = "COMPLETED"
+	OrderStatusCancelled      = "CANCELLED"
+	OrderStatusRefunded       = "REFUNDED"
+	OrderStatusExpired        = "EXPIRED"         // Seedream: depositEndDate 만료
+	OrderStatusAmountMismatch = "AMOUNT_MISMATCH" // Seedream: 입금액 ≠ 주문액 (Reconcile 감지)
 )
 
 // ── 바우처 상태 상수 ──
@@ -190,14 +193,24 @@ func validateRate(name string, val decimal.Decimal) error {
 // validOrderTransitions는 주문의 상태 흐름(State Machine)을 정의합니다.
 // 각 상태에서 전이 가능한 다음 상태를 명시하여 비정상적인 상태 변경을 방지합니다.
 var validOrderTransitions = map[string][]string{
-	"PENDING":    {"PAID", "CANCELLED"},                  // 결제 대기 중 -> 결제 완료 또는 취소 가능
-	"FRAUD_HOLD": {"PAID", "CANCELLED"},                  // 사기 의심 보류 -> 관리자가 승인(PAID) 또는 거절(CANCELLED) 가능
-	"PAID":       {"DELIVERED", "CANCELLED", "REFUNDED"}, // 결제 완료 -> 배송 시작, 취소(즉시), 또는 환불(사후) 가능
-	"DELIVERED":  {"COMPLETED"},                          // 배송 완료 -> 구매 확정 가능
-	// 아래는 최종 상태로, 다른 상태로의 전이가 불가합니다.
-	"CANCELLED": {},
-	"COMPLETED": {},
-	"REFUNDED":  {},
+	// PENDING: 초기 상태. Seedream 발급 요청 직후 유지 (phase=awaiting_bank_selection).
+	// ISSUED 로 넘어가거나, 은행선택 전 취소/만료 가능.
+	// "PAID" 직접 전이는 legacy Mock/Toss 플로우 호환용 — Phase 6 에서 제거.
+	// "AMOUNT_MISMATCH" 는 ISSUED 경로를 놓친 Reconcile 보정 시에만 발생 (엣지 케이스).
+	"PENDING":    {"ISSUED", "PAID", "CANCELLED", "EXPIRED", "AMOUNT_MISMATCH"},
+	"FRAUD_HOLD": {"PAID", "CANCELLED"},
+	// ISSUED: 은행선택 완료, 입금 대기 (phase=awaiting_deposit).
+	// 정상 입금 → PAID, 가맹점 요청 취소 또는 키움 자동 취소 → CANCELLED,
+	// 만료 → EXPIRED, 입금액 불일치 → AMOUNT_MISMATCH (웹훅 없이 Reconcile 감지).
+	"ISSUED":    {"PAID", "CANCELLED", "EXPIRED", "AMOUNT_MISMATCH"},
+	"PAID":      {"DELIVERED", "CANCELLED", "REFUNDED"},
+	"DELIVERED": {"COMPLETED"},
+	// 아래는 최종 상태.
+	"CANCELLED":       {},
+	"COMPLETED":       {},
+	"REFUNDED":        {},
+	"EXPIRED":         {},
+	"AMOUNT_MISMATCH": {}, // Ops 수동 처리 대기. 자동 전이 없음.
 }
 
 // ValidateOrderTransition은 요청된 주문 상태 변경이 비즈니스 규칙상 허용되는지 검증합니다.

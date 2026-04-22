@@ -15,9 +15,12 @@ type Order struct {
 	User User `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	// TotalAmount는 주문 총액입니다. (상품 합계 + 배송비 등)
 	TotalAmount NumericDecimal `gorm:"column:TotalAmount;type:decimal(12,0)" json:"totalAmount"`
-	// Status는 주문의 현재 상태를 나타냅니다. (PENDING, PAID, DELIVERED, COMPLETED, CANCELLED, REFUNDED)
+	// Status는 주문의 현재 상태입니다.
+	//   기존: PENDING, PAID, DELIVERED, COMPLETED, CANCELLED, REFUNDED
+	//   Seedream 추가: ISSUED, EXPIRED, AMOUNT_MISMATCH (최장 15자)
 	// 상태 전이는 validation.go의 ValidateOrderTransition에서 관리됩니다.
-	Status string `gorm:"column:Status;default:'PENDING';size:12" json:"status"`
+	// DB 반영: migrations/008_seedream_payment_data_model.sql
+	Status string `gorm:"column:Status;default:'PENDING';size:20" json:"status"`
 	// Source는 주문의 발생 채널을 나타냅니다. (USER: 일반 고객, PARTNER: 파트너 대시보드)
 	Source string `gorm:"column:Source;default:'USER';size:10" json:"source"`
 	// PaymentMethod는 사용된 결제 수단입니다. (VIRTUAL_ACCOUNT, CARD, BANK_TRANSFER 등)
@@ -115,6 +118,21 @@ type Payment struct {
 	FailReason *string `gorm:"column:FailReason;size:200" json:"failReason"`
 	// CreatedAt은 결제 정보 생성 시각입니다.
 	CreatedAt time.Time `gorm:"column:CreatedAt;autoCreateTime" json:"createdAt"`
+
+	// ── Seedream 통합 필드 (설계 §4.2) ──
+
+	// SeedreamVAccountID 는 Seedream /api/v1/vaccount 발급 응답의 data.id (BIGINT).
+	// GET /api/v1/vaccount 단건 조회 및 감사 추적 시 사용.
+	SeedreamVAccountID *int64 `gorm:"column:SeedreamVAccountId;index" json:"seedreamVAccountId,omitempty"`
+	// SeedreamPhase 는 Seedream 이 노출하는 VA 결제 세부 단계입니다.
+	// 값: awaiting_bank_selection | awaiting_deposit | completed | cancelled | failed
+	// 주의: Order.Status 와 다른 enum. Payment 의 vendor sub-state 만 표현.
+	SeedreamPhase *string `gorm:"column:SeedreamPhase;size:30" json:"seedreamPhase,omitempty"`
+	// SeedreamIdempotencyKey 는 Seedream 호출 시 사용한 Idempotency-Key 원본.
+	// 형식: gift:vaccount:{OrderCode} | gift:cancel:{OrderCode} | gift:refund:{OrderCode}:{ts}
+	// 주의: Order.IdempotencyKey (클라이언트 dedup) 와 별개. 이건 vendor 호출 감사 추적용.
+	SeedreamIdempotencyKey *string `gorm:"column:SeedreamIdempotencyKey;size:200" json:"seedreamIdempotencyKey,omitempty"`
+
 	// UpdatedAt은 결제 정보 수정 시각입니다.
 	UpdatedAt time.Time `gorm:"column:UpdatedAt;autoUpdateTime" json:"updatedAt"`
 }

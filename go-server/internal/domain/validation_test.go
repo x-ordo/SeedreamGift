@@ -120,3 +120,53 @@ func TestValidatePhone(t *testing.T) {
 		})
 	}
 }
+
+// ── Seedream 통합으로 추가된 상태 전이 테스트 ──
+
+func TestValidateOrderTransition_SeedreamStates(t *testing.T) {
+	tests := []struct {
+		name    string
+		from    string
+		to      string
+		wantErr bool
+	}{
+		// PENDING → ISSUED (은행선택 완료, 입금 대기)
+		{"PENDING → ISSUED 허용", "PENDING", "ISSUED", false},
+		// ISSUED → PAID (입금 완료)
+		{"ISSUED → PAID 허용", "ISSUED", "PAID", false},
+		// ISSUED → CANCELLED (가맹점 요청 또는 키움 자동)
+		{"ISSUED → CANCELLED 허용", "ISSUED", "CANCELLED", false},
+		// ISSUED → EXPIRED (만료 타이머)
+		{"ISSUED → EXPIRED 허용", "ISSUED", "EXPIRED", false},
+		// PENDING → EXPIRED (은행선택도 못한 상태에서 만료)
+		{"PENDING → EXPIRED 허용", "PENDING", "EXPIRED", false},
+		// PENDING → AMOUNT_MISMATCH (ISSUED 경로를 놓친 Reconcile 보정 엣지 케이스)
+		{"PENDING → AMOUNT_MISMATCH 허용", "PENDING", "AMOUNT_MISMATCH", false},
+		// ISSUED → AMOUNT_MISMATCH (표준 경로: 입금 후 Reconcile 감지)
+		{"ISSUED → AMOUNT_MISMATCH 허용", "ISSUED", "AMOUNT_MISMATCH", false},
+
+		// 종료 상태에서 다른 상태로의 전이는 불가
+		{"EXPIRED → PAID 불가", "EXPIRED", "PAID", true},
+		{"AMOUNT_MISMATCH → PAID 불가", "AMOUNT_MISMATCH", "PAID", true},
+
+		// ISSUED 에서 DELIVERED 직접 전이 불가 (PAID 를 거쳐야 함)
+		{"ISSUED → DELIVERED 불가", "ISSUED", "DELIVERED", true},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := ValidateOrderTransition(tc.from, tc.to)
+			if tc.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestOrderStatusConstants_Seedream(t *testing.T) {
+	assert.Equal(t, "ISSUED", OrderStatusIssued)
+	assert.Equal(t, "EXPIRED", OrderStatusExpired)
+	assert.Equal(t, "AMOUNT_MISMATCH", OrderStatusAmountMismatch)
+}
