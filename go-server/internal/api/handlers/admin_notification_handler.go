@@ -203,7 +203,7 @@ func testEmailChannel(cfg map[string]string, recipient string) error {
 		smtpFrom = smtpUser
 	}
 	if smtpFromName == "" {
-		smtpFromName = "W기프트"
+		smtpFromName = "씨드림기프트"
 	}
 
 	subject := "[" + smtpFromName + "] 이메일 채널 연동 테스트"
