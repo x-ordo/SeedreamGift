@@ -17,6 +17,7 @@ const TAB_COMPONENTS: Record<PartnerTab, React.LazyExoticComponent<React.FC>> = 
   'buy': lazy(() => import('./tabs/BuyTab')),
   'tradein': lazy(() => import('./tabs/TradeInTab')),
   'orders': lazy(() => import('./tabs/OrdersTab')),
+  'payments': lazy(() => import('./tabs/PaymentsTab')),
   'vouchers': lazy(() => import('./tabs/VouchersTab')),
   'payouts': lazy(() => import('./tabs/PayoutsTab')),
   'profile': lazy(() => import('./tabs/ProfileTab')),
