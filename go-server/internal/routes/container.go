@@ -1,4 +1,4 @@
-// Package routes provides modular route registration for the W Gift API server.
+// Package routes provides modular route registration for the Seedream Gift API server.
 // Each domain (auth, product, order, etc.) has its own route file,
 // keeping main.go clean and making it easy to add new endpoint groups.
 package routes
