@@ -1,3 +1,5 @@
+> **[Legacy] 레거시 참조용** — 이 문서는 구 W Gift(wowgift.co.kr) 시절 작성되었으며 역사 보존 목적으로만 유지됩니다. 현재 시스템은 Seedream Gift(seedreamgift.com)입니다.
+
 # 11. DDD 구현 로드맵
 
 W기프트 프로젝트에 Domain-Driven Design을 단계적으로 적용하기 위한 6주 실행 계획서.

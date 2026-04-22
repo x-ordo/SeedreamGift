@@ -1,3 +1,5 @@
+> **[Legacy] 레거시 참조용** — 이 문서는 구 W Gift(wowgift.co.kr) 시절 작성되었으며 역사 보존 목적으로만 유지됩니다. 현재 시스템은 Seedream Gift(seedreamgift.com)입니다.
+
 # W기프트 아키텍처 & 디자인 패턴 가이드
 
 > 최종 갱신: 2026-02-20

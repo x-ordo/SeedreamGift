@@ -1,3 +1,5 @@
+> **[Legacy] 레거시 참조용** — 이 문서는 구 W Gift(wowgift.co.kr) 시절 작성되었으며 역사 보존 목적으로만 유지됩니다. 현재 시스템은 Seedream Gift(seedreamgift.com)입니다.
+
 # NestJS OpenAPI 및 REST API 아키텍처 고도화와 베스트 프랙티스
 
 ## 1. 서론: 엔터프라이즈 Node.js 생태계와 NestJS의 위상

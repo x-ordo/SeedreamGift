@@ -1,3 +1,5 @@
+> **[Legacy] 레거시 참조용** — 이 문서는 구 W Gift(wowgift.co.kr) 시절 작성되었으며 역사 보존 목적으로만 유지됩니다. 현재 시스템은 Seedream Gift(seedreamgift.com)입니다.
+
 # NestJS 모듈 재사용 가이드
 
 > 본 문서는 W기프트 백엔드의 핵심 모듈을 다른 프로젝트에서 재사용하기 위한 전략과 구현 방법을 설명합니다.
