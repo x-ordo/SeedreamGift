@@ -64,7 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         throw new MFARequiredError(resData.mfa_token);
       }
       const { access_token, user } = resData;
-      localStorage.setItem('wgift_partner_logged_in', Date.now().toString());
+      localStorage.setItem('seedream_partner_logged_in', Date.now().toString());
       set({
         token: access_token,
         user: user,
@@ -83,7 +83,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const response = await authManualApi.loginMFA({ mfa_token: mfaToken, code });
       const { access_token, user } = response.data;
-      localStorage.setItem('wgift_partner_logged_in', Date.now().toString());
+      localStorage.setItem('seedream_partner_logged_in', Date.now().toString());
       set({ token: access_token, user, isAuthenticated: true, isLoading: false });
       startSessionExpiryTimer();
     } catch (error) {
@@ -109,7 +109,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch {
       // Logout failure — still clear local state
     } finally {
-      localStorage.removeItem('wgift_partner_logged_in');
+      localStorage.removeItem('seedream_partner_logged_in');
       set({ token: null, user: null, isAuthenticated: false });
     }
   },
@@ -142,7 +142,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
 
     const hasToken = !!get().token;
-    const loginTimestamp = localStorage.getItem('wgift_partner_logged_in');
+    const loginTimestamp = localStorage.getItem('seedream_partner_logged_in');
     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
     const wasLoggedIn = loginTimestamp != null && (
       loginTimestamp === 'true' ||
@@ -157,7 +157,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await get().refresh();
       set({ isLoading: false });
     } catch {
-      localStorage.removeItem('wgift_partner_logged_in');
+      localStorage.removeItem('seedream_partner_logged_in');
       set({ token: null, user: null, isAuthenticated: false, isLoading: false });
     }
   },
@@ -166,7 +166,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 // Multi-tab session sync
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (event) => {
-    if (event.key === 'wgift_partner_logged_in') {
+    if (event.key === 'seedream_partner_logged_in') {
       if (!event.newValue) {
         useAuthStore.setState({ token: null, user: null, isAuthenticated: false });
       } else if (event.newValue && !useAuthStore.getState().isAuthenticated) {

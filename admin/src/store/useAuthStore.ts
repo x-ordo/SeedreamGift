@@ -144,7 +144,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 throw new MFARequiredError(resData.mfa_token);
             }
             const { access_token, user } = resData;
-            localStorage.setItem('wgift_admin_logged_in', Date.now().toString());
+            localStorage.setItem('seedream_admin_logged_in', Date.now().toString());
             set({
                 token: access_token,
                 user: user,
@@ -163,7 +163,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try {
             const response = await authManualApi.loginMFA({ mfa_token: mfaToken, code });
             const { access_token, user } = response.data;
-            localStorage.setItem('wgift_admin_logged_in', Date.now().toString());
+            localStorage.setItem('seedream_admin_logged_in', Date.now().toString());
             set({
                 token: access_token,
                 user: user,
@@ -194,7 +194,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         } catch {
             // 로그아웃 실패해도 로컬 상태는 초기화
         } finally {
-            localStorage.removeItem('wgift_admin_logged_in');
+            localStorage.removeItem('seedream_admin_logged_in');
             set({ token: null, user: null, isAuthenticated: false });
             // 어드민에서는 장바구니 초기화 불필요
         }
@@ -230,9 +230,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         // 이전에 로그인한 적이 없으면 refresh 시도하지 않음 (불필요한 401 방지)
         // httpOnly 쿠키는 JS에서 접근 불가하므로 localStorage 플래그로 판별
         const hasToken = !!get().token;
-        const loginTimestamp = localStorage.getItem('wgift_admin_logged_in');
+        const loginTimestamp = localStorage.getItem('seedream_admin_logged_in');
         const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-        // wgift_admin_logged_in 플래그: 타임스탬프 기반 만료 (7일), 레거시 'true' 값도 호환
+        // seedream_admin_logged_in 플래그: 타임스탬프 기반 만료 (7일), 레거시 'true' 값도 호환
         const wasLoggedIn = loginTimestamp != null && (
             loginTimestamp === 'true' ||
             (Date.now() - Number(loginTimestamp)) < SEVEN_DAYS_MS
@@ -247,7 +247,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             set({ isLoading: false });
         } catch {
             // refresh 실패 = 세션 만료. 플래그 제거
-            localStorage.removeItem('wgift_admin_logged_in');
+            localStorage.removeItem('seedream_admin_logged_in');
             set({ token: null, user: null, isAuthenticated: false, isLoading: false });
         }
     }
@@ -256,7 +256,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 // Multi-tab session sync via localStorage events
 if (typeof window !== 'undefined') {
     window.addEventListener('storage', (event) => {
-        if (event.key === 'wgift_admin_logged_in') {
+        if (event.key === 'seedream_admin_logged_in') {
             if (!event.newValue) {
                 // Another tab logged out — sync this tab
                 useAuthStore.setState({ token: null, user: null, isAuthenticated: false });

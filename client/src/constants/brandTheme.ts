@@ -38,7 +38,7 @@ export const BRAND_NAMES: Record<BrandCode, string> = {
   DAISO: '다이소',
   CU: 'CU',
   OLIVEYOUNG: '올리브영',
-  WGIFT: 'W상품권',
+  WGIFT: '씨드림상품권',
   EX: '이엑스',
 };
 

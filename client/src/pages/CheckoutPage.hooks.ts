@@ -81,7 +81,7 @@ export const useCheckoutPage = () => {
 
   // 마운트 시 sessionStorage에서 배송 정보 복원
   useEffect(() => {
-    const saved = sessionStorage.getItem('wgift_checkout_form');
+    const saved = sessionStorage.getItem('seedream_checkout_form');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -108,7 +108,7 @@ export const useCheckoutPage = () => {
   // 배송 정보 변경 시 sessionStorage에 저장
   useEffect(() => {
     if (shippingInfo?.recipientName || shippingInfo?.recipientPhone) {
-      sessionStorage.setItem('wgift_checkout_form', JSON.stringify(shippingInfo));
+      sessionStorage.setItem('seedream_checkout_form', JSON.stringify(shippingInfo));
     }
   }, [shippingInfo]);
 
@@ -206,7 +206,7 @@ export const useCheckoutPage = () => {
           // 먼저 정리 — 이탈/새로고침 시에도 중복 주문 방지
           clearCheckout();
           // 주문 완료 후 임시 저장된 배송 정보 삭제
-          sessionStorage.removeItem('wgift_checkout_form');
+          sessionStorage.removeItem('seedream_checkout_form');
           // 구매한 상품들을 장바구니에서 일괄 제거 (단일 API 호출)
           const purchasedProductIds = items.map(item => item.id);
           removeSelectedItems(purchasedProductIds);

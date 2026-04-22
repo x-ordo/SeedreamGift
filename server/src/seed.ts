@@ -258,7 +258,7 @@ async function main() {
       },
       {
         code: 'WGIFT',
-        name: 'W상품권',
+        name: '씨드림상품권',
         color: '#6366F1',
         order: 6,
         description: '씨드림기프트 자체 상품권',
@@ -504,38 +504,38 @@ async function main() {
         discountRate: 2,
         tradeInRate: 6,
       },
-      // ── W상품권 (pin16) ──
+      // ── 씨드림상품권 (pin16) ──
       {
         brandCode: 'WGIFT',
-        name: 'W상품권 1천원권',
+        name: '씨드림상품권 1천원권',
         price: 1000,
         discountRate: 3,
         tradeInRate: 12,
       },
       {
         brandCode: 'WGIFT',
-        name: 'W상품권 1만원권',
+        name: '씨드림상품권 1만원권',
         price: 10000,
         discountRate: 2,
         tradeInRate: 8,
       },
       {
         brandCode: 'WGIFT',
-        name: 'W상품권 5만원권',
+        name: '씨드림상품권 5만원권',
         price: 50000,
         discountRate: 2,
         tradeInRate: 6,
       },
       {
         brandCode: 'WGIFT',
-        name: 'W상품권 10만원권',
+        name: '씨드림상품권 10만원권',
         price: 100000,
         discountRate: 1.5,
         tradeInRate: 5,
       },
       {
         brandCode: 'WGIFT',
-        name: 'W상품권 50만원권',
+        name: '씨드림상품권 50만원권',
         price: 500000,
         discountRate: 1.5,
         tradeInRate: 4,

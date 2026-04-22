@@ -67,7 +67,7 @@ export const PIN_PATTERNS: Record<BrandCode, PinPattern> = {
     SHINSEGAE: [6],
     /** 롯데 - 16자리 (4-4-4-4) */
     LOTTE: [4, 4, 4, 4],
-    /** W상품권 - 16자리 (4-4-4-4) */
+    /** 씨드림상품권 - 16자리 (4-4-4-4) */
     WGIFT: [4, 4, 4, 4],
     /** 다이소 - 12자리 (4-4-4) */
     DAISO: [4, 4, 4],

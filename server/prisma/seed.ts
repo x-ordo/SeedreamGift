@@ -4,7 +4,7 @@
  * @module prisma
  *
  * 시드 데이터 구성:
- * - 브랜드 6종 (현대, 신세계, 롯데, W상품권, 다이소, CU) + PIN 설정
+ * - 브랜드 6종 (현대, 신세계, 롯데, 씨드림상품권, 다이소, CU) + PIN 설정
  * - 사용자 4명 (ADMIN, USER x2, PARTNER)
  * - 상품 22종 (브랜드별 권종)
  * - 사이트 설정 (일일 한도, 배너 공지)
@@ -201,7 +201,7 @@ async function main() {
     },
     {
       code: 'WGIFT',
-      name: 'W상품권',
+      name: '씨드림상품권',
       color: '#6366F1',
       order: 4,
       description: '씨드림기프트 자체 상품권',
@@ -427,10 +427,10 @@ async function main() {
       tradeInRate: 4,
     },
 
-    // W상품권: 1만
+    // 씨드림상품권: 1만
     {
       brandCode: 'WGIFT',
-      name: 'W상품권 1만원',
+      name: '씨드림상품권 1만원',
       price: 10000,
       discountRate: 1,
       tradeInRate: 3,

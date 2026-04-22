@@ -50,7 +50,7 @@ export const MISC_STORAGE_KEYS = {
   /** 언어 설정 */
   LOCALE: `seedream-gift-locale:${STORAGE_VERSION}`,
   /** 검색 히스토리 */
-  SEARCH_HISTORY: 'wgift_search_history',
+  SEARCH_HISTORY: 'seedream_search_history',
 } as const;
 
 /** 검색 히스토리 최대 저장 수 */

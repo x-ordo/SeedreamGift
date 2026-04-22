@@ -83,7 +83,7 @@ const AdminLoginPage: React.FC = () => {
       const assertion = await startWebAuthnAuthentication(options);
       const response = await webauthnApi.loginComplete(assertion);
       const { access_token, user } = response.data;
-      localStorage.setItem('wgift_admin_logged_in', Date.now().toString());
+      localStorage.setItem('seedream_admin_logged_in', Date.now().toString());
       useAuthStore.setState({ token: access_token, user, isAuthenticated: true, isLoading: false });
       if (user?.role !== 'ADMIN') {
         await logout();

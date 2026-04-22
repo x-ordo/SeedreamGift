@@ -26,7 +26,7 @@ export const BRAND_OPTIONS = [
   { value: 'LOTTE', label: '롯데' },
   { value: 'DAISO', label: '다이소' },
   { value: 'CU', label: 'CU' },
-  { value: 'WGIFT', label: 'W상품권' },
+  { value: 'WGIFT', label: '씨드림상품권' },
   { value: 'EX', label: '이엑스' },
 ] as const;
 
@@ -46,7 +46,7 @@ export function normalizeVoucherType(voucherType: string | undefined | null): st
   if (upper === 'SHINSEGAE' || voucherType === '신세계') return '신세계';
   if (upper === 'HYUNDAI' || voucherType === '현대') return '현대';
   if (upper === 'LOTTE' || voucherType === '롯데') return '롯데';
-  if (upper === 'WGIFT' || voucherType === 'W상품권') return 'W상품권';
+  if (upper === 'WGIFT' || voucherType === '씨드림상품권') return '씨드림상품권';
   if (upper === 'DAISO' || voucherType === '다이소') return '다이소';
   if (upper === 'CU' || voucherType === 'CU') return 'CU';
   if (upper === 'EX' || voucherType === '이엑스') return '이엑스';
@@ -94,12 +94,12 @@ const PRODUCT_IMAGE_MAP: Record<string, Record<number, string>> = {
     10000: '/assets/img/product/cu_1.svg',
     50000: '/assets/img/product/cu_5.svg',
   },
-  'W상품권': {
-    1000: '/assets/img/product/wgift_01.svg',
-    10000: '/assets/img/product/wgift_1.svg',
-    50000: '/assets/img/product/wgift_5.svg',
-    100000: '/assets/img/product/wgift_10.svg',
-    500000: '/assets/img/product/wgift_50.svg',
+  '씨드림상품권': {
+    1000: '/assets/img/product/seedream_01.svg',
+    10000: '/assets/img/product/seedream_1.svg',
+    50000: '/assets/img/product/seedream_5.svg',
+    100000: '/assets/img/product/seedream_10.svg',
+    500000: '/assets/img/product/seedream_50.svg',
   },
 };
 

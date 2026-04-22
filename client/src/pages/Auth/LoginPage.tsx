@@ -19,7 +19,7 @@ import { webauthnApi } from '../../api';
 import Logo from '../../components/common/Logo';
 import siteConfig from '../../../../site.config.json';
 
-const PASSKEY_DISMISS_KEY = 'wgift_passkey_dismiss_until';
+const PASSKEY_DISMISS_KEY = 'seedream_passkey_dismiss_until';
 
 /* ── motion presets ────────────────────────── */
 const stagger = {
@@ -158,7 +158,7 @@ const LoginPage: React.FC = () => {
       const completeRes = await webauthnApi.mfaComplete(token, assertion);
       const data = completeRes.data?.data || completeRes.data;
 
-      localStorage.setItem('wgift_client_logged_in', Date.now().toString());
+      localStorage.setItem('seedream_client_logged_in', Date.now().toString());
       useAuthStore.setState({
         token: data.access_token,
         user: data.user,
@@ -183,7 +183,7 @@ const LoginPage: React.FC = () => {
       const assertion = await startWebAuthnAuthentication(options);
       const res = await webauthnApi.loginComplete(assertion);
       const data = res.data;
-      localStorage.setItem('wgift_client_logged_in', Date.now().toString());
+      localStorage.setItem('seedream_client_logged_in', Date.now().toString());
       useAuthStore.setState({ token: data.access_token, user: data.user, isAuthenticated: true, isLoading: false });
       await handleLoginSuccess();
     } catch {

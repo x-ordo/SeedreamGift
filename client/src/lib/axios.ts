@@ -99,7 +99,7 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         // 세션 만료 → 로그아웃 후 로그인 페이지로 이동
-        localStorage.removeItem('wgift_client_logged_in');
+        localStorage.removeItem('seedream_client_logged_in');
         useAuthStore.setState({ token: null, user: null, isAuthenticated: false });
         window.location.href = '/login';
         return Promise.reject(refreshError);
