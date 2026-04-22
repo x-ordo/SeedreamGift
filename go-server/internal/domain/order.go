@@ -115,6 +115,19 @@ type Payment struct {
 	FailReason *string `gorm:"column:FailReason;size:200" json:"failReason"`
 	// CreatedAt은 결제 정보 생성 시각입니다.
 	CreatedAt time.Time `gorm:"column:CreatedAt;autoCreateTime" json:"createdAt"`
+
+	// ── Seedream 통합 필드 (설계 §4.2) ──
+
+	// SeedreamVAccountID 는 Seedream /api/v1/vaccount 발급 응답의 data.id (BIGINT).
+	// GET /api/v1/vaccount 단건 조회 및 감사 추적 시 사용.
+	SeedreamVAccountID *int64 `gorm:"column:SeedreamVAccountId;index" json:"seedreamVAccountId,omitempty"`
+	// Phase 는 Seedream 이 노출하는 결제 세부 단계입니다.
+	// 값: awaiting_bank_selection | awaiting_deposit | completed | cancelled | failed
+	Phase *string `gorm:"column:Phase;size:30" json:"phase,omitempty"`
+	// IdempotencyKey 는 Seedream 호출 시 사용한 Idempotency-Key 원본.
+	// gift:vaccount:{OrderCode} · gift:cancel:{OrderCode} · gift:refund:{OrderCode}:{ts}
+	IdempotencyKey *string `gorm:"column:IdempotencyKey;size:200" json:"idempotencyKey,omitempty"`
+
 	// UpdatedAt은 결제 정보 수정 시각입니다.
 	UpdatedAt time.Time `gorm:"column:UpdatedAt;autoUpdateTime" json:"updatedAt"`
 }
