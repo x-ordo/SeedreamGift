@@ -17,7 +17,7 @@ info:
     X-Partner-Id: <이메일 @ 앞부분>
     ```
 
-    예시: 이메일이 `admin@wowgift.co.kr`인 경우
+    예시: 이메일이 `admin@seedreamgift.com`인 경우
     ```
     X-API-KEY: <발급받은 32자리 키>
     X-Partner-Id: admin
@@ -58,7 +58,7 @@ info:
     | 헤더 | 필수 | 설명 |
     |------|------|------|
     | `X-API-KEY` | **필수** | 발급받은 32자리 API Key |
-    | `X-Partner-Id` | **필수** | 계정 이메일의 `@` 앞부분 (예: `admin@wowgift.co.kr` → `admin`) |
+    | `X-Partner-Id` | **필수** | 계정 이메일의 `@` 앞부분 (예: `admin@seedreamgift.com` → `admin`) |
     | `Content-Type` | POST 요청 시 | `application/json; charset=utf-8` |
 
     > **주의**: `X-Partner-Id`가 없거나 이메일 prefix와 불일치하면 `401` 에러가 반환됩니다.
@@ -181,7 +181,7 @@ components:
       required: true
       schema:
         type: string
-      description: "계정 이메일의 @ 앞부분 (예: admin@wowgift.co.kr → `admin`)"
+      description: "계정 이메일의 @ 앞부분 (예: admin@seedreamgift.com → `admin`)"
 
   schemas:
     # ── 블랙리스트 검색 ──

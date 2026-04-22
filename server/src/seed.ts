@@ -261,7 +261,7 @@ async function main() {
         name: 'W상품권',
         color: '#6366F1',
         order: 6,
-        description: 'W기프트 자체 상품권',
+        description: '씨드림기프트 자체 상품권',
         imageUrl: '/images/brands/wgift.svg',
         pinConfig: JSON.stringify({
           pinLength: 16,
@@ -574,9 +574,9 @@ async function main() {
     // ============================================
     const noticeSeeds = [
       {
-        title: 'W기프트 그랜드 오픈 안내',
+        title: '씨드림기프트 그랜드 오픈 안내',
         content:
-          'W기프트가 정식 오픈했습니다. 신세계, 현대, 롯데, 다이소, 올리브영 상품권을 최저가로 구매하고 최고가로 판매하세요. 오픈 기념 이벤트도 진행 중이니 많은 이용 바랍니다.',
+          '씨드림기프트가 정식 오픈했습니다. 신세계, 현대, 롯데, 다이소, 올리브영 상품권을 최저가로 구매하고 최고가로 판매하세요. 오픈 기념 이벤트도 진행 중이니 많은 이용 바랍니다.',
         isActive: true,
       },
       {
@@ -772,7 +772,7 @@ async function main() {
       {
         title: '그랜드 오픈 기념 전 상품 2% 추가 할인',
         description:
-          'W기프트 정식 오픈을 기념하여 모든 상품권 구매 시 2% 추가 할인을 드립니다. 기간 한정 이벤트이니 놓치지 마세요!',
+          '씨드림기프트 정식 오픈을 기념하여 모든 상품권 구매 시 2% 추가 할인을 드립니다. 기간 한정 이벤트이니 놓치지 마세요!',
         startDate: new Date(now.getFullYear(), now.getMonth() - 1, 1),
         endDate: new Date(now.getFullYear(), now.getMonth() + 1, 28),
         isActive: true,

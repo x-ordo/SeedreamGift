@@ -15,7 +15,7 @@ export class SitemapController {
   ) {
     this.baseUrl = this.configService.get<string>(
       'FRONTEND_URL',
-      'https://wowgift.co.kr',
+      'https://seedreamgift.com',
     );
   }
 
