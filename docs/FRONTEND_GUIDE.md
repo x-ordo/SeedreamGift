@@ -121,7 +121,7 @@
 
 ## 3. 추출 가능한 패키지 구조
 
-### @wow-gift/design-system (즉시 추출 가능)
+### @seedream-gift/design-system (즉시 추출 가능)
 
 ```
 ├── atoms/       (17개: Button, Card, TextField, Switch, Checkbox, Radio, ...)
@@ -135,7 +135,7 @@
 - **의존성**: `react`, `react-dom`, `motion`
 - **비즈니스 로직**: 없음
 
-### @wow-gift/client-utils (즉시 추출 가능)
+### @seedream-gift/client-utils (즉시 추출 가능)
 
 ```
 ├── hooks/       (6개: useAsync, useDebounce, useForm, useStepForm, useCountUp, useMediaQuery)
@@ -147,7 +147,7 @@
 - **의존성**: `react`
 - **비즈니스 로직**: 없음
 
-### @wow-gift/api-core (추출 가능, 약간의 일반화 필요)
+### @seedream-gift/api-core (추출 가능, 약간의 일반화 필요)
 
 ```
 ├── axios.ts     (인터셉터, 토큰 주입, 리프레시 큐잉)

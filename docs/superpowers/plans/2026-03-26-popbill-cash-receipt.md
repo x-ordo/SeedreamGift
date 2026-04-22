@@ -869,7 +869,7 @@ func TestCashReceipt_RequestAfterPurchase_Expired(t *testing.T) {
 
 - [ ] **Step 2: 테스트 실행하여 실패 확인**
 
-Run: `cd /d/dev/wow-gift/go-server && go test ./internal/app/services/ -run TestCashReceipt -v`
+Run: `cd /d/dev/seedream-gift/go-server && go test ./internal/app/services/ -run TestCashReceipt -v`
 Expected: FAIL — `CashReceiptService` 타입이 아직 없음
 
 - [ ] **Step 3: CashReceiptService 구현**
@@ -1465,7 +1465,7 @@ func maskIdentity(num string) string {
 
 - [ ] **Step 4: 테스트 실행하여 통과 확인**
 
-Run: `cd /d/dev/wow-gift/go-server && go test ./internal/app/services/ -run TestCashReceipt -v`
+Run: `cd /d/dev/seedream-gift/go-server && go test ./internal/app/services/ -run TestCashReceipt -v`
 Expected: ALL PASS
 
 - [ ] **Step 5: 커밋**
@@ -1742,7 +1742,7 @@ func NewCashReceiptProvider(cfg *config.Config) interfaces.ICashReceiptProvider 
 
 - [ ] **Step 6: 빌드 확인**
 
-Run: `cd /d/dev/wow-gift/go-server && go build ./...`
+Run: `cd /d/dev/seedream-gift/go-server && go build ./...`
 Expected: BUILD SUCCESS
 
 - [ ] **Step 7: 커밋**
@@ -1848,7 +1848,7 @@ func NewPaymentService(db *gorm.DB, provider interfaces.IPaymentProvider, cashRe
 
 - [ ] **Step 4: 빌드 확인**
 
-Run: `cd /d/dev/wow-gift/go-server && go build ./...`
+Run: `cd /d/dev/seedream-gift/go-server && go build ./...`
 Expected: BUILD SUCCESS
 
 - [ ] **Step 5: 커밋**
@@ -1901,7 +1901,7 @@ func NewAdminRefundService(db *gorm.DB, cashReceiptSvc ...*CashReceiptService) *
 
 - [ ] **Step 4: 빌드 확인**
 
-Run: `cd /d/dev/wow-gift/go-server && go build ./...`
+Run: `cd /d/dev/seedream-gift/go-server && go build ./...`
 Expected: BUILD SUCCESS
 
 - [ ] **Step 5: 커밋**
@@ -2008,7 +2008,7 @@ func (s *Scheduler) syncCashReceipts() {
 
 - [ ] **Step 6: 빌드 확인**
 
-Run: `cd /d/dev/wow-gift/go-server && go build ./...`
+Run: `cd /d/dev/seedream-gift/go-server && go build ./...`
 Expected: BUILD SUCCESS
 
 - [ ] **Step 7: 커밋**
@@ -2036,12 +2036,12 @@ sqlcmd -S localhost -d WowGift -i go-server/migrations/005_create_cash_receipts.
 
 - [ ] **Step 2: 전체 테스트 실행**
 
-Run: `cd /d/dev/wow-gift/go-server && go test ./... -v -count=1`
+Run: `cd /d/dev/seedream-gift/go-server && go test ./... -v -count=1`
 Expected: ALL PASS
 
 - [ ] **Step 3: 서버 시작 확인**
 
-Run: `cd /d/dev/wow-gift/go-server && HEADLESS=true go run .`
+Run: `cd /d/dev/seedream-gift/go-server && HEADLESS=true go run .`
 Expected: 서버가 정상 시작되고 크론 잡에 "현금영수증 실패 재시도", "현금영수증 상태 동기화"가 등록됨
 
 - [ ] **Step 4: API 엔드포인트 수동 테스트**

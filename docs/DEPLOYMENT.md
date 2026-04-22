@@ -1,11 +1,11 @@
-# W기프트 빌드 & 배포 가이드
+# 씨드림기프트 빌드 & 배포 가이드
 
 ## 프로젝트 구조
 
 ```
-wow-gift/
-├── client/          → wowgift.co.kr (고객 SPA)
-├── admin/           → wowgift.co.kr/wow_admin_portal/ (관리자 SPA, client에 통합 배포)
+seedream-gift/
+├── client/          → seedreamgift.com (고객 SPA)
+├── admin/           → seedreamgift.com/seedream_admin_portal/ (관리자 SPA, client에 통합 배포)
 ├── go-server/       → Go API (Server B에서 실행)
 │   ├── main.go      ← 진입점 (루트에 위치 — Wails 요구사항)
 │   ├── frontend/    ← Wails 관리 콘솔 React 앱
@@ -24,10 +24,10 @@ wow-gift/
 
 | 서비스 | 서버 | 외부 포트 | 내부 | URL |
 |--------|------|----------|------|-----|
-| 고객 SPA | 103.97.209.205 | 443 | nginx 정적 파일 | wowgift.co.kr |
-| 관리자 SPA | 103.97.209.205 | 443 | nginx 정적 파일 | wowgift.co.kr/wow_admin_portal/ |
+| 고객 SPA | 103.97.209.205 | 443 | nginx 정적 파일 | seedreamgift.com |
+| 관리자 SPA | 103.97.209.205 | 443 | nginx 정적 파일 | seedreamgift.com/seedream_admin_portal/ |
 | Go API | 103.97.209.194 | 443 | **52201** (Go exe) | 내부 프록시 전용 |
-| MSSQL | 103.97.209.194 | — | 7335 | — |
+| MSSQL | 103.97.209.131 | — | 7335 | — |
 
 > admin은 별도 서브도메인이 아닌 **같은 도메인 하위 경로**로 서빙. SSL 인증서 추가 불필요.
 > API는 외부 도메인 없이 **nginx 프록시(`/api/`)로만 접근**. 프론트엔드가 직접 호출하지 않음.
@@ -38,7 +38,7 @@ wow-gift/
               외부 요청 (:443 HTTPS)
                     │
                     ▼
-              wowgift.co.kr
+              seedreamgift.com
                     │
     ┌───────────────┴───────────────┐
     │ Server A: 103.97.209.205     │
@@ -46,8 +46,8 @@ wow-gift/
     │ nginx :443                    │
     │  ├─ /                         │
     │  │   → client/ 정적 서빙     │
-    │  ├─ /wow_admin_portal/           │
-    │  │   → client/wow_admin_portal/  │
+    │  ├─ /seedream_admin_portal/           │
+    │  │   → client/seedream_admin_portal/  │
     │  └─ /api/                     │
     │      → proxy ─────────────────┼──→ Server B
     └───────────────────────────────┘    103.97.209.194
@@ -55,6 +55,12 @@ wow-gift/
                                     ┌────┴────────┐
                                     │ Go API      │
                                     │  :52201     │
+                                    └──────┬──────┘
+                                           │ MSSQL 연결
+                                           ▼
+                                    ┌─────────────┐
+                                    │ Server C    │
+                                    │ 103.97.209.131 │
                                     │ MSSQL :7335 │
                                     └─────────────┘
 ```
@@ -114,7 +120,7 @@ deploy/
 ```
 
 > **admin은 별도 ZIP이 아닌 client ZIP에 포함됩니다.**
-> 빌드 시 `admin/dist/` → `client/dist/wow_admin_portal/`로 자동 병합.
+> 빌드 시 `admin/dist/` → `client/dist/seedream_admin_portal/`로 자동 병합.
 
 ### 2-B. 수동 빌드
 
@@ -124,7 +130,7 @@ cd client && pnpm build
 
 # 2. Admin 빌드 + Client에 병합
 cd admin && pnpm build
-Copy-Item -Path admin\dist -Destination client\dist\wow_admin_portal -Recurse -Force
+Copy-Item -Path admin\dist -Destination client\dist\seedream_admin_portal -Recurse -Force
 
 # 3. ZIP 생성
 Compress-Archive -Path client\dist\* -DestinationPath deploy\client-latest.zip -Force
@@ -135,7 +141,7 @@ Compress-Archive -Path client\dist\* -DestinationPath deploy\client-latest.zip -
 ```powershell
 cd go-server
 wails build -platform windows/amd64 -ldflags "-s -w"
-# → build/bin/wgift-api.exe 생성
+# → build/bin/seedream-api.exe 생성
 ```
 
 > **주의**: `go build .`는 사용 금지. Wails 프론트엔드 임베딩이 누락됩니다.
@@ -151,22 +157,22 @@ wails build -platform windows/amd64 -ldflags "-s -w"
 # RDP로 103.97.209.205 접속 후:
 
 # 1. client ZIP 압축 해제 (admin 포함)
-Expand-Archive client-*.zip -DestinationPath C:\deploy-server\wow-gift\client -Force
+Expand-Archive client-*.zip -DestinationPath C:\deploy-server\seedream-gift\client -Force
 
 # 끝. nginx가 즉시 반영 — 재시작 불필요.
 ```
 
-> - 고객 사이트: https://wowgift.co.kr
-> - 관리자: https://wowgift.co.kr/wow_admin_portal/
+> - 고객 사이트: https://seedreamgift.com
+> - 관리자: https://seedreamgift.com/seedream_admin_portal/
 
 ### 3-B. Server B 배포 (103.97.209.194 — Go API)
 
 ```powershell
 # RDP로 103.97.209.194 접속 후:
 
-nssm stop WowGiftAPI
-Expand-Archive api-*.zip -DestinationPath C:\deploy-server\wgift-api -Force
-nssm start WowGiftAPI
+nssm stop SeedreamGiftAPI
+Expand-Archive api-*.zip -DestinationPath C:\deploy-server\seedream-api -Force
+nssm start SeedreamGiftAPI
 
 # 헬스체크
 curl http://127.0.0.1:52201/health
@@ -177,12 +183,12 @@ curl http://127.0.0.1:52201/health
 #### Server B — NSSM 서비스 등록
 
 ```powershell
-nssm install WowGiftAPI C:\deploy-server\wgift-api\wgift-api.exe
-nssm set WowGiftAPI AppDirectory C:\deploy-server\wgift-api
-nssm set WowGiftAPI AppEnvironmentExtra HEADLESS=true GIN_MODE=release
-nssm set WowGiftAPI DisplayName "WOW-GIFT Go API Server"
-nssm set WowGiftAPI Start SERVICE_AUTO_START
-nssm start WowGiftAPI
+nssm install SeedreamGiftAPI C:\deploy-server\seedream-api\seedream-api.exe
+nssm set SeedreamGiftAPI AppDirectory C:\deploy-server\seedream-api
+nssm set SeedreamGiftAPI AppEnvironmentExtra HEADLESS=true GIN_MODE=release
+nssm set SeedreamGiftAPI DisplayName "SEEDREAM-GIFT Go API Server"
+nssm set SeedreamGiftAPI Start SERVICE_AUTO_START
+nssm start SeedreamGiftAPI
 ```
 
 ---
@@ -201,8 +207,8 @@ nssm start WowGiftAPI
 
 ## 5. SSL 인증서
 
-Server A: GlobalSign 인증서 (`wowgift.co.kr`, `www.wowgift.co.kr`)
-- 경로: `C:/nginx/ssl/wowgift.co.kr/`
+Server A: GlobalSign 인증서 (`seedreamgift.com`, `www.seedreamgift.com`)
+- 경로: `C:/nginx/ssl/seedreamgift.com/`
 - admin은 같은 도메인이므로 추가 인증서 불필요
 
 Server B: 외부 직접 접근 없음 (nginx 프록시만) → SSL 선택사항
@@ -222,9 +228,9 @@ upstream goapi {
 
 server {
     listen 443 ssl;
-    server_name wowgift.co.kr www.wowgift.co.kr;
+    server_name seedreamgift.com www.seedreamgift.com;
 
-    root C:/deploy-server/wow-gift/client;
+    root C:/deploy-server/seedream-gift/client;
 
     # Client SPA 자산
     location /assets/ { expires 1y; add_header Cache-Control "public, immutable"; }
@@ -233,7 +239,7 @@ server {
     location /api/ { proxy_pass http://goapi; ... }
 
     # Admin SPA (같은 도메인 하위 경로)
-    location /wow_admin_portal/ { try_files $uri $uri/ /wow_admin_portal/index.html; }
+    location /seedream_admin_portal/ { try_files $uri $uri/ /seedream_admin_portal/index.html; }
 
     # Client SPA fallback
     location / { try_files $uri $uri/ /index.html; }
@@ -258,10 +264,10 @@ JWT_ACCESS_EXPIRY=15m
 JWT_REFRESH_EXPIRY=168h
 
 COOKIE_SECURE=true
-COOKIE_DOMAIN=.wowgift.co.kr
+COOKIE_DOMAIN=.seedreamgift.com
 
-FRONTEND_URL=https://wowgift.co.kr
-ADMIN_URL=https://wowgift.co.kr
+FRONTEND_URL=https://seedreamgift.com
+ADMIN_URL=https://seedreamgift.com
 ```
 
 > `ADMIN_URL`은 같은 도메인 (서브도메인 아님)
@@ -280,21 +286,21 @@ VITE_API_URL=/api/v1
 
 ```powershell
 # 고객 사이트
-curl -I https://wowgift.co.kr
+curl -I https://seedreamgift.com
 
 # 관리자 사이트
-curl -I https://wowgift.co.kr/wow_admin_portal/
+curl -I https://seedreamgift.com/seedream_admin_portal/
 
 # API (nginx 프록시 경유)
-curl https://wowgift.co.kr/api/v1/brands
+curl https://seedreamgift.com/api/v1/brands
 
 # 보안 헤더
-curl -I https://wowgift.co.kr
+curl -I https://seedreamgift.com
 # Strict-Transport-Security, X-Content-Type-Options, X-Frame-Options
 
 # 봇 차단
-curl -I https://wowgift.co.kr/.env              # → 444
-curl -I https://wowgift.co.kr/wp-admin           # → 444
+curl -I https://seedreamgift.com/.env              # → 444
+curl -I https://seedreamgift.com/wp-admin           # → 444
 ```
 
 ---
@@ -303,11 +309,11 @@ curl -I https://wowgift.co.kr/wp-admin           # → 444
 
 ```powershell
 # Go API 로그
-Get-Content C:\deploy-server\wgift-api\logs\api.log -Tail 50 -Wait
+Get-Content C:\deploy-server\seedream-api\logs\api.log -Tail 50 -Wait
 
 # 서비스 제어
-nssm status WowGiftAPI
-nssm restart WowGiftAPI
+nssm status SeedreamGiftAPI
+nssm restart SeedreamGiftAPI
 ```
 
 ---
@@ -321,11 +327,18 @@ New-NetFirewallRule -DisplayName "HTTP" -Direction Inbound -Protocol TCP -LocalP
 New-NetFirewallRule -DisplayName "HTTPS" -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow
 ```
 
-### Server B (103.97.209.194)
+### Server B (103.97.209.194 — Go API)
 
 ```powershell
 New-NetFirewallRule -DisplayName "HTTPS" -Direction Inbound -Protocol TCP -LocalPort 443 -Action Allow
-New-NetFirewallRule -DisplayName "WOW-GIFT API" -Direction Inbound -Protocol TCP -LocalPort 52201 -RemoteAddress 127.0.0.1,103.97.209.205 -Action Allow
+New-NetFirewallRule -DisplayName "SEEDREAM-GIFT API" -Direction Inbound -Protocol TCP -LocalPort 52201 -RemoteAddress 127.0.0.1,103.97.209.205 -Action Allow
+```
+
+### Server C (103.97.209.131 — MSSQL)
+
+```powershell
+# MSSQL 포트는 Server B(Go API)에서만 접근 허용
+New-NetFirewallRule -DisplayName "MSSQL" -Direction Inbound -Protocol TCP -LocalPort 7335 -RemoteAddress 103.97.209.194 -Action Allow
 ```
 
 ---
@@ -338,7 +351,7 @@ New-NetFirewallRule -DisplayName "WOW-GIFT API" -Direction Inbound -Protocol TCP
 | API만 빌드 | `.\scripts\deploy-all.ps1 -Target api -SkipInstall` |
 | 개발 서버 | `pnpm dev:client` / `pnpm dev:admin` |
 | Go 개발 | `cd go-server && $env:HEADLESS="true" && go run .` |
-| Server A 배포 | `Expand-Archive client-*.zip -Dest C:\deploy-server\wow-gift\client -Force` |
+| Server A 배포 | `Expand-Archive client-*.zip -Dest C:\deploy-server\seedream-gift\client -Force` |
 | Server B 배포 | `nssm stop` → ZIP 풀기 → `nssm start` |
-| 고객 사이트 | https://wowgift.co.kr |
-| 관리자 | https://wowgift.co.kr/wow_admin_portal/ |
+| 고객 사이트 | https://seedreamgift.com |
+| 관리자 | https://seedreamgift.com/seedream_admin_portal/ |

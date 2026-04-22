@@ -1,6 +1,6 @@
 # Cloudflare 인프라 설정 가이드
 
-> 등록일: 2026-03-28 | 플랜: Free | 적용 대상: wowgift.co.kr
+> 등록일: 2026-03-28 | 플랜: Free | 적용 대상: seedreamgift.com
 
 ## 인프라 구조 (Cloudflare 적용 후)
 
@@ -12,14 +12,16 @@ Cloudflare (CDN, DDoS 방어, SSL 종료)
 Server A — 103.97.209.205 (Windows Server)
     ├─ nginx :443 (리버스 프록시, SSL, 정적 파일)
     │   ├─ / → client SPA (정적 파일)
-    │   ├─ /wow_admin_portal/ → admin SPA
-    │   ├─ /wow_partner_portal/ → partner SPA
+    │   ├─ /seedream_admin_portal/ → admin SPA
+    │   ├─ /seedream_partner_portal/ → partner SPA
     │   └─ /api/* → 프록시 → Server B
     └─ :80 → 301 HTTPS 리다이렉트
 
 Server B — 103.97.209.194 (Windows Server)
-    ├─ Go API :52201 (NSSM 서비스, 내부 전용)
-    └─ MSSQL :7335 (localhost만)
+    └─ Go API :52201 (NSSM 서비스, 내부 전용) → Server C 연결
+
+Server C — 103.97.209.131 (Windows Server)
+    └─ MSSQL :7335 (Server B에서만 접근)
 ```
 
 ## 1. nginx 설정 변경 사항
@@ -67,7 +69,7 @@ real_ip_header CF-Connecting-IP;
 
 ### 1.2 paysolus.kr 보안 강화
 
-paysolus.kr 서버 블록에 wowgift.co.kr과 동일한 보안 차단 규칙 추가:
+paysolus.kr 서버 블록에 seedreamgift.com과 동일한 보안 차단 규칙 추가:
 - 봇/스캐너 차단, dotfiles 차단, CMS/VPN/Docker 프로브 차단
 - `ssl_stapling on` + `ssl_stapling_verify on` 추가
 - `proxy_set_header Connection ""` keepalive 추가
@@ -149,22 +151,22 @@ Rule 3: / → Bypass Cache
    > nginx -s reload     # 적용
 
 2. .env.production → Server B에 복사
-   > nssm stop WowGiftAPI
-   > copy .env.production C:\deploy-server\wgift-api\.env
-   > nssm start WowGiftAPI
+   > nssm stop SeedreamGiftAPI
+   > copy .env.production C:\deploy-server\seedream-api\.env
+   > nssm start SeedreamGiftAPI
 
 3. Cloudflare 대시보드
    - SSL: Full (Strict) 설정
    - Cache Rules 3개 추가
-   - DNS A 레코드: wowgift.co.kr → 103.97.209.205 (프록시 활성화, 주황 구름)
+   - DNS A 레코드: seedreamgift.com → 103.97.209.205 (프록시 활성화, 주황 구름)
 ```
 
 ## 5. 검증 체크리스트
 
 배포 후 확인:
 
-- [ ] `curl -I https://wowgift.co.kr` → `cf-ray` 헤더 존재 확인 (Cloudflare 경유 확인)
-- [ ] `curl -I https://wowgift.co.kr` → `strict-transport-security` 헤더 확인
+- [ ] `curl -I https://seedreamgift.com` → `cf-ray` 헤더 존재 확인 (Cloudflare 경유 확인)
+- [ ] `curl -I https://seedreamgift.com` → `strict-transport-security` 헤더 확인
 - [ ] 로그인/회원가입 정상 동작 (쿠키, CORS)
 - [ ] Server B 로그에서 실제 클라이언트 IP 확인 (Cloudflare IP가 아닌 것)
 - [ ] API rate limiting 정상 동작 (특정 IP만 차단, 전체 차단 아닌 것)

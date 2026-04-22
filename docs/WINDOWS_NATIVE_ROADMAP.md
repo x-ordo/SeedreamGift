@@ -27,22 +27,22 @@
 ```powershell
 # scripts/install-service.ps1 (예시)
 $nssm = "C:\tools\nssm.exe"
-$svcName = "WowGiftAPI"
-$exePath = "C:\deploy-server\wgift-api\wgift-api.exe"
+$svcName = "SeedreamGiftAPI"
+$exePath = "C:\deploy-server\seedream-api\seedream-api.exe"
 
 & $nssm install $svcName $exePath
-& $nssm set $svcName AppDirectory "C:\deploy-server\wgift-api"
+& $nssm set $svcName AppDirectory "C:\deploy-server\seedream-api"
 & $nssm set $svcName AppEnvironmentExtra "HEADLESS=true"
 & $nssm set $svcName DisplayName "W Gift API Server"
-& $nssm set $svcName Description "W기프트 상품권 API 서버"
+& $nssm set $svcName Description "씨드림기프트 상품권 API 서버"
 & $nssm set $svcName Start SERVICE_AUTO_START
 & $nssm set $svcName AppStopMethodSkip 0
 & $nssm set $svcName AppStopMethodConsole 5000
 & $nssm set $svcName AppStopMethodWindow 5000
 & $nssm set $svcName AppStopMethodThreads 5000
 & $nssm set $svcName AppRestartDelay 10000
-& $nssm set $svcName AppStdout "C:\deploy-server\wgift-api\logs\service-stdout.log"
-& $nssm set $svcName AppStderr "C:\deploy-server\wgift-api\logs\service-stderr.log"
+& $nssm set $svcName AppStdout "C:\deploy-server\seedream-api\logs\service-stdout.log"
+& $nssm set $svcName AppStderr "C:\deploy-server\seedream-api\logs\service-stderr.log"
 & $nssm set $svcName AppRotateFiles 1
 & $nssm set $svcName AppRotateBytes 10485760
 ```
@@ -67,7 +67,7 @@ $exePath = "C:\deploy-server\wgift-api\wgift-api.exe"
 **추천**: InnoSetup (소규모 배포) 또는 WiX (기업 환경)
 
 **인스톨러가 해야 할 것**:
-- wgift-api.exe + frontend 임베딩 바이너리 복사
+- seedream-api.exe + frontend 임베딩 바이너리 복사
 - .env.production 템플릿 복사 (시크릿은 빈값)
 - logs/ 디렉토리 생성
 - uploads/ 디렉토리 생성
@@ -88,7 +88,7 @@ $exePath = "C:\deploy-server\wgift-api\wgift-api.exe"
 
 ```powershell
 # 빌드 후 서명
-signtool sign /f cert.pfx /p password /tr http://timestamp.digicert.com /td sha256 /fd sha256 wgift-api.exe
+signtool sign /f cert.pfx /p password /tr http://timestamp.digicert.com /td sha256 /fd sha256 seedream-api.exe
 ```
 
 **비용**: EV 인증서 연 $300-500
@@ -150,7 +150,7 @@ func NewEventLogSink(source string) (*eventlog.Log, error) {
 - Wails v3 대기 (시스템 트레이 지원 예정)
 
 **트레이 메뉴 구성**:
-- W기프트 서버 (상태: 실행 중)
+- 씨드림기프트 서버 (상태: 실행 중)
 - 관리 콘솔 열기
 - 서버 로그 보기
 - ---
@@ -208,16 +208,16 @@ HKLM\SYSTEM\CurrentControlSet\Control\FileSystem\LongPathsEnabled = 1
 ```
 Server A (103.97.209.205) — nginx
 ├── client/dist/           ← 프론트엔드 정적 파일
-├── client/dist/wow_admin_portal/  ← 어드민 앱
+├── client/dist/seedream_admin_portal/  ← 어드민 앱
 └── nginx.conf
 
 Server B (103.97.209.194) — Go API
-├── wgift-api.exe          ← Wails 빌드 바이너리
+├── seedream-api.exe          ← Wails 빌드 바이너리
 ├── .env.production        ← 환경 설정
 ├── logs/                  ← API 로그
 ├── uploads/               ← 파트너 문서 + 첨부 파일
-└── NSSM 서비스: WowGiftAPI
+└── NSSM 서비스: SeedreamGiftAPI
 ```
 
 **빌드 명령어**: `wails build -platform windows/amd64 -ldflags "-s -w"`
-**서비스 관리**: `nssm start/stop/restart WowGiftAPI`
+**서비스 관리**: `nssm start/stop/restart SeedreamGiftAPI`

@@ -67,7 +67,7 @@ Go 서버는 NestJS 서버를 **대체할 수 없습니다.** 5개의 SHOWSTOPPE
 - **NestJS**: `ServeStaticModule`로 빌드된 React 앱 서빙 (`app.module.ts:90`)
 - **Go**: Wails GUI에 프론트엔드 임베딩 (`//go:embed all:frontend/dist`, `main.go:28`), HTTP 정적 파일 서빙 없음
 
-**결과**: `https://wowgift.co.kr` 접속 시 빈 페이지
+**결과**: `https://seedreamgift.com` 접속 시 빈 페이지
 
 ### 1-5. Wails GUI 의존성 (헤드리스 운영 불가)
 

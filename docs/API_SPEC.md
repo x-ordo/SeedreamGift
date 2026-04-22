@@ -1,4 +1,4 @@
-# W기프트 API 명세서
+# 씨드림기프트 API 명세서
 
 > **Base URL**: `/api/v1`
 > **인증**: JWT Bearer Token (`Authorization: Bearer {access_token}`)

@@ -1,6 +1,6 @@
 # SMTP 이메일 설정 가이드
 
-W기프트 서버의 이메일 발송 기능 설정 방법입니다.
+씨드림기프트 서버의 이메일 발송 기능 설정 방법입니다.
 
 ## 지원 기능
 
@@ -35,8 +35,8 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-gmail@gmail.com
 SMTP_PASSWORD=abcdefghijklmnop
-SMTP_FROM=noreply@wowgift.co.kr
-SMTP_FROM_NAME=W기프트
+SMTP_FROM=noreply@seedreamgift.com
+SMTP_FROM_NAME=씨드림기프트
 ```
 
 | 변수 | 설명 | 예시 |
@@ -46,8 +46,8 @@ SMTP_FROM_NAME=W기프트
 | `SMTP_PORT` | SMTP 서버 포트 (STARTTLS) | `587` |
 | `SMTP_USER` | 로그인 계정 (Gmail 주소) | `wowgift.noreply@gmail.com` |
 | `SMTP_PASSWORD` | 앱 비밀번호 (띄어쓰기 제거) | `abcdefghijklmnop` |
-| `SMTP_FROM` | 발신자 이메일 (표시용) | `noreply@wowgift.co.kr` |
-| `SMTP_FROM_NAME` | 발신자 이름 (표시용) | `W기프트` |
+| `SMTP_FROM` | 발신자 이메일 (표시용) | `noreply@seedreamgift.com` |
+| `SMTP_FROM_NAME` | 발신자 이름 (표시용) | `씨드림기프트` |
 
 ### 1-3. 서버 재시작
 
@@ -56,7 +56,7 @@ SMTP_FROM_NAME=W기프트
 cd go-server && go run .
 
 # 프로덕션 (NSSM 서비스)
-nssm restart WowGiftAPI
+nssm restart SeedreamGiftAPI
 ```
 
 ---
@@ -113,7 +113,7 @@ SMTP_PASSWORD=SG.xxxxxxxxxxxxxxxx
 
 ```
 # 성공
-INFO  email sent  {"to": "user@example.com", "subject": "[W기프트] 비밀번호 재설정 안내"}
+INFO  email sent  {"to": "user@example.com", "subject": "[씨드림기프트] 비밀번호 재설정 안내"}
 
 # SMTP 비활성 상태
 WARN  email not sent: SMTP disabled  {"to": "user@example.com"}

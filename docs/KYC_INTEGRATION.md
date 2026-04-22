@@ -2,7 +2,7 @@
 
 ## 개요
 
-외부 KYC 서비스(Coocon/KCB)를 통해 본인인증을 수행하고, 결과를 `WOWGIFT_DB`의 `SMS_VERIFICATION` 테이블에 저장하는 구조입니다.
+외부 KYC 서비스(Coocon/KCB)를 통해 본인인증을 수행하고, 결과를 `SEEDREAM_GIFT_DB`의 `SMS_VERIFICATION` 테이블에 저장하는 구조입니다.
 
 ---
 
@@ -14,7 +14,7 @@ sequenceDiagram
     participant F as 프론트엔드 (RegisterPage)
     participant C as Coocon 서버 (103.97.209.176:8091)
     participant K as KCB 본인인증 팝업
-    participant DB as WOWGIFT_DB
+    participant DB as SEEDREAM_GIFT_DB
 
     U->>F: 1. 기본 정보 입력
     U->>F: 2. "본인 인증하기" 클릭

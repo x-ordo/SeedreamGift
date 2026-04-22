@@ -6,7 +6,7 @@
 
 ```powershell
 # 서버(103.97.209.205)에서 실행
-Copy-Item "C:\deploy-server\wow-gift\server\nginx-security.conf" "C:\nginx\conf\nginx-security.conf"
+Copy-Item "C:\deploy-server\seedream-gift\server\nginx-security.conf" "C:\nginx\conf\nginx-security.conf"
 ```
 
 ### 2. nginx.conf에 include 추가
@@ -16,7 +16,7 @@ Copy-Item "C:\deploy-server\wow-gift\server\nginx-security.conf" "C:\nginx\conf\
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name wowgift.co.kr www.wowgift.co.kr;
+    server_name seedreamgift.com www.seedreamgift.com;
 
     # Security rules (봇/스캐너 차단)
     include nginx-security.conf;
@@ -67,9 +67,9 @@ cd C:\nginx
 
 ```powershell
 # 차단 확인 (200이 아닌 444/연결끊김이 나와야 함)
-curl -I https://wowgift.co.kr/.env
-curl -I https://wowgift.co.kr/.git/credentials
-curl -I https://wowgift.co.kr/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php
+curl -I https://seedreamgift.com/.env
+curl -I https://seedreamgift.com/.git/credentials
+curl -I https://seedreamgift.com/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php
 ```
 
 ## 차단 대상 요약
