@@ -33,14 +33,14 @@ func GetGlobalToken() string { return globalToken }
 func GetGlobalChatID() string { return globalChatID }
 
 // SendAlert은 텔레그램 봇 API를 통해 지정된 채팅방으로 메시지를 전송합니다.
-// 모든 메시지에 [WowGift] 태그를 자동으로 추가하고 HTML parse_mode를 사용합니다.
+// 모든 메시지에 [SeedreamGift] 태그를 자동으로 추가하고 HTML parse_mode를 사용합니다.
 // 토큰이나 채팅 ID가 비어있으면 아무 작업도 수행하지 않고 nil을 반환합니다.
 func SendAlert(token, chatID, message string) error {
 	if token == "" || chatID == "" {
 		return nil // silently skip if not configured
 	}
 
-	taggedMessage := "🔔 <b>[WowGift]</b>\n" + message
+	taggedMessage := "🔔 <b>[SeedreamGift]</b>\n" + message
 
 	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", token)
 	payload := map[string]string{

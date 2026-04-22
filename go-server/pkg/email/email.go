@@ -37,12 +37,12 @@ func (s *Service) IsEnabled() bool {
 	return s.cfg.SMTPEnabled && s.cfg.SMTPHost != "" && s.cfg.SMTPUser != ""
 }
 
-// prefix returns email subject prefix like "[W기프트]"
-// Prefix returns email subject prefix like "[W기프트] "
+// prefix returns email subject prefix like "[씨드림기프트]"
+// Prefix returns email subject prefix like "[씨드림기프트] "
 func (s *Service) Prefix() string {
 	name := s.cfg.SiteName
 	if name == "" {
-		name = "W기프트"
+		name = "씨드림기프트"
 	}
 	return "[" + name + "] "
 }
@@ -115,7 +115,7 @@ func (s *Service) layout(title, body string) string {
 	}
 	siteName := s.cfg.SiteName
 	if siteName == "" {
-		siteName = "W기프트"
+		siteName = "씨드림기프트"
 	}
 	siteDomain := s.cfg.SiteDomain
 	if siteDomain == "" {
@@ -189,11 +189,11 @@ func (s *Service) layout(title, body string) string {
       <td class="hdr-pad" style="padding:24px 32px 20px;">
         <table cellpadding="0" cellspacing="0" role="presentation"><tr>
           <td style="width:28px;height:28px;background:#fff;border-radius:8px;text-align:center;vertical-align:middle;font-size:14px;font-weight:900;color:#3182f6;line-height:28px;font-family:%s;">W</td>
-          <td style="padding-left:8px;font-size:15px;font-weight:800;color:#fff;letter-spacing:-0.02em;font-family:%s;">W기프트</td>
+          <td style="padding-left:8px;font-size:15px;font-weight:800;color:#fff;letter-spacing:-0.02em;font-family:%s;">씨드림기프트</td>
         </tr></table>
       </td>
       <td class="hdr-pad hdr-domain" style="padding:24px 32px 20px;text-align:right;">
-        <span style="font-size:11px;color:rgba(255,255,255,0.45);font-family:%s;">wowgift.co.kr</span>
+        <span style="font-size:11px;color:rgba(255,255,255,0.45);font-family:%s;">seedreamgift.com</span>
       </td>
     </tr>
     </table>
@@ -213,7 +213,7 @@ func (s *Service) layout(title, body string) string {
   <tr><td class="badge-pad" style="padding:0 32px;">
     <table width="100%%" cellpadding="0" cellspacing="0" role="presentation" style="background:#f8f9fa;border-radius:10px;">
     <tr><td style="padding:12px 16px;font-size:11px;color:#8b95a1;font-family:%s;">
-      &#128274; 이 이메일은 W기프트에서 자동 발송된 보안 메일입니다
+      &#128274; 이 이메일은 씨드림기프트에서 자동 발송된 보안 메일입니다
     </td></tr>
     </table>
   </td></tr>
@@ -227,7 +227,7 @@ func (s *Service) layout(title, body string) string {
         사업자등록번호 731-87-02461 &middot; 대표 권학재<br>
         <a href="mailto:%s" style="color:#3182f6;text-decoration:none;">%s</a> &middot; 02-569-7334
       </p>
-      <p style="font-size:10px;color:#d1d6db;margin:8px 0 0;font-family:%s;">&copy; %d W기프트</p>
+      <p style="font-size:10px;color:#d1d6db;margin:8px 0 0;font-family:%s;">&copy; %d 씨드림기프트</p>
     </td></tr>
     </table>
   </td></tr>
@@ -239,8 +239,8 @@ func (s *Service) layout(title, body string) string {
 </html>`, font, font, font, font, font, title, body, font, font, csEmail, csEmail, font, year)
 
 	// 사업자 정보 치환 (하드코딩 제거)
-	result = strings.ReplaceAll(result, "W기프트", siteName)
-	result = strings.ReplaceAll(result, "wowgift.co.kr", siteDomain)
+	result = strings.ReplaceAll(result, "씨드림기프트", siteName)
+	result = strings.ReplaceAll(result, "seedreamgift.com", siteDomain)
 	result = strings.ReplaceAll(result, "주식회사 더블유에이아이씨", companyName)
 	result = strings.ReplaceAll(result, "731-87-02461", companyLicense)
 	result = strings.ReplaceAll(result, "권학재", companyOwner)
@@ -467,16 +467,16 @@ func (s *Service) SendTradeInConfirmation(to, userName, productName string, quan
 // WrapLayout wraps simple text content in the standard email layout.
 // standalone 버전 — notification 서비스에서 사용 (cs@ 이메일은 기본값 사용)
 func WrapLayout(title, body string) string {
-	s := &Service{cfg: &config.Config{CsEmail: "cs@wowgift.co.kr"}}
+	s := &Service{cfg: &config.Config{CsEmail: "cs@seedreamgift.com"}}
 	return s.layout(title, paragraph(body))
 }
 
 // SendDeployNotification은 시스템 배포 완료 알림 이메일을 발송합니다.
 func (s *Service) SendDeployNotification(to, deployTime string) error {
-	body := paragraph("W기프트 시스템 배포가 완료되었습니다.") +
+	body := paragraph("씨드림기프트 시스템 배포가 완료되었습니다.") +
 		infoCard("#3182f6", "#f0f4ff",
 			infoRow("배포 시각", deployTime, "")+
-				infoRow("서비스", "W기프트 (wowgift.co.kr)", "#3182f6")+
+				infoRow("서비스", "씨드림기프트 (seedreamgift.com)", "#3182f6")+
 				infoRow("환경", "Production", "")+
 				infoRow("상태", "정상 운영 중", "#03b26c")) +
 		divider() +

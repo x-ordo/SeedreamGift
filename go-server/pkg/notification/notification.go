@@ -37,7 +37,7 @@ func (s *Service) SetSiteName(name string) { s.siteName = name }
 func (s *Service) emailSubject(suffix string) string {
 	n := s.siteName
 	if n == "" {
-		n = "W기프트"
+		n = "씨드림기프트"
 	}
 	return "[" + n + "] " + suffix
 }
@@ -46,7 +46,7 @@ func (s *Service) sn() string {
 	if s.siteName != "" {
 		return s.siteName
 	}
-	return "W기프트"
+	return "씨드림기프트"
 }
 
 // NewService creates a notification service.
