@@ -33,7 +33,7 @@ $exePath = "C:\deploy-server\seedream-api\seedream-api.exe"
 & $nssm install $svcName $exePath
 & $nssm set $svcName AppDirectory "C:\deploy-server\seedream-api"
 & $nssm set $svcName AppEnvironmentExtra "HEADLESS=true"
-& $nssm set $svcName DisplayName "W Gift API Server"
+& $nssm set $svcName DisplayName "Seedream Gift API Server"
 & $nssm set $svcName Description "씨드림기프트 상품권 API 서버"
 & $nssm set $svcName Start SERVICE_AUTO_START
 & $nssm set $svcName AppStopMethodSkip 0

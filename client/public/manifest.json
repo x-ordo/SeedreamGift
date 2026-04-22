@@ -1,6 +1,6 @@
 {
-  "name": "W Gift - 상품권 판매 및 매입",
-  "short_name": "W Gift",
+  "name": "Seedream Gift - 상품권 판매 및 매입",
+  "short_name": "Seedream Gift",
   "description": "백화점 상품권 할인 구매 및 판매 플랫폼",
   "icons": [
     { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },

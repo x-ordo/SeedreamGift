@@ -7,7 +7,7 @@
  * - 각 페이지 컴포넌트: 페이지 타이틀, OG 태그, 트위터 카드 등을 개별 설정
  *
  * react-helmet-async를 사용하여 SSR 호환 가능한 방식으로 <head> 태그를 관리한다.
- * title이 없으면 기본 사이트 타이틀을, 있으면 "페이지명 | W Gift" 형식으로 조합한다.
+ * title이 없으면 기본 사이트 타이틀을, 있으면 "페이지명 | 씨드림기프트" 형식으로 조합한다.
  */
 import React from 'react';
 import { Helmet } from 'react-helmet-async';

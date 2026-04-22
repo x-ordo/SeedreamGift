@@ -5,7 +5,7 @@ test.describe.configure({ mode: 'serial' });
 test.describe('QA V2: Product Lifecycle', () => {
   test('Scenario A: Guest Browser', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/W Gift/);
+    await expect(page).toHaveTitle(/씨드림기프트|Seedream Gift/);
 
     const brandCard = page.locator('.brand-card-vertical').filter({ hasText: '신세계' }).first();
     await expect(brandCard).toBeVisible({ timeout: 10000 });

@@ -29,7 +29,7 @@ func main() {
 	}
 
 	fmt.Println("========================================")
-	fmt.Println(" W Gift DB Schema Audit")
+	fmt.Println(" Seedream Gift DB Schema Audit")
 	fmt.Println("========================================")
 
 	// 1. All tables

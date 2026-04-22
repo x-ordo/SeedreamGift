@@ -1,4 +1,4 @@
-# W Gift Design System
+# Seedream Gift Design System
 
 Swift Trust 디자인 철학 기반의 컴포넌트 라이브러리입니다. Toss Design System에서 영감을 받아 일관된 사용자 경험과 접근성을 제공합니다.
 

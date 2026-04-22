@@ -10,7 +10,7 @@ const BASE_URL = 'http://localhost:5173';
 test.describe('홈 페이지 테스트', () => {
   test('페이지 타이틀 확인', async ({ page }) => {
     await page.goto(BASE_URL);
-    await expect(page).toHaveTitle(/W Gift/);
+    await expect(page).toHaveTitle(/씨드림기프트|Seedream Gift/);
   });
 
   test('헤더 네비게이션 확인', async ({ page }) => {

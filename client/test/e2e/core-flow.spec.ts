@@ -13,7 +13,7 @@ test.describe('와우기프트 핵심 시나리오 테스트', () => {
 
   test('로그인 및 마이페이지 접근 테스트', async ({ page }) => {
     await page.goto(BASE_URL);
-    await expect(page).toHaveTitle(/W Gift/);
+    await expect(page).toHaveTitle(/씨드림기프트|Seedream Gift/);
 
     await page.click('a[href="/login"]');
     await expect(page).toHaveURL(/.*login/);

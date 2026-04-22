@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    W Gift Full Deploy Script (Go Architecture)
+    Seedream Gift Full Deploy Script (Go Architecture)
 .DESCRIPTION
     Builds and packages: client, admin, Go API server
 .PARAMETER Target

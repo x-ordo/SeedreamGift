@@ -17,7 +17,7 @@ func main() {
 		dsn = envDSN
 	}
 
-	fmt.Println("=== W Gift DB Migration Tool ===")
+	fmt.Println("=== Seedream Gift DB Migration Tool ===")
 	fmt.Printf("Target: %s\n\n", dsn)
 
 	db, err := sql.Open("sqlserver", dsn)

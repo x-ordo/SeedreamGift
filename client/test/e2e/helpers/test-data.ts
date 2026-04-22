@@ -87,7 +87,7 @@ export async function goToTradeInPage(page: Page): Promise<void> {
  */
 export async function goToHomePage(page: Page): Promise<void> {
   await page.goto(BASE_URL);
-  await expect(page).toHaveTitle(/W Gift/);
+  await expect(page).toHaveTitle(/씨드림기프트|Seedream Gift/);
 }
 
 /**
