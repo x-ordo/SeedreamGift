@@ -1,5 +1,5 @@
 {
-  "name": "w-gift-server",
+  "name": "seedream-gift-server",
   "version": "2.1.0",
   "scripts": {
     "dev": "nest build && node -e \"require('fs').cpSync('./src/shared/prisma/generated','./dist/src/shared/prisma/generated',{recursive:true,force:true})\" && nest start --watch",

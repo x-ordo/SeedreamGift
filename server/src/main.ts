@@ -125,7 +125,7 @@ async function bootstrap() {
                 'https://cdn.jsdelivr.net',
                 'https://pf.kakao.com',
                 'https://*.kakao.com',
-                'https://api.wowgift.co.kr',
+                'https://api.seedreamgift.com',
               ],
               fontSrc: ["'self'", 'https://cdn.jsdelivr.net'],
               objectSrc: ["'none'"],
@@ -185,8 +185,8 @@ async function bootstrap() {
   // CORS 설정 (환경별 화이트리스트)
   const allowedOrigins = isProduction
     ? [
-        process.env.FRONTEND_URL || 'https://wowgift.co.kr',
-        'https://www.wowgift.co.kr',
+        process.env.FRONTEND_URL || 'https://seedreamgift.com',
+        'https://www.seedreamgift.com',
       ]
     : [
         'http://localhost:5173',

@@ -13,7 +13,7 @@
  * - 버전화된 localStorage 키 (마이그레이션 용이)
  *
  * 영속화:
- * - localStorage 키: 'wow-gift-cart:v1'
+ * - localStorage 키: 'seedream-gift-cart:v1'
  * - Zustand persist 미들웨어 사용
  */
 import { create } from 'zustand';

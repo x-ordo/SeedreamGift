@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { defineConfig } from 'prisma/config';
 
 // Load .env from parent directory (root level)
-// Production: C:\deploy-server\wow-gift\.env
+// Production: C:\deploy-server\seedream-gift\.env
 // Development: project_root\.env or server\.env (fallback)
 const rootEnvPath = path.join(__dirname, '..', '.env');
 const serverEnvPath = path.join(__dirname, '.env');

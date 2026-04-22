@@ -41,7 +41,7 @@ export const useCheckoutStore = create<CheckoutState>()(
       clear: () => set({ checkoutItems: [], giftTarget: null, shippingInfo: null }),
     }),
     {
-      name: 'wow-gift-checkout:v1',
+      name: 'seedream-gift-checkout:v1',
       storage: createJSONStorage(() => sessionStorage),
     }
   )

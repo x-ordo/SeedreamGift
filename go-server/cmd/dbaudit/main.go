@@ -14,7 +14,7 @@ import (
 func main() {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "sqlserver://dnflrhdwnghkdlxldsql:dnflrhdwnghkdlxld2024!%40@103.97.209.194:7335?database=SEEDREAM_GIFT_DB&encrypt=true&trustServerCertificate=true"
+		dsn = "sqlserver://dnflrhdwnghkdlxldsql:dnflrhdwnghkdlxld2024!%40@103.97.209.131:7335?database=SEEDREAM_GIFT_DB&encrypt=true&trustServerCertificate=true"
 	}
 
 	db, err := sql.Open("sqlserver", dsn)

@@ -1,6 +1,6 @@
 /**
  * @file App.tsx
- * @description W기프트 관리자 앱 (admin.wowgift.co.kr)
+ * @description 씨드림기프트 관리자 앱 (seedreamgift.com/seedream_admin_portal)
  *
  * 라우트:
  * - /login  → 관리자 로그인
