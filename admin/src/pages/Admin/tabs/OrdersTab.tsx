@@ -8,6 +8,7 @@ import { formatPrice, formatRelativeTime, maskEmail } from '../../../utils';
 import { COLORS, SPACING } from '../../../constants/designTokens';
 import { ORDER_STATUS_COLOR_MAP, ORDER_STATUS_OPTIONS, ADMIN_PAGINATION } from '../constants';
 import AdminDetailModal from '../components/AdminDetailModal';
+import PaymentTimeline, { type PaymentItem } from '../components/PaymentTimeline';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { exportToExcel, exportBankReport } from '../utils/exportExcel';
 import type { PinOption } from '../utils/exportExcel';
@@ -45,6 +46,7 @@ interface Order {
   recipientAddr?: string;
   recipientZip?: string;
   adminNote?: string;
+  payments?: PaymentItem[];
 }
 
 interface StatusChangeState {
@@ -608,6 +610,11 @@ const OrdersTab = () => {
                   </Button>
                 </div>
               )}
+            </AdminDetailModal.Section>
+
+            {/* 결제 시도 이력 (PG 원장 드릴다운) */}
+            <AdminDetailModal.Section title="결제 시도 이력">
+              <PaymentTimeline items={detailOrder.payments} />
             </AdminDetailModal.Section>
 
             {/* 선물 정보 */}
