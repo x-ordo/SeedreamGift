@@ -21,6 +21,7 @@ const TAB_COMPONENTS: Record<AdminTab, React.LazyExoticComponent<React.FC>> = {
   'brands': lazy(() => import('./tabs/BrandsTab')),
   'vouchers': lazy(() => import('./tabs/VouchersTab')),
   'orders': lazy(() => import('./tabs/OrdersTab')),
+  'payments': lazy(() => import('./tabs/PaymentsTab')),
   'tradeins': lazy(() => import('./tabs/TradeInsTab')),
   'gifts': lazy(() => import('./tabs/GiftsTab')),
   'refunds': lazy(() => import('./tabs/RefundsTab')),
