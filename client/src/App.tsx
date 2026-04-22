@@ -51,7 +51,7 @@ const LegalPrivacyPage = lazy(() => import('./pages/Legal/LegalPrivacyPage'));
 const RefundPolicyPage = lazy(() => import('./pages/Legal/RefundPolicyPage'));
 const GiftPage = lazy(() => import('./pages/GiftPage'));
 const PartnerInquiryPage = lazy(() => import('./pages/PartnerInquiryPage'));
-// 어드민은 admin.wowgift.co.kr로 분리됨
+// 어드민은 admin.seedreamgift.com로 분리됨
 
 function App() {
   return (
