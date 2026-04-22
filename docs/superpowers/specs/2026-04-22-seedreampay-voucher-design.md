@@ -78,7 +78,7 @@ giftmoa · EXPay 등 기존 외부 발급사 연동과 동형(同型)의 발급 
 ### 4.2 VoucherCode 스키마 변경
 
 ```sql
-ALTER TABLE VoucherCodes ADD SerialNo        NVARCHAR(20) NULL;  -- 공개 조회용
+ALTER TABLE VoucherCodes ADD SerialNo        NVARCHAR(32) NULL;  -- 공개 조회용
 ALTER TABLE VoucherCodes ADD SecretHash      CHAR(64)     NULL;  -- SHA-256(secret + ":" + serialNo)
 ALTER TABLE VoucherCodes ADD RedeemedOrderId INT          NULL;  -- 몰 내 사용된 주문 ID
 ALTER TABLE VoucherCodes ADD RedeemedIp      NVARCHAR(45) NULL;  -- 사용 시 IP (IPv6 포함)
@@ -445,7 +445,7 @@ IF NOT EXISTS (SELECT 1 FROM Brands WHERE Code='SEEDREAMPAY')
 
 -- VoucherCodes 컬럼
 IF COL_LENGTH('VoucherCodes','SerialNo')        IS NULL
-    ALTER TABLE VoucherCodes ADD SerialNo        NVARCHAR(20) NULL;
+    ALTER TABLE VoucherCodes ADD SerialNo        NVARCHAR(32) NULL;
 IF COL_LENGTH('VoucherCodes','SecretHash')      IS NULL
     ALTER TABLE VoucherCodes ADD SecretHash      CHAR(64)     NULL;
 IF COL_LENGTH('VoucherCodes','RedeemedOrderId') IS NULL
@@ -465,11 +465,11 @@ USING (VALUES
     ('SEEDREAMPAY','씨드림페이 10,000원권', 10000, 'API','SEEDREAMPAY','10000'),
     ('SEEDREAMPAY','씨드림페이 100,000원권',100000,'API','SEEDREAMPAY','100000'),
     ('SEEDREAMPAY','씨드림페이 500,000원권',500000,'API','SEEDREAMPAY','500000')
-) AS src (Brand, Name, Price, FulfillmentType, ProviderCode, ProviderProductCode)
-ON target.Brand = src.Brand AND target.ProviderProductCode = src.ProviderProductCode
+) AS src (BrandCode, Name, Price, FulfillmentType, ProviderCode, ProviderProductCode)
+ON target.BrandCode = src.BrandCode AND target.ProviderProductCode = src.ProviderProductCode
 WHEN NOT MATCHED THEN
-    INSERT (Brand, Name, Price, DiscountRate, TradeInRate, FulfillmentType, ProviderCode, ProviderProductCode)
-    VALUES (src.Brand, src.Name, src.Price, 0, 0, src.FulfillmentType, src.ProviderCode, src.ProviderProductCode);
+    INSERT (BrandCode, Name, Price, BuyPrice, DiscountRate, TradeInRate, FulfillmentType, ProviderCode, ProviderProductCode)
+    VALUES (src.BrandCode, src.Name, src.Price, src.Price, 0, 0, src.FulfillmentType, src.ProviderCode, src.ProviderProductCode);
 
 COMMIT;
 ```
