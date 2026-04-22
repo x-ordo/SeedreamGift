@@ -230,6 +230,9 @@ func (s *PartnerService) GetMyOrderDetail(partnerID int, orderID int) (*domain.O
 
 	var order domain.Order
 	err := s.db.Preload("OrderItems.Product").
+		Preload("Payments", func(db *gorm.DB) *gorm.DB {
+			return db.Order("CreatedAt ASC") // 시도 순 타임라인
+		}).
 		Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("Id", "Email", "Name", "Phone")
 		}).
@@ -237,6 +240,7 @@ func (s *PartnerService) GetMyOrderDetail(partnerID int, orderID int) (*domain.O
 	if err != nil {
 		return nil, apperror.NotFound("주문을 찾을 수 없습니다")
 	}
+	maskPaymentsForPartner(order.Payments)
 	return &order, nil
 }
 
@@ -535,4 +539,37 @@ func (s *PartnerService) UpdateProfile(partnerID int, updates map[string]any) er
 		return apperror.NotFound("프로필을 찾을 수 없습니다")
 	}
 	return result.Error
+}
+
+// maskPaymentsForPartner는 파트너가 주문 상세에서 보는 결제 시도 기록의 민감 필드를
+// 응답 직전에 마스킹합니다. DB 엔티티를 직접 수정하지만, 이 시점은 이미 프리젠테이션 단계이므로 안전합니다.
+//
+// 규칙:
+//   - DepositorName: 첫 룬 + "*" (예: "홍*")
+//   - BankTxID: 앞 8자 + "****" (예: "PAY_abc1****")
+//   - AccountNumber: 이미 json:"-"지만 방어적으로 nil 처리
+//   - FailReason: 제거 (PG 응답 원문 노출 방지)
+func maskPaymentsForPartner(payments []domain.Payment) {
+	for i := range payments {
+		p := &payments[i]
+		if p.DepositorName != nil {
+			runes := []rune(*p.DepositorName)
+			if len(runes) > 0 {
+				m := string(runes[:1]) + "*"
+				p.DepositorName = &m
+			}
+		}
+		if p.BankTxID != nil {
+			s := *p.BankTxID
+			if len(s) > 8 {
+				m := s[:8] + "****"
+				p.BankTxID = &m
+			} else {
+				m := "****"
+				p.BankTxID = &m
+			}
+		}
+		p.AccountNumber = nil
+		p.FailReason = nil
+	}
 }
