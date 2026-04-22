@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0] - 2026-04-21
+
+### Changed (리브랜딩)
+- **프로젝트명**: W Gift(wowgift.co.kr) → **Seedream Gift(seedreamgift.com)**
+- **법인**: 주식회사 더블유에이아이씨 → 주식회사 디앤더블유그룹
+- **대표자**: 권학재 → 권종달
+- **사업자등록번호**: 731-87-02461 → 459-88-02135
+- **브랜드명**: W기프트 / W GIFT → 씨드림기프트 / SEEDREAM GIFT
+- **이메일**: cs@wowgift.co.kr / compliance@wowgift.co.kr → admin@seedream.com
+- **전화**: 02-569-7334 → 1551-9440
+- **주소**: 서울 강남 테헤란로 → 경기 화성시 장안면 장안로 607
+
+### Infra (신규 / 분리)
+- **DB 서버 분리**: 기존 Server B 공존 → **Server C (103.97.209.131)** 전용 MSSQL
+- **DB 이름**: WOWGIFT_DB → SEEDREAM_GIFT_DB
+- **NSSM 서비스**: WowGiftAPI → SeedreamGiftAPI
+- **Go 모듈**: w-gift-server → seedream-gift-server
+- **배포 경로**: C:\deploy-server\wow-gift / \wgift-api → \seedream-gift / \seedream-api
+- **Admin URL**: /wow_admin_portal/ → /seedream_admin_portal/
+- **Partner URL**: /wow_partner_portal/ → /seedream_partner_portal/
+
+### Removed
+- 카카오 채널 플로팅 버튼 컴포넌트 (신규 채널 미확정)
+- 파일 `wowsite.config.json` 개명 → `seedreamsite.config.json`
+
+---
+
 ## [2.1.0] - 2026-02-16
 
 ### Added
