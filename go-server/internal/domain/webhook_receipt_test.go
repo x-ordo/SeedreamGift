@@ -25,4 +25,6 @@ func TestWebhookReceipt_Fields(t *testing.T) {
 	assert.Equal(t, int64(42), r.DeliveryID)
 	assert.Equal(t, "vaccount.deposited", r.Event)
 	assert.Equal(t, "ORD-1", *r.OrderNo)
+	assert.Equal(t, "evt-123", *r.EventID)
+	assert.Equal(t, `{"eventId":"evt-123"}`, r.RawBody)
 }
