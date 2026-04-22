@@ -140,8 +140,10 @@ func TestValidateOrderTransition_SeedreamStates(t *testing.T) {
 		{"ISSUED → EXPIRED 허용", "ISSUED", "EXPIRED", false},
 		// PENDING → EXPIRED (은행선택도 못한 상태에서 만료)
 		{"PENDING → EXPIRED 허용", "PENDING", "EXPIRED", false},
-		// PENDING → AMOUNT_MISMATCH (웹훅 없이 Reconcile 감지)
+		// PENDING → AMOUNT_MISMATCH (ISSUED 경로를 놓친 Reconcile 보정 엣지 케이스)
 		{"PENDING → AMOUNT_MISMATCH 허용", "PENDING", "AMOUNT_MISMATCH", false},
+		// ISSUED → AMOUNT_MISMATCH (표준 경로: 입금 후 Reconcile 감지)
+		{"ISSUED → AMOUNT_MISMATCH 허용", "ISSUED", "AMOUNT_MISMATCH", false},
 
 		// 종료 상태에서 다른 상태로의 전이는 불가
 		{"EXPIRED → PAID 불가", "EXPIRED", "PAID", true},

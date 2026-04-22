@@ -194,12 +194,15 @@ func validateRate(name string, val decimal.Decimal) error {
 // 각 상태에서 전이 가능한 다음 상태를 명시하여 비정상적인 상태 변경을 방지합니다.
 var validOrderTransitions = map[string][]string{
 	// PENDING: 초기 상태. Seedream 발급 요청 직후 유지 (phase=awaiting_bank_selection).
-	// ISSUED 로 넘어가거나, 은행선택 전 취소/만료/금액불일치 가능.
+	// ISSUED 로 넘어가거나, 은행선택 전 취소/만료 가능.
+	// "PAID" 직접 전이는 legacy Mock/Toss 플로우 호환용 — Phase 6 에서 제거.
+	// "AMOUNT_MISMATCH" 는 ISSUED 경로를 놓친 Reconcile 보정 시에만 발생 (엣지 케이스).
 	"PENDING":    {"ISSUED", "PAID", "CANCELLED", "EXPIRED", "AMOUNT_MISMATCH"},
 	"FRAUD_HOLD": {"PAID", "CANCELLED"},
 	// ISSUED: 은행선택 완료, 입금 대기 (phase=awaiting_deposit).
-	// 정상 입금 → PAID, 가맹점 요청 취소 또는 키움 자동 취소 → CANCELLED, 만료 → EXPIRED.
-	"ISSUED":    {"PAID", "CANCELLED", "EXPIRED"},
+	// 정상 입금 → PAID, 가맹점 요청 취소 또는 키움 자동 취소 → CANCELLED,
+	// 만료 → EXPIRED, 입금액 불일치 → AMOUNT_MISMATCH (웹훅 없이 Reconcile 감지).
+	"ISSUED":    {"PAID", "CANCELLED", "EXPIRED", "AMOUNT_MISMATCH"},
 	"PAID":      {"DELIVERED", "CANCELLED", "REFUNDED"},
 	"DELIVERED": {"COMPLETED"},
 	// 아래는 최종 상태.
