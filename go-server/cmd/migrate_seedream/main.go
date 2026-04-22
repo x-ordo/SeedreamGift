@@ -42,7 +42,9 @@ func main() {
 
 	// MSSQL 의 GO 는 배치 분리자 (T-SQL 파서 전용, DB 가 직접 실행 불가).
 	// 문자열 레벨에서 분리 후 각 배치를 개별 Exec 로 실행.
-	batches := strings.Split(string(raw), "\nGO\n")
+	// Windows 에디터로 저장된 CRLF 파일도 안전히 처리하기 위해 LF 로 정규화.
+	normalized := strings.ReplaceAll(string(raw), "\r\n", "\n")
+	batches := strings.Split(normalized, "\nGO\n")
 
 	executed := 0
 	for i, batch := range batches {
