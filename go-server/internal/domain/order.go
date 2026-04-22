@@ -121,12 +121,14 @@ type Payment struct {
 	// SeedreamVAccountID 는 Seedream /api/v1/vaccount 발급 응답의 data.id (BIGINT).
 	// GET /api/v1/vaccount 단건 조회 및 감사 추적 시 사용.
 	SeedreamVAccountID *int64 `gorm:"column:SeedreamVAccountId;index" json:"seedreamVAccountId,omitempty"`
-	// Phase 는 Seedream 이 노출하는 결제 세부 단계입니다.
+	// SeedreamPhase 는 Seedream 이 노출하는 VA 결제 세부 단계입니다.
 	// 값: awaiting_bank_selection | awaiting_deposit | completed | cancelled | failed
-	Phase *string `gorm:"column:Phase;size:30" json:"phase,omitempty"`
-	// IdempotencyKey 는 Seedream 호출 시 사용한 Idempotency-Key 원본.
-	// gift:vaccount:{OrderCode} · gift:cancel:{OrderCode} · gift:refund:{OrderCode}:{ts}
-	IdempotencyKey *string `gorm:"column:IdempotencyKey;size:200" json:"idempotencyKey,omitempty"`
+	// 주의: Order.Status 와 다른 enum. Payment 의 vendor sub-state 만 표현.
+	SeedreamPhase *string `gorm:"column:SeedreamPhase;size:30" json:"seedreamPhase,omitempty"`
+	// SeedreamIdempotencyKey 는 Seedream 호출 시 사용한 Idempotency-Key 원본.
+	// 형식: gift:vaccount:{OrderCode} | gift:cancel:{OrderCode} | gift:refund:{OrderCode}:{ts}
+	// 주의: Order.IdempotencyKey (클라이언트 dedup) 와 별개. 이건 vendor 호출 감사 추적용.
+	SeedreamIdempotencyKey *string `gorm:"column:SeedreamIdempotencyKey;size:200" json:"seedreamIdempotencyKey,omitempty"`
 
 	// UpdatedAt은 결제 정보 수정 시각입니다.
 	UpdatedAt time.Time `gorm:"column:UpdatedAt;autoUpdateTime" json:"updatedAt"`

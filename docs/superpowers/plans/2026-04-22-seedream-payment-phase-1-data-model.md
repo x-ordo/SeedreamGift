@@ -248,6 +248,8 @@ git commit -m "feat(domain): add ReconcileCursor singleton entity for Seedream r
 
 기존 Payment 구조체를 확장하므로 필드 존재만 컴파일 수준에서 확인하는 간단한 테스트 추가.
 
+**Note (2026-04-22 rename)**: 최초 plan 의 `Phase` / `IdempotencyKey` 는 code review 에서 `Order.IdempotencyKey` 와의 grep-ambiguity + `Status` 와의 의미 충돌로 `SeedreamPhase` / `SeedreamIdempotencyKey` 로 vendor-prefix 적용. 아래 코드 블록에 반영됨.
+
 `go-server/internal/domain/payment_seedream_fields_test.go` 신규 작성:
 
 ```go
@@ -267,19 +269,19 @@ func TestPayment_HasSeedreamFields(t *testing.T) {
 	var idem = "gift:vaccount:ORD-1"
 
 	p := Payment{
-		SeedreamVAccountID: &vaID,
-		Phase:              &phase,
-		IdempotencyKey:     &idem,
+		SeedreamVAccountID:     &vaID,
+		SeedreamPhase:          &phase,
+		SeedreamIdempotencyKey: &idem,
 	}
 
 	assert.NotNil(t, p.SeedreamVAccountID)
 	assert.Equal(t, int64(102847), *p.SeedreamVAccountID)
 
-	assert.NotNil(t, p.Phase)
-	assert.Equal(t, "awaiting_deposit", *p.Phase)
+	assert.NotNil(t, p.SeedreamPhase)
+	assert.Equal(t, "awaiting_deposit", *p.SeedreamPhase)
 
-	assert.NotNil(t, p.IdempotencyKey)
-	assert.Equal(t, "gift:vaccount:ORD-1", *p.IdempotencyKey)
+	assert.NotNil(t, p.SeedreamIdempotencyKey)
+	assert.Equal(t, "gift:vaccount:ORD-1", *p.SeedreamIdempotencyKey)
 }
 ```
 
@@ -310,12 +312,14 @@ Expected: `unknown field 'SeedreamVAccountID' in struct literal of type Payment`
 	// SeedreamVAccountID 는 Seedream /api/v1/vaccount 발급 응답의 data.id (BIGINT).
 	// GET /api/v1/vaccount 단건 조회 및 감사 추적 시 사용.
 	SeedreamVAccountID *int64 `gorm:"column:SeedreamVAccountId;index" json:"seedreamVAccountId,omitempty"`
-	// Phase 는 Seedream 이 노출하는 결제 세부 단계입니다.
+	// SeedreamPhase 는 Seedream 이 노출하는 VA 결제 세부 단계입니다.
 	// 값: awaiting_bank_selection | awaiting_deposit | completed | cancelled | failed
-	Phase *string `gorm:"column:Phase;size:30" json:"phase,omitempty"`
-	// IdempotencyKey 는 Seedream 호출 시 사용한 Idempotency-Key 원본.
-	// gift:vaccount:{OrderCode} · gift:cancel:{OrderCode} · gift:refund:{OrderCode}:{ts}
-	IdempotencyKey *string `gorm:"column:IdempotencyKey;size:200" json:"idempotencyKey,omitempty"`
+	// 주의: Order.Status 와 다른 enum. Payment 의 vendor sub-state 만 표현.
+	SeedreamPhase *string `gorm:"column:SeedreamPhase;size:30" json:"seedreamPhase,omitempty"`
+	// SeedreamIdempotencyKey 는 Seedream 호출 시 사용한 Idempotency-Key 원본.
+	// 형식: gift:vaccount:{OrderCode} | gift:cancel:{OrderCode} | gift:refund:{OrderCode}:{ts}
+	// 주의: Order.IdempotencyKey (클라이언트 dedup) 와 별개. 이건 vendor 호출 감사 추적용.
+	SeedreamIdempotencyKey *string `gorm:"column:SeedreamIdempotencyKey;size:200" json:"seedreamIdempotencyKey,omitempty"`
 
 	// UpdatedAt은 결제 정보 수정 시각입니다.
 	UpdatedAt time.Time `gorm:"column:UpdatedAt;autoUpdateTime" json:"updatedAt"`
@@ -600,21 +604,21 @@ GO
 
 IF NOT EXISTS (
     SELECT 1 FROM sys.columns
-    WHERE object_id = OBJECT_ID('Payments') AND name = 'Phase'
+    WHERE object_id = OBJECT_ID('Payments') AND name = 'SeedreamPhase'
 )
 BEGIN
-    ALTER TABLE Payments ADD Phase NVARCHAR(30) NULL;
-    PRINT 'Added Payments.Phase';
+    ALTER TABLE Payments ADD SeedreamPhase NVARCHAR(30) NULL;
+    PRINT 'Added Payments.SeedreamPhase';
 END
 GO
 
 IF NOT EXISTS (
     SELECT 1 FROM sys.columns
-    WHERE object_id = OBJECT_ID('Payments') AND name = 'IdempotencyKey'
+    WHERE object_id = OBJECT_ID('Payments') AND name = 'SeedreamIdempotencyKey'
 )
 BEGIN
-    ALTER TABLE Payments ADD IdempotencyKey NVARCHAR(200) NULL;
-    PRINT 'Added Payments.IdempotencyKey';
+    ALTER TABLE Payments ADD SeedreamIdempotencyKey NVARCHAR(200) NULL;
+    PRINT 'Added Payments.SeedreamIdempotencyKey';
 END
 GO
 
@@ -795,7 +799,7 @@ func main() {
 	db.Raw(`
 		SELECT COUNT(*) FROM sys.columns
 		WHERE object_id = OBJECT_ID('Payments')
-		  AND name IN ('SeedreamVAccountId', 'Phase', 'IdempotencyKey')
+		  AND name IN ('SeedreamVAccountId', 'SeedreamPhase', 'SeedreamIdempotencyKey')
 	`).Scan(&payCols)
 	if payCols != 3 {
 		log.Fatalf("Post-check failed: expected 3 new Payments columns, found %d", payCols)

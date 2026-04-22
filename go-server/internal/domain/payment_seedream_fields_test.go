@@ -14,17 +14,17 @@ func TestPayment_HasSeedreamFields(t *testing.T) {
 	var idem = "gift:vaccount:ORD-1"
 
 	p := Payment{
-		SeedreamVAccountID: &vaID,
-		Phase:              &phase,
-		IdempotencyKey:     &idem,
+		SeedreamVAccountID:     &vaID,
+		SeedreamPhase:          &phase,
+		SeedreamIdempotencyKey: &idem,
 	}
 
 	assert.NotNil(t, p.SeedreamVAccountID)
 	assert.Equal(t, int64(102847), *p.SeedreamVAccountID)
 
-	assert.NotNil(t, p.Phase)
-	assert.Equal(t, "awaiting_deposit", *p.Phase)
+	assert.NotNil(t, p.SeedreamPhase)
+	assert.Equal(t, "awaiting_deposit", *p.SeedreamPhase)
 
-	assert.NotNil(t, p.IdempotencyKey)
-	assert.Equal(t, "gift:vaccount:ORD-1", *p.IdempotencyKey)
+	assert.NotNil(t, p.SeedreamIdempotencyKey)
+	assert.Equal(t, "gift:vaccount:ORD-1", *p.SeedreamIdempotencyKey)
 }
