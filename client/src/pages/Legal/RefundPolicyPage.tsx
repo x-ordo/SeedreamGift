@@ -90,9 +90,6 @@ const RefundPolicyPage: React.FC = () => {
                   전화: <a href={SUPPORT_CONTACT.phoneHref} className="text-primary hover:underline tabular-nums">{SUPPORT_CONTACT.phone}</a>
                   <span className="text-xs text-base-content/40 ml-1">({SUPPORT_CONTACT.phoneHours})</span>
                 </p>
-                <p className="text-sm text-base-content/70">
-                  카카오톡: <a href={SUPPORT_CONTACT.kakaoHref} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{SUPPORT_CONTACT.kakao}</a>
-                </p>
               </div>
             </section>
           </article>

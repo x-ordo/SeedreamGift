@@ -31,24 +31,24 @@ export const AUTH_STORAGE_KEYS = {
 /**
  * 장바구니 스토리지 키
  */
-export const CART_STORAGE_KEY = `wow-gift-cart:${STORAGE_VERSION}`;
+export const CART_STORAGE_KEY = `seedream-gift-cart:${STORAGE_VERSION}`;
 
 /**
  * 장바구니 타임스탬프 키
  * - 장바구니 마지막 수정 시각 (7일 만료 체크용)
  */
-export const CART_TIMESTAMP_KEY = `wow-gift-cart:${STORAGE_VERSION}:timestamp`;
+export const CART_TIMESTAMP_KEY = `seedream-gift-cart:${STORAGE_VERSION}:timestamp`;
 
 /**
  * 기타 스토리지 키
  */
 export const MISC_STORAGE_KEYS = {
   /** 최근 본 상품 */
-  RECENT_PRODUCTS: `wow-gift-recent:${STORAGE_VERSION}`,
+  RECENT_PRODUCTS: `seedream-gift-recent:${STORAGE_VERSION}`,
   /** 테마 설정 */
-  THEME: `wow-gift-theme:${STORAGE_VERSION}`,
+  THEME: `seedream-gift-theme:${STORAGE_VERSION}`,
   /** 언어 설정 */
-  LOCALE: `wow-gift-locale:${STORAGE_VERSION}`,
+  LOCALE: `seedream-gift-locale:${STORAGE_VERSION}`,
   /** 검색 히스토리 */
   SEARCH_HISTORY: 'wgift_search_history',
 } as const;
@@ -70,7 +70,7 @@ export const ALL_STORAGE_KEYS = [
 /**
  * 스토리지 전체 초기화
  * - 로그아웃 시 또는 데이터 초기화 필요 시 호출
- * - 모든 wow-gift 관련 localStorage 키 삭제
+ * - 모든 seedream-gift 관련 localStorage 키 삭제
  */
 export const clearAllStorage = (): void => {
   ALL_STORAGE_KEYS.forEach(key => localStorage.removeItem(key));

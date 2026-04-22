@@ -26,7 +26,6 @@ import { ModalProvider } from './contexts/ModalContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { Loader, LoaderOverlay } from './design-system';
 import ErrorBoundary from './components/common/ErrorBoundary';
-import { KakaoFloatingButton } from './components/common/KakaoFloatingButton';
 import NotFoundPage from './pages/NotFoundPage';
 import SEO from './components/common/SEO';
 import NetworkStatus from './components/common/NetworkStatus';
@@ -150,7 +149,6 @@ function App() {
                 </Route>
               </Routes>
             </ErrorBoundary>
-            <KakaoFloatingButton />
           </Suspense>
         </ToastProvider>
       </ModalProvider>

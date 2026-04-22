@@ -175,7 +175,7 @@ export const BUTTON_LABELS = {
  * 페이지 제목
  */
 export const PAGE_TITLES = {
-  HOME: '와우기프트',
+  HOME: '씨드림기프트',
   LOGIN: '로그인',
   REGISTER: '회원가입',
   CART: '장바구니',

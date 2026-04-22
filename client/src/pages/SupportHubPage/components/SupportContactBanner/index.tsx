@@ -3,7 +3,7 @@
  * @description 고객지원 연락처 배너 — daisyUI card + responsive
  */
 import React from 'react';
-import { Headphones, Phone, MessageSquareText, Mail } from 'lucide-react';
+import { Headphones, Phone, Mail } from 'lucide-react';
 import { SUPPORT_CONTACT } from '../../../../constants';
 
 export const SupportContactBanner: React.FC = () => {
@@ -20,7 +20,7 @@ export const SupportContactBanner: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 w-full">
           {/* 전화문의 */}
           <div className="card rounded-box hover:-translate-y-1 hover:shadow-md transition-[transform,box-shadow] duration-200" style={{ background: 'white', border: '1px solid var(--color-grey-100)', boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.02)' }}>
             <div className="card-body flex-row sm:flex-col items-center gap-3 p-3 sm:p-4">
@@ -37,28 +37,6 @@ export const SupportContactBanner: React.FC = () => {
                   {SUPPORT_CONTACT.phone}
                 </a>
                 <span className="text-xs text-base-content/40">{SUPPORT_CONTACT.phoneHours}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 카카오톡 */}
-          <div className="card rounded-box hover:-translate-y-1 hover:shadow-md transition-[transform,box-shadow] duration-200" style={{ background: 'white', border: '1px solid var(--color-grey-100)', boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.02)' }}>
-            <div className="card-body flex-row sm:flex-col items-center gap-3 p-3 sm:p-4">
-              <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-warning/10 text-warning rounded-xl flex-shrink-0">
-                <MessageSquareText size={16} aria-hidden="true" />
-              </div>
-              <div className="flex flex-col sm:items-center gap-0.5">
-                <span className="text-xs font-semibold text-base-content/50 uppercase tracking-wide">카카오톡</span>
-                <a
-                  href={SUPPORT_CONTACT.kakaoHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="카카오톡 상담 바로가기"
-                  className="text-xs font-bold text-base-content hover:text-primary transition-colors duration-200"
-                >
-                  {SUPPORT_CONTACT.kakao}
-                </a>
-                <span className="text-xs text-base-content/40">{SUPPORT_CONTACT.kakaoHours}</span>
               </div>
             </div>
           </div>
