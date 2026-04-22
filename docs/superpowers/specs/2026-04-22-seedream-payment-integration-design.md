@@ -137,9 +137,11 @@ Status string `gorm:"column:Status;default:'PENDING';size:20"`
 
 ```
 PENDING → ISSUED → PAID → DELIVERED → COMPLETED
-        → CANCELLED
-PENDING → EXPIRED         (자체 타이머)
-PENDING → AMOUNT_MISMATCH (Reconcile 감지)
+                → CANCELLED
+                → EXPIRED           (만료 타이머)
+                → AMOUNT_MISMATCH   (Reconcile 감지 — 표준 경로)
+PENDING → EXPIRED           (은행선택 전 만료)
+PENDING → AMOUNT_MISMATCH   (ISSUED 웹훅 유실 시 Reconcile 엣지)
 PAID    → REFUNDED
 ```
 
@@ -365,7 +367,8 @@ func (s *VAccountService) Refund(ctx context.Context, caller CallerContext, orde
 |---|---|---|---|
 | `VAccountExpiryJob` | `PENDING` + `PaymentDeadlineAt < now - 60s` | `EXPIRED` | Voucher 해제, (옵션) Seedream `/payment/cancel` 정합 호출 |
 | `ReconcileJob` | `PENDING` + 원격 `SUCCESS` (DLQ 유실) | `PAID` | 웹훅 경로와 동일 |
-| `ReconcileJob` | `PENDING` + 원격 `AMOUNT_MISMATCH` | `AMOUNT_MISMATCH` | Voucher 해제 ❌ (Ops 판단), 알림 |
+| `ReconcileJob` | `ISSUED` + 원격 `AMOUNT_MISMATCH` | `AMOUNT_MISMATCH` | Voucher 해제 ❌ (Ops 판단), 알림 (표준 경로) |
+| `ReconcileJob` | `PENDING` + 원격 `AMOUNT_MISMATCH` | `AMOUNT_MISMATCH` | ISSUED 웹훅 유실 엣지 — 위와 동일 처리 |
 
 **금액 검증** (vaccount.deposited 처리 시):
 - `payload.amount == Order.TotalAmount` → 정상 PAID
@@ -541,7 +544,7 @@ func (j webhookJob) Execute(ctx context.Context) error {
 
 `upsertFromReconcile`:
 - 원격 `SUCCESS` + 내부 `PENDING` → PAID 전이 (웹훅 누락)
-- 원격 `AMOUNT_MISMATCH` + 내부 `PENDING` → AMOUNT_MISMATCH 전이 + 알림
+- 원격 `AMOUNT_MISMATCH` + 내부 `ISSUED`/`PENDING` → AMOUNT_MISMATCH 전이 + 알림
 - 원격 `CANCELLED` + 내부 `PENDING` → CANCELLED
 - 그 외 정합 상태는 no-op
 
