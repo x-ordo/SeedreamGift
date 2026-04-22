@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	dsn := "sqlserver://dnflrhdwnghkdlxldsql:dnflrhdwnghkdlxld2024!%40@localhost:7335?database=WOWGIFT_DB&encrypt=true&trustServerCertificate=true"
+	dsn := "sqlserver://dnflrhdwnghkdlxldsql:dnflrhdwnghkdlxld2024!%40@localhost:7335?database=SEEDREAM_GIFT_DB&encrypt=true&trustServerCertificate=true"
 	if envDSN := os.Getenv("DATABASE_URL"); envDSN != "" {
 		dsn = envDSN
 	}

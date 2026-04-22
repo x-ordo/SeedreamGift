@@ -1,4 +1,4 @@
-// Package cron은 Wow Gift 서버를 위한 예약된 백그라운드 작업을 제공합니다.
+// Package cron은 Seedream Gift 서버를 위한 예약된 백그라운드 작업을 제공합니다.
 // 각 작업은 robfig cron 스케줄러에 등록되어 정해진 일정에 따라 데이터베이스 유지보수 작업을 실행합니다.
 package cron
 

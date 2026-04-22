@@ -1,6 +1,6 @@
-# Wow Gift Go Server
+# Seedream Gift Go Server
 
-This is the backend API server for the Wow Gift system, built with Go and the Gin framework.
+This is the backend API server for the Seedream Gift system, built with Go and the Gin framework.
 
 ## Project Structure
 

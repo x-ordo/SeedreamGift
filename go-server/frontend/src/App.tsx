@@ -112,7 +112,7 @@ const App: React.FC = () => {
             </div>
             <div>
               <span className="text-[15px] font-black text-[#111827] leading-none block">서버 제어판</span>
-              <p className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest mt-1">WowGift API v2.1</p>
+              <p className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest mt-1">SeedreamGift API v2.1</p>
             </div>
           </div>
         </div>

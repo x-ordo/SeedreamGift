@@ -7233,7 +7233,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:5140",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "W기프트 API",
+	Title:            "씨드림기프트 API",
 	Description:      "백화점 상품권 판매 및 매입 플랫폼 API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

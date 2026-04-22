@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "백화점 상품권 판매 및 매입 플랫폼 API",
-        "title": "W기프트 API",
+        "title": "씨드림기프트 API",
         "contact": {},
         "version": "1.0"
     },
