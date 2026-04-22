@@ -4,11 +4,11 @@
  */
 import type { LucideIcon } from 'lucide-react';
 import {
-  Gauge, Tag, Receipt, Ticket, Banknote, UserCircle, ShoppingCart, Coins,
+  Gauge, Tag, Receipt, Ticket, Banknote, UserCircle, ShoppingCart, Coins, BadgeDollarSign,
 } from 'lucide-react';
 
 export type PartnerTab =
-  | 'dashboard' | 'products' | 'buy' | 'tradein' | 'orders' | 'vouchers' | 'payouts' | 'profile';
+  | 'dashboard' | 'products' | 'buy' | 'tradein' | 'orders' | 'payments' | 'vouchers' | 'payouts' | 'profile';
 
 export interface PartnerTabConfig {
   id: PartnerTab;
@@ -24,6 +24,7 @@ export const PARTNER_TABS: PartnerTabConfig[] = [
   { id: 'buy', label: '상품 구매', icon: ShoppingCart, title: '상품 구매', description: '파트너 전용 단가로 상품권을 구매합니다.' },
   { id: 'tradein', label: '매입 신청', icon: Coins, title: '매입 신청', description: '보유 상품권의 매입을 신청합니다.' },
   { id: 'orders', label: '주문 현황', icon: Receipt, title: '주문 현황', description: '내 상품의 주문 내역을 조회합니다.' },
+  { id: 'payments', label: '결제현황', icon: BadgeDollarSign, title: '결제현황', description: '내 상품 주문의 결제 상태를 조회합니다.' },
   { id: 'vouchers', label: 'PIN 재고', icon: Ticket, title: 'PIN 재고 관리', description: '바우처 PIN을 등록하고 재고를 관리합니다.' },
   { id: 'payouts', label: '정산 내역', icon: Banknote, title: '정산 내역', description: '수수료 및 정산 내역을 조회합니다.' },
   { id: 'profile', label: '내 정보', icon: UserCircle, title: '내 정보', description: '파트너 프로필을 관리합니다.' },
@@ -49,6 +50,14 @@ export const ORDER_STATUS_MAP: Record<string, { label: string; color: string }> 
   PAID: { label: '결제완료', color: 'blue' },
   DELIVERED: { label: '발송완료', color: 'green' },
   CANCELLED: { label: '취소', color: 'red' },
+};
+
+/** Payment status display config (Partner view) */
+export const PAYMENT_STATUS_MAP: Record<string, { label: string; color: string }> = {
+  PENDING:   { label: '결제대기', color: 'yellow' },
+  SUCCESS:   { label: '결제완료', color: 'green' },
+  FAILED:    { label: '결제실패', color: 'red' },
+  CANCELLED: { label: '취소',     color: 'gray' },
 };
 
 /** Voucher status display config */
