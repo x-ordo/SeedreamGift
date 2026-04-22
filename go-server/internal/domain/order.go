@@ -15,9 +15,9 @@ type Order struct {
 	User User `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	// TotalAmount는 주문 총액입니다. (상품 합계 + 배송비 등)
 	TotalAmount NumericDecimal `gorm:"column:TotalAmount;type:decimal(12,0)" json:"totalAmount"`
-	// Status는 주문의 현재 상태를 나타냅니다. (PENDING, PAID, DELIVERED, COMPLETED, CANCELLED, REFUNDED)
-	// 상태 전이는 validation.go의 ValidateOrderTransition에서 관리됩니다.
-	Status string `gorm:"column:Status;default:'PENDING';size:12" json:"status"`
+	// Status 는 주문 상태. ISSUED / EXPIRED / AMOUNT_MISMATCH 까지 허용 → size 20.
+	// 상태 전이는 validation.go 의 ValidateOrderTransition 에서 관리.
+	Status string `gorm:"column:Status;default:'PENDING';size:20" json:"status"`
 	// Source는 주문의 발생 채널을 나타냅니다. (USER: 일반 고객, PARTNER: 파트너 대시보드)
 	Source string `gorm:"column:Source;default:'USER';size:10" json:"source"`
 	// PaymentMethod는 사용된 결제 수단입니다. (VIRTUAL_ACCOUNT, CARD, BANK_TRANSFER 등)
