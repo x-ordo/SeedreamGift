@@ -1,14 +1,14 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "wow-gift-server",
-  "outputfilename": "wgift-api",
+  "name": "seedream-gift-server",
+  "outputfilename": "seedream-api",
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "http://localhost:5173",
   "wailsjsdir": "./frontend",
   "author": {
-    "name": "Wow Gift",
-    "email": "admin@wowgift.co.kr"
+    "name": "Seedream Gift",
+    "email": "admin@seedream.com"
   }
 }

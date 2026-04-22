@@ -1,4 +1,4 @@
-// @title W기프트 API
+// @title 씨드림기프트 API
 // @version 1.0
 // @description 백화점 상품권 판매 및 매입 플랫폼 API
 // @host localhost:5140
@@ -7,7 +7,7 @@
 // @in header
 // @name Authorization
 // @description Bearer {access_token}
-// Package main은 W기프트 API 서버의 진입점입니다.
+// Package main은 씨드림기프트 API 서버의 진입점입니다.
 // 이 패키지는 서버 환경 설정 로드, 로거 초기화, 데이터베이스 연결,
 // 그리고 GUI(Wails) 또는 Headless 모드로 API 서버를 시작하는 역할을 담당합니다.
 package main
@@ -126,7 +126,7 @@ func main() {
 
 	app := gui.NewApp()
 	err = wails.Run(&options.App{
-		Title:                    "W기프트 서버 관리 콘솔",
+		Title:                    "씨드림기프트 서버 관리 콘솔",
 		Width:                    1100,
 		Height:                   780,
 		MinWidth:                 800,
@@ -135,7 +135,7 @@ func main() {
 		BackgroundColour:         &options.RGBA{R: 27, G: 38, B: 54, A: 255},
 		EnableDefaultContextMenu: false,
 		SingleInstanceLock: &options.SingleInstanceLock{
-			UniqueId: "w-gift-server-admin-console-2024",
+			UniqueId: "seedream-gift-server-admin-console-2024",
 			OnSecondInstanceLaunch: func(_ options.SecondInstanceData) {
 				wailsRuntime.WindowUnminimise(app.Ctx())
 				wailsRuntime.Show(app.Ctx())
@@ -394,7 +394,7 @@ func sitemapHandler(cfg config.Config) gin.HandlerFunc {
 
 		baseURL := strings.TrimRight(cfg.FrontendUrl, "/")
 		if baseURL == "" {
-			baseURL = "https://wowgift.co.kr"
+			baseURL = "https://seedreamgift.com"
 		}
 		today := time.Now().Format("2006-01-02")
 

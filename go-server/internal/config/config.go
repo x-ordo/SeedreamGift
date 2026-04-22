@@ -1,4 +1,4 @@
-// Package config는 Wow Gift 백엔드의 애플리케이션 설정을 관리합니다.
+// Package config는 Seedream Gift 백엔드의 애플리케이션 설정을 관리합니다.
 // 모든 설정은 .env 파일이나 환경 변수를 통해 구성할 수 있습니다.
 package config
 
@@ -351,8 +351,8 @@ func LoadConfig(path string) (config Config, err error) {
 	viper.SetDefault("SMTP_PORT", 587)
 	viper.SetDefault("SMTP_USER", "")
 	viper.SetDefault("SMTP_PASSWORD", "")
-	viper.SetDefault("SMTP_FROM", "noreply@wowgift.co.kr")
-	viper.SetDefault("SMTP_FROM_NAME", "W기프트")
+	viper.SetDefault("SMTP_FROM", "noreply@seedreamgift.com")
+	viper.SetDefault("SMTP_FROM_NAME", "씨드림기프트")
 	viper.SetDefault("SMTP_ENABLED", false)
 
 	// 팝빌 기본 설정
@@ -366,15 +366,15 @@ func LoadConfig(path string) (config Config, err error) {
 
 	// 파일 업로드 및 관리자 알림
 	viper.SetDefault("UPLOAD_BASE_PATH", "uploads")
-	viper.SetDefault("ADMIN_NOTIFY_EMAIL", "admin@wowgift.co.kr")
-	viper.SetDefault("CS_EMAIL", "wow_gift@naver.com")
-	viper.SetDefault("BIZ_EMAIL", "wow_gift@naver.com")
-	viper.SetDefault("COMPLIANCE_EMAIL", "wow_gift@naver.com")
+	viper.SetDefault("ADMIN_NOTIFY_EMAIL", "admin@seedream.com")
+	viper.SetDefault("CS_EMAIL", "admin@seedream.com")
+	viper.SetDefault("BIZ_EMAIL", "admin@seedream.com")
+	viper.SetDefault("COMPLIANCE_EMAIL", "admin@seedream.com")
 
 	// 브랜드 기본값
-	viper.SetDefault("SITE_NAME", "W기프트")
-	viper.SetDefault("SITE_BRAND", "W GIFT")
-	viper.SetDefault("SITE_DOMAIN", "wowgift.co.kr")
+	viper.SetDefault("SITE_NAME", "씨드림기프트")
+	viper.SetDefault("SITE_BRAND", "SEEDREAM GIFT")
+	viper.SetDefault("SITE_DOMAIN", "seedreamgift.com")
 	viper.SetDefault("COMPANY_NAME", "주식회사 바우처팩토리")
 	viper.SetDefault("COMPANY_LICENSE_NO", "841-88-04007")
 	viper.SetDefault("COMPANY_OWNER", "고정희")
