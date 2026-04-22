@@ -45,6 +45,9 @@ func (s *AdminOrderService) GetOrderDetail(id int) (*domain.Order, error) {
 	var order domain.Order
 	if err := s.db.Preload("OrderItems.Product").
 		Preload("VoucherCodes.Product").
+		Preload("Payments", func(db *gorm.DB) *gorm.DB {
+			return db.Order("CreatedAt ASC") // 시도 순으로 타임라인 구성
+		}).
 		Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("Id", "Email", "Name", "Phone", "Role", "KycStatus")
 		}).

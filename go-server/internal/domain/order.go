@@ -57,6 +57,9 @@ type Order struct {
 	OrderItems []OrderItem `gorm:"foreignKey:OrderID" json:"items,omitempty"`
 	// VoucherCodes는 주문 완료 후 발급되거나 할당된 바우처 코드 목록입니다.
 	VoucherCodes []VoucherCode `gorm:"foreignKey:OrderID" json:"voucherCodes,omitempty"`
+	// Payments는 주문에 대해 생성된 결제 시도 기록입니다 (1:N).
+	// GORM Preload("Payments") 로 주문 상세 드릴다운에서 결제 시도 타임라인을 구성합니다.
+	Payments []Payment `gorm:"foreignKey:OrderID" json:"payments,omitempty"`
 }
 
 func (Order) TableName() string { return "Orders" }
