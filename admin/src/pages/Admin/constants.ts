@@ -40,7 +40,7 @@ export { BRAND_OPTIONS };
 
 export type AdminTab =
   | 'dashboard' | 'users' | 'partners' | 'sessions' | 'products' | 'brands' | 'vouchers'
-  | 'orders' | 'tradeins' | 'gifts' | 'refunds' | 'settlements' | 'fraud' | 'cash-receipts' | 'partner-prices'
+  | 'orders' | 'payments' | 'tradeins' | 'gifts' | 'refunds' | 'settlements' | 'fraud' | 'cash-receipts' | 'partner-prices'
   | 'notices' | 'events' | 'faqs' | 'inquiries' | 'business-inquiries' | 'policies'
   | 'security' | 'configs' | 'audit-logs';
 
@@ -67,6 +67,14 @@ export const VOUCHER_SOURCE_OPTIONS = toStatusOptions(VOUCHER_SOURCE_MAP);
 
 export const APPROVAL_STATUS_COLOR_MAP = new Map(APPROVAL_STATUS_OPTIONS.map(o => [o.value, o.color]));
 export const VOUCHER_SOURCE_COLOR_MAP = new Map(VOUCHER_SOURCE_OPTIONS.map(o => [o.value, o.color]));
+
+export const PAYMENT_STATUS_OPTIONS = [
+  { value: 'PENDING',   label: '결제대기', color: 'yellow' },
+  { value: 'SUCCESS',   label: '결제완료', color: 'green' },
+  { value: 'FAILED',    label: '결제실패', color: 'red' },
+  { value: 'CANCELLED', label: '취소',     color: 'elephant' },
+];
+export const PAYMENT_STATUS_COLOR_MAP = new Map(PAYMENT_STATUS_OPTIONS.map(o => [o.value, o.color]));
 
 export const INQUIRY_STATUS_OPTIONS = [
   { value: 'PENDING', label: '답변대기', color: 'yellow' },
@@ -131,6 +139,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
   { id: 'vouchers', label: '재고(PIN) 관리', icon: Ticket, group: 'products', title: '재고(PIN) 관리', description: '바우처 PIN 재고와 발급 현황을 관리합니다.' },
   { id: 'partner-prices', label: '파트너 단가', icon: BadgeDollarSign, group: 'products', title: '파트너 단가 관리', description: '파트너별 상품 단가를 설정하고 관리합니다.' },
   { id: 'orders', label: '주문 관리', icon: Receipt, group: 'transactions', title: '주문 관리', description: '주문 현황과 결제 상태를 관리합니다.' },
+  { id: 'payments', label: '결제현황', icon: BadgeDollarSign, group: 'transactions', title: '결제현황', description: '결제 상태별 주문 현황과 PG 시도 이력을 조회합니다.' },
   { id: 'tradeins', label: '매입(판매) 신청', icon: Banknote, group: 'transactions', title: '매입 관리', description: '상품권 매입 신청을 검증하고 정산합니다.' },
   { id: 'gifts', label: '선물 관리', icon: Gift, group: 'transactions', title: '선물 관리', description: '선물 발송 및 수령 내역을 관리합니다.' },
   { id: 'refunds', label: '환불 관리', icon: RefreshCw, group: 'transactions', title: '환불 관리', description: '환불 요청을 검토하고 처리합니다.' },
