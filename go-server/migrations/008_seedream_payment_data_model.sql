@@ -7,22 +7,53 @@
 --   Reconcile 등 시간 비교 시 GETDATE() 컬럼은 UTC 로 변환 필요.
 
 -- ─────────────────────────────────────────────────────────
--- 1. Orders.Status 컬럼 크기 → NVARCHAR(20) (ISSUED/EXPIRED/AMOUNT_MISMATCH 수용)
---    guard: 현재 < 20자 이면 업그레이드 (monotone — 어떤 시작 상태든 안전)
+-- 1. Orders.Status 확장 (ISSUED/EXPIRED/AMOUNT_MISMATCH 수용)
+--    실제 DB 현황:
+--      · 컬럼 타입: VARCHAR(6) (수동 migration 산물; GORM 태그와 불일치)
+--      · CK_Orders_Status: 5개 enum (PENDING/PAID/DELIVERED/CANCELLED/REFUNDED) 만 허용
+--      · 4개 인덱스 의존: IX_Orders_Status, IX_Orders_Status_CreatedAt,
+--        IX_Orders_UserId_Status_CreatedAt, IX_Orders_Admin_List
+--
+--    전략:
+--      (a) CHECK constraint drop (Seedream 신규 enum 수용 위함). Go 코드의
+--          validOrderTransitions 가 대체 방어선 역할. Phase 완료 후 재생성 고려.
+--      (b) VARCHAR(6) → VARCHAR(20) size 확장 (type 유지 — 인덱스 drop 불필요).
+--          ASCII enum 전용이라 NVARCHAR 불요.
 -- ─────────────────────────────────────────────────────────
+
+-- (a) CHECK constraint drop — 신규 enum 수용
 IF EXISTS (
-    SELECT 1 FROM sys.columns
-    WHERE object_id = OBJECT_ID('Orders')
-      AND name = 'Status'
-      AND max_length < 20 * 2  -- NVARCHAR 는 UTF-16 이므로 20자 = 40바이트
+    SELECT 1 FROM sys.check_constraints
+    WHERE parent_object_id = OBJECT_ID('Orders') AND name = 'CK_Orders_Status'
 )
 BEGIN
-    ALTER TABLE Orders ALTER COLUMN Status NVARCHAR(20) NOT NULL;
-    PRINT 'Orders.Status expanded to NVARCHAR(20)';
+    ALTER TABLE Orders DROP CONSTRAINT CK_Orders_Status;
+    PRINT 'Dropped CK_Orders_Status (Seedream enum 수용 위함)';
 END
 ELSE
 BEGIN
-    PRINT 'Orders.Status already at NVARCHAR(20) or wider — skipping';
+    PRINT 'CK_Orders_Status 없음 — skipping';
+END
+GO
+
+-- (b) Status 컬럼 확장 — guard: max_length < 20 이면 upgrade (monotone)
+--     sys.columns.max_length 은 VARCHAR 은 바이트 그대로, NVARCHAR 는 UTF-16 바이트.
+--     현재 VARCHAR(6) → max_length=6. 목표 VARCHAR(20) → max_length=20.
+IF EXISTS (
+    SELECT 1 FROM sys.columns c
+    INNER JOIN sys.types t ON c.user_type_id = t.user_type_id
+    WHERE c.object_id = OBJECT_ID('Orders')
+      AND c.name = 'Status'
+      AND t.name = 'varchar'
+      AND c.max_length < 20
+)
+BEGIN
+    ALTER TABLE Orders ALTER COLUMN Status VARCHAR(20) NOT NULL;
+    PRINT 'Orders.Status expanded to VARCHAR(20)';
+END
+ELSE
+BEGIN
+    PRINT 'Orders.Status 확장 필요 없음 — skipping';
 END
 GO
 

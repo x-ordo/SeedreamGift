@@ -82,15 +82,29 @@ func main() {
 	}
 	fmt.Println("✓ Verified: Payments table has 3 new Seedream columns")
 
+	// Orders.Status 는 VARCHAR(20) 으로 확장됨 (ASCII enum 전용, NVARCHAR 불요).
+	// sys.columns.max_length: VARCHAR 은 바이트=문자, NVARCHAR 은 UTF-16 바이트.
 	var statusLen int
+	var statusType string
 	db.Raw(`
-		SELECT max_length FROM sys.columns
-		WHERE object_id = OBJECT_ID('Orders') AND name = 'Status'
-	`).Scan(&statusLen)
-	if statusLen < 40 { // NVARCHAR(20) = 40 bytes
-		log.Fatalf("Post-check failed: Orders.Status max_length = %d (expected >= 40)", statusLen)
+		SELECT c.max_length, t.name
+		FROM sys.columns c
+		INNER JOIN sys.types t ON c.user_type_id = t.user_type_id
+		WHERE c.object_id = OBJECT_ID('Orders') AND c.name = 'Status'
+	`).Row().Scan(&statusLen, &statusType)
+	var statusChars int
+	switch statusType {
+	case "varchar":
+		statusChars = statusLen
+	case "nvarchar":
+		statusChars = statusLen / 2
+	default:
+		log.Fatalf("Post-check failed: Orders.Status 예상 외 타입 %s", statusType)
 	}
-	fmt.Printf("✓ Verified: Orders.Status NVARCHAR(%d chars)\n", statusLen/2)
+	if statusChars < 20 {
+		log.Fatalf("Post-check failed: Orders.Status %s(%d) (expected >= 20 chars)", statusType, statusChars)
+	}
+	fmt.Printf("✓ Verified: Orders.Status %s(%d chars)\n", statusType, statusChars)
 
 	var cursorRows int
 	db.Raw(`SELECT COUNT(*) FROM SeedreamReconcileCursors WHERE Id = 1`).Scan(&cursorRows)
