@@ -30,8 +30,6 @@ const requiredFields = [
   // 연락처
   ['contact.phone', '대표 전화번호'],
   ['contact.email', '고객 문의 이메일'],
-  ['contact.kakao', '카카오톡 채널'],
-  ['contact.kakaoHref', '카카오톡 링크'],
 
   // 개인정보
   ['privacy.officer', '개인정보보호책임자'],
