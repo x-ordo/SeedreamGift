@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 const BASE_URL = 'http://localhost:5173';
 
-test.describe('와우기프트 핵심 시나리오 테스트', () => {
+test.describe('씨드림기프트 핵심 시나리오 테스트', () => {
   test.beforeEach(async ({ page }) => {
     page.on('console', msg => {
       if (msg.type() === 'error' || msg.text().includes('[AuthStore]')) {

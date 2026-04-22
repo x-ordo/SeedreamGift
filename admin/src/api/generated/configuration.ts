@@ -1,6 +1,6 @@
 /* tslint:disable */
 /**
- * W기프트 API
+ * 씨드림기프트 API
  * 백화점 상품권 판매 및 매입 플랫폼 API
  *
  * The version of the OpenAPI document: 1.0

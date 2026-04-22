@@ -61,7 +61,7 @@ export class TelegramAlertService {
     }
 
     const text = [
-      `🚨 <b>[${process.env.SITE_BRAND || 'W GIFT'}] ${data.statusCode} Error</b>`,
+      `🚨 <b>[${process.env.SITE_BRAND || 'SEEDREAM GIFT'}] ${data.statusCode} Error</b>`,
       `<b>Path:</b> ${data.method} ${data.path}`,
       `<b>Message:</b> ${this.escapeHtml(data.message)}`,
       data.traceId ? `<b>TraceId:</b> ${data.traceId}` : null,

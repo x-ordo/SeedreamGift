@@ -1,6 +1,6 @@
 /**
  * @file Logo.tsx
- * @description 공통 W GIFT 로고 컴포넌트
+ * @description 공통 SEEDREAM GIFT 로고 컴포넌트
  *
  * PNG 로고 이미지와 텍스트를 단일 컴포넌트로 통합.
  * LoginPage, RegisterPage, Header, Footer, Loader에서 공통 사용.
