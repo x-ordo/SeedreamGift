@@ -4,8 +4,6 @@
 package routes
 
 import (
-	"sync"
-	"time"
 	"seedream-gift-server/internal/api/handlers"
 	"seedream-gift-server/internal/app/interfaces"
 	"seedream-gift-server/internal/app/services"
@@ -19,6 +17,8 @@ import (
 	"seedream-gift-server/pkg/kakao"
 	"seedream-gift-server/pkg/notification"
 	"seedream-gift-server/pkg/thecheat"
+	"sync"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -29,20 +29,20 @@ var patternRuleSeedOnce sync.Once
 // Handlers holds all initialized handler instances for dependency injection.
 // Adding a new handler: 1) add field here 2) initialize in NewHandlers 3) create route file.
 type Handlers struct {
-	DB       *gorm.DB // 미들웨어에서 DB 접근 필요 시 사용 (멱등성 등)
-	Auth     *handlers.AuthHandler
-	WebAuthn *handlers.WebAuthnHandler
-	Product  *handlers.ProductHandler
-	Brand    *handlers.BrandHandler
-	Order    *handlers.OrderHandler
-	TradeIn  *handlers.TradeInHandler
-	Cart     *handlers.CartHandler
-	Payment  *handlers.PaymentHandler
-	Gift     *handlers.GiftHandler
-	Content  *handlers.ContentHandler
-	Kyc      *handlers.KycHandler
-	Kcb      *handlers.KcbHandler
-	User     *handlers.UserHandler
+	DB          *gorm.DB // 미들웨어에서 DB 접근 필요 시 사용 (멱등성 등)
+	Auth        *handlers.AuthHandler
+	WebAuthn    *handlers.WebAuthnHandler
+	Product     *handlers.ProductHandler
+	Brand       *handlers.BrandHandler
+	Order       *handlers.OrderHandler
+	TradeIn     *handlers.TradeInHandler
+	Cart        *handlers.CartHandler
+	Payment     *handlers.PaymentHandler
+	Gift        *handlers.GiftHandler
+	Content     *handlers.ContentHandler
+	Kyc         *handlers.KycHandler
+	Kcb         *handlers.KcbHandler
+	User        *handlers.UserHandler
 	Health      *handlers.HealthHandler
 	ClientError *handlers.ClientErrorHandler
 
@@ -79,6 +79,10 @@ type Handlers struct {
 	AdminReport  *handlers.AdminReportHandler
 	AdminCart    *handlers.AdminCartHandler
 	AdminSession *handlers.AdminSessionHandler
+	AdminPayment *handlers.AdminPaymentHandler
+
+	// Partner payment query handler
+	PartnerPayment *handlers.PartnerPaymentHandler
 
 	// Partner purchase/trade-in handlers
 	PartnerOrder      *handlers.PartnerOrderHandler
@@ -256,6 +260,7 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	adminReportSvc := services.NewAdminReportService(db)
 	adminCartSvc := services.NewAdminCartService(db)
 	adminSessionSvc := services.NewAdminSessionService(db)
+	paymentQuerySvc := services.NewPaymentQueryService(db)
 	ipWhitelistSvc := services.NewIPWhitelistService(db)
 
 	// Partner document & business inquiry services
@@ -290,48 +295,50 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	fulfillmentSvc.SetOrderEventService(orderEventSvc)
 
 	h := &Handlers{
-		DB:       db,
-		Auth:     handlers.NewAuthHandler(authService, cfg, emailSvc, notifSvc),
-		WebAuthn: handlers.NewWebAuthnHandler(webAuthnService, authService, cfg),
-		Product: handlers.NewProductHandler(productService),
-		Brand:   handlers.NewBrandHandler(brandService),
-		Order:   handlers.NewOrderHandler(orderService, notifSvc),
-		TradeIn: handlers.NewTradeInHandler(tradeInService, notifSvc),
-		Cart:    handlers.NewCartHandler(cartService),
-		Payment: handlers.NewPaymentHandler(paymentService),
-		Gift:    handlers.NewGiftHandler(giftService),
-		Content: handlers.NewContentHandler(contentService),
-		Kyc:     handlers.NewKycHandler(kycService),
-		Kcb:     handlers.NewKcbHandler(kycService),
-		User:    handlers.NewUserHandler(userService, cfg),
+		DB:          db,
+		Auth:        handlers.NewAuthHandler(authService, cfg, emailSvc, notifSvc),
+		WebAuthn:    handlers.NewWebAuthnHandler(webAuthnService, authService, cfg),
+		Product:     handlers.NewProductHandler(productService),
+		Brand:       handlers.NewBrandHandler(brandService),
+		Order:       handlers.NewOrderHandler(orderService, notifSvc),
+		TradeIn:     handlers.NewTradeInHandler(tradeInService, notifSvc),
+		Cart:        handlers.NewCartHandler(cartService),
+		Payment:     handlers.NewPaymentHandler(paymentService),
+		Gift:        handlers.NewGiftHandler(giftService),
+		Content:     handlers.NewContentHandler(contentService),
+		Kyc:         handlers.NewKycHandler(kycService),
+		Kcb:         handlers.NewKcbHandler(kycService),
+		User:        handlers.NewUserHandler(userService, cfg),
 		Health:      handlers.NewHealthHandler(db, version, buildTime),
 		ClientError: handlers.NewClientErrorHandler(),
 
-		Partner:    handlers.NewPartnerHandler(partnerService),
-		Settlement: handlers.NewSettlementHandler(settlementService),
+		Partner:           handlers.NewPartnerHandler(partnerService),
+		Settlement:        handlers.NewSettlementHandler(settlementService),
 		PartnerOrder:      handlers.NewPartnerOrderHandler(partnerOrderSvc),
 		PartnerTradeIn:    handlers.NewPartnerTradeInHandler(partnerTradeInSvc),
 		AdminPartnerPrice: handlers.NewAdminPartnerPriceHandler(partnerPriceSvc),
-		IPWhitelist:    handlers.NewIPWhitelistHandler(ipWhitelistSvc),
-		ipWhitelistSvc: ipWhitelistSvc,
-		Fulfillment:    fulfillmentSvc,
-		OrderSvc:       orderService,
-		NotifyPool:     notifyPool,
-		AuditPool:      auditPool,
+		IPWhitelist:       handlers.NewIPWhitelistHandler(ipWhitelistSvc),
+		ipWhitelistSvc:    ipWhitelistSvc,
+		Fulfillment:       fulfillmentSvc,
+		OrderSvc:          orderService,
+		NotifyPool:        notifyPool,
+		AuditPool:         auditPool,
 
-		Admin:        handlers.NewAdminHandler(adminStatsSvc, adminConfigSvc, patternRuleSvc),
-		AdminUser:    handlers.NewAdminUserHandler(adminUserSvc),
-		AdminProduct: handlers.NewAdminProductHandler(adminProductSvc),
-		AdminBrand:   handlers.NewAdminBrandHandler(adminBrandSvc),
-		AdminOrder:   handlers.NewAdminOrderHandler(adminOrderSvc, notifSvc),
-		AdminVoucher: handlers.NewAdminVoucherHandler(adminVoucherSvc),
-		AdminTradeIn: handlers.NewAdminTradeInHandler(adminTradeInSvc, notifSvc, db),
-		AdminRefund:  handlers.NewAdminRefundHandler(adminRefundSvc),
-		AdminContent: handlers.NewAdminContentHandler(adminContentSvc),
-		AdminGift:    handlers.NewAdminGiftHandler(adminGiftSvc),
-		AdminReport:  handlers.NewAdminReportHandler(adminReportSvc),
-		AdminCart:    handlers.NewAdminCartHandler(adminCartSvc),
-		AdminSession: handlers.NewAdminSessionHandler(adminSessionSvc),
+		Admin:          handlers.NewAdminHandler(adminStatsSvc, adminConfigSvc, patternRuleSvc),
+		AdminUser:      handlers.NewAdminUserHandler(adminUserSvc),
+		AdminProduct:   handlers.NewAdminProductHandler(adminProductSvc),
+		AdminBrand:     handlers.NewAdminBrandHandler(adminBrandSvc),
+		AdminOrder:     handlers.NewAdminOrderHandler(adminOrderSvc, notifSvc),
+		AdminVoucher:   handlers.NewAdminVoucherHandler(adminVoucherSvc),
+		AdminTradeIn:   handlers.NewAdminTradeInHandler(adminTradeInSvc, notifSvc, db),
+		AdminRefund:    handlers.NewAdminRefundHandler(adminRefundSvc),
+		AdminContent:   handlers.NewAdminContentHandler(adminContentSvc),
+		AdminGift:      handlers.NewAdminGiftHandler(adminGiftSvc),
+		AdminReport:    handlers.NewAdminReportHandler(adminReportSvc),
+		AdminCart:      handlers.NewAdminCartHandler(adminCartSvc),
+		AdminSession:   handlers.NewAdminSessionHandler(adminSessionSvc),
+		AdminPayment:   handlers.NewAdminPaymentHandler(paymentQuerySvc),
+		PartnerPayment: handlers.NewPartnerPaymentHandler(paymentQuerySvc),
 
 		CashReceipt:    handlers.NewCashReceiptHandler(cashReceiptSvc),
 		CashReceiptSvc: cashReceiptSvc,

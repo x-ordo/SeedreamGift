@@ -71,6 +71,9 @@ func RegisterAdminRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handlers) 
 		admin.POST("/orders/:id/auto-deliver", h.AdminOrder.AutoDeliver)
 		admin.PATCH("/orders/:id/note", h.AdminOrder.UpdateNote)
 
+		// Payments (결제현황 조회 — 읽기 전용)
+		admin.GET("/payments", h.AdminPayment.ListPayments)
+
 		// Trade-ins
 		admin.GET("/trade-ins", h.AdminTradeIn.GetTradeIns)
 		admin.GET("/trade-ins/:id", h.AdminTradeIn.GetTradeIn)

@@ -24,6 +24,9 @@ func RegisterPartnerRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handlers
 		partner.GET("/orders", h.Partner.GetMyOrders)
 		partner.GET("/orders/:id", h.Partner.GetMyOrderDetail)
 
+		// Payments (결제현황 — 내 상품 주문 스코프)
+		partner.GET("/payments", h.PartnerPayment.ListPayments)
+
 		// Vouchers
 		partner.GET("/vouchers", h.Partner.GetMyVouchers)
 		partner.POST("/vouchers/bulk", h.Partner.BulkUploadVouchers)
