@@ -3,8 +3,8 @@ package services
 import (
 	"testing"
 	"time"
-	"w-gift-server/internal/config"
-	"w-gift-server/internal/domain"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/internal/domain"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

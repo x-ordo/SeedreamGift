@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 	"time"
-	"w-gift-server/internal/domain"
+	"seedream-gift-server/internal/domain"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

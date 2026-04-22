@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"w-gift-server/internal/monitor"
-	"w-gift-server/pkg/logger"
-	"w-gift-server/pkg/telegram"
+	"seedream-gift-server/internal/monitor"
+	"seedream-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/telegram"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

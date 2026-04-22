@@ -3,7 +3,7 @@ package response
 import (
 	"errors"
 
-	"w-gift-server/pkg/apperror"
+	"seedream-gift-server/pkg/apperror"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

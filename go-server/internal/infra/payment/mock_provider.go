@@ -2,7 +2,7 @@
 package payment
 
 import (
-	"w-gift-server/internal/app/interfaces"
+	"seedream-gift-server/internal/app/interfaces"
 )
 
 // MockPaymentProvider는 실제 PG사 연동 없이 결제 프로세스를 테스트하기 위한 모의 구현체입니다.

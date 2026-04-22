@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"go.uber.org/zap"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/logger"
 )
 
 // SagaStep은 Saga의 개별 단계입니다.

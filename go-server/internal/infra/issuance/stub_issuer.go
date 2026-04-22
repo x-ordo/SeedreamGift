@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"time"
-	"w-gift-server/internal/app/interfaces"
+	"seedream-gift-server/internal/app/interfaces"
 )
 
 // StubIssuer는 개발 및 테스트용 발급자입니다.

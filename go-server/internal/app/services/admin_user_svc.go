@@ -3,11 +3,11 @@ package services
 import (
 	"fmt"
 	"time"
-	"w-gift-server/internal/domain"
-	"w-gift-server/internal/infra/repository"
-	"w-gift-server/pkg/apperror"
-	"w-gift-server/pkg/crypto"
-	"w-gift-server/pkg/pagination"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/internal/infra/repository"
+	"seedream-gift-server/pkg/apperror"
+	"seedream-gift-server/pkg/crypto"
+	"seedream-gift-server/pkg/pagination"
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"

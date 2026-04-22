@@ -3,10 +3,10 @@ package services
 import (
 	"fmt"
 	"time"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/apperror"
-	"w-gift-server/pkg/logger"
-	"w-gift-server/pkg/pagination"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/apperror"
+	"seedream-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/pagination"
 
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"

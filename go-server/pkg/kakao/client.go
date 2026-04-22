@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/logger"
 
 	"go.uber.org/zap"
 )

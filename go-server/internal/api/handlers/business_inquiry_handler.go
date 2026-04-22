@@ -6,10 +6,10 @@ Package handlers는 비즈니스 문의(파트너 제휴/입점) 관련 HTTP 요
 package handlers
 
 import (
-	"w-gift-server/internal/app/services"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/pagination"
-	"w-gift-server/pkg/response"
+	"seedream-gift-server/internal/app/services"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/pagination"
+	"seedream-gift-server/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/sony/gobreaker/v2"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/logger"
 
 	"go.uber.org/zap"
 )

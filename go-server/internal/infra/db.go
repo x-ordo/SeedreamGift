@@ -3,8 +3,8 @@ package infra
 
 import (
 	"fmt"
-	"w-gift-server/internal/config"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/pkg/logger"
 
 	"go.uber.org/zap"
 	"gorm.io/driver/sqlserver"

@@ -2,7 +2,7 @@ package services
 
 import (
 	"testing"
-	"w-gift-server/internal/domain"
+	"seedream-gift-server/internal/domain"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

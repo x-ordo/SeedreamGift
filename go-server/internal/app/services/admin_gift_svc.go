@@ -1,8 +1,8 @@
 package services
 
 import (
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/pagination"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/pagination"
 
 	"gorm.io/gorm"
 )

@@ -196,7 +196,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Brand"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Brand"
                         }
                     }
                 ],
@@ -293,7 +293,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Brand"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Brand"
                         }
                     }
                 ],
@@ -571,7 +571,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Event"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Event"
                         }
                     }
                 ],
@@ -720,7 +720,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Event"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Event"
                         }
                     }
                 ],
@@ -817,7 +817,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Faq"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Faq"
                         }
                     }
                 ],
@@ -966,7 +966,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Faq"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Faq"
                         }
                     }
                 ],
@@ -1423,7 +1423,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Notice"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Notice"
                         }
                     }
                 ],
@@ -1572,7 +1572,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Notice"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Notice"
                         }
                     }
                 ],
@@ -1841,7 +1841,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Product"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Product"
                         }
                     }
                 ],
@@ -1944,7 +1944,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Product"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Product"
                         }
                     }
                 ],
@@ -2933,7 +2933,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.User"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.User"
                         }
                     }
                 ],
@@ -3082,7 +3082,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.User"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.User"
                         }
                     }
                 ],
@@ -3372,7 +3372,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/w-gift-server_internal_domain.VoucherCode"
+                                "$ref": "#/definitions/seedream-gift-server_internal_domain.VoucherCode"
                             }
                         }
                     }
@@ -4075,7 +4075,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.User"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.User"
                         }
                     }
                 ],
@@ -5469,7 +5469,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_app_services.BankVerifyConfirmRequest"
+                            "$ref": "#/definitions/seedream-gift-server_internal_app_services.BankVerifyConfirmRequest"
                         }
                     }
                 ],
@@ -5513,7 +5513,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_app_services.BankVerifyRequest"
+                            "$ref": "#/definitions/seedream-gift-server_internal_app_services.BankVerifyRequest"
                         }
                     }
                 ],
@@ -5848,7 +5848,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_app_services.CreateOrderInput"
+                            "$ref": "#/definitions/seedream-gift-server_internal_app_services.CreateOrderInput"
                         }
                     }
                 ],
@@ -6178,7 +6178,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_app_services.PaymentInitiateRequest"
+                            "$ref": "#/definitions/seedream-gift-server_internal_app_services.PaymentInitiateRequest"
                         }
                     }
                 ],
@@ -6426,7 +6426,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_app_services.CreateTradeInInput"
+                            "$ref": "#/definitions/seedream-gift-server_internal_app_services.CreateTradeInInput"
                         }
                     }
                 ],
@@ -6729,7 +6729,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_app_services.BankVerifyConfirmRequest": {
+        "seedream-gift-server_internal_app_services.BankVerifyConfirmRequest": {
             "type": "object",
             "required": [
                 "accountNumber",
@@ -6757,7 +6757,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_app_services.BankVerifyRequest": {
+        "seedream-gift-server_internal_app_services.BankVerifyRequest": {
             "type": "object",
             "required": [
                 "accountHolder",
@@ -6780,7 +6780,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_app_services.CreateOrderInput": {
+        "seedream-gift-server_internal_app_services.CreateOrderInput": {
             "type": "object",
             "required": [
                 "items"
@@ -6825,7 +6825,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_app_services.CreateTradeInInput": {
+        "seedream-gift-server_internal_app_services.CreateTradeInInput": {
             "type": "object",
             "required": [
                 "accountHolder",
@@ -6863,7 +6863,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_app_services.PaymentInitiateRequest": {
+        "seedream-gift-server_internal_app_services.PaymentInitiateRequest": {
             "type": "object",
             "required": [
                 "amount",
@@ -6882,7 +6882,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_domain.Brand": {
+        "seedream-gift-server_internal_domain.Brand": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6917,7 +6917,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_domain.Event": {
+        "seedream-gift-server_internal_domain.Event": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6955,7 +6955,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_domain.Faq": {
+        "seedream-gift-server_internal_domain.Faq": {
             "type": "object",
             "properties": {
                 "answer": {
@@ -6987,7 +6987,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_domain.Notice": {
+        "seedream-gift-server_internal_domain.Notice": {
             "type": "object",
             "properties": {
                 "content": {
@@ -7013,7 +7013,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_domain.NumericDecimal": {
+        "seedream-gift-server_internal_domain.NumericDecimal": {
             "type": "object",
             "properties": {
                 "decimal.Decimal": {
@@ -7021,20 +7021,20 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_domain.Product": {
+        "seedream-gift-server_internal_domain.Product": {
             "type": "object",
             "properties": {
                 "allowTradeIn": {
                     "type": "boolean"
                 },
                 "brand": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.Brand"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.Brand"
                 },
                 "brandCode": {
                     "type": "string"
                 },
                 "buyPrice": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "createdAt": {
                     "type": "string"
@@ -7043,7 +7043,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "discountRate": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "id": {
                     "type": "integer"
@@ -7058,13 +7058,13 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "shippingMethod": {
                     "type": "string"
                 },
                 "tradeInRate": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "type": {
                     "type": "string"
@@ -7074,7 +7074,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_domain.User": {
+        "seedream-gift-server_internal_domain.User": {
             "type": "object",
             "properties": {
                 "accountHolder": {
@@ -7105,10 +7105,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "customLimitPerDay": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "customLimitPerTx": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "email": {
                     "type": "string"
@@ -7156,7 +7156,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "totalTradeInVolume": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -7169,7 +7169,7 @@ const docTemplate = `{
                 }
             }
         },
-        "w-gift-server_internal_domain.VoucherCode": {
+        "seedream-gift-server_internal_domain.VoucherCode": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -7194,7 +7194,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "product": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.Product"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.Product"
                 },
                 "productId": {
                     "type": "integer"

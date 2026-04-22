@@ -5,9 +5,9 @@ package services
 import (
 	"testing"
 	"time"
-	"w-gift-server/internal/config"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/crypto"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/crypto"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

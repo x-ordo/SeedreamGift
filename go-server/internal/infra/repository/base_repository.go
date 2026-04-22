@@ -3,7 +3,7 @@
 package repository
 
 import (
-	"w-gift-server/pkg/pagination"
+	"seedream-gift-server/pkg/pagination"
 
 	"gorm.io/gorm"
 )

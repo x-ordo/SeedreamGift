@@ -5,10 +5,10 @@ package handlers
 import (
 	"net/http"
 	"strconv"
-	"w-gift-server/internal/app/services"
-	"w-gift-server/internal/config"
-	"w-gift-server/pkg/jwt"
-	"w-gift-server/pkg/response"
+	"seedream-gift-server/internal/app/services"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/pkg/jwt"
+	"seedream-gift-server/pkg/response"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-webauthn/webauthn/protocol"

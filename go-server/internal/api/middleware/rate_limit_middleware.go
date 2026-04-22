@@ -4,9 +4,9 @@ package middleware
 
 import (
 	"net/http"
-	"w-gift-server/internal/monitor"
-	"w-gift-server/pkg/logger"
-	"w-gift-server/pkg/response"
+	"seedream-gift-server/internal/monitor"
+	"seedream-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/response"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ulule/limiter/v3"

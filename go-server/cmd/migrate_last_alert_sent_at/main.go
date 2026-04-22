@@ -5,8 +5,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"w-gift-server/internal/config"
-	"w-gift-server/internal/infra"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/internal/infra"
 )
 
 func main() {

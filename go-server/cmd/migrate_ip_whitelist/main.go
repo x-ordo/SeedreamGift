@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"w-gift-server/internal/config"
-	"w-gift-server/internal/domain"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/internal/domain"
 
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"

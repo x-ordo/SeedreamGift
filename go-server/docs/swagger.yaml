@@ -95,7 +95,7 @@ definitions:
     required:
     - value
     type: object
-  w-gift-server_internal_app_services.BankVerifyConfirmRequest:
+  seedream-gift-server_internal_app_services.BankVerifyConfirmRequest:
     properties:
       accountNumber:
         type: string
@@ -115,7 +115,7 @@ definitions:
     - verifyTrNo
     - verifyVal
     type: object
-  w-gift-server_internal_app_services.BankVerifyRequest:
+  seedream-gift-server_internal_app_services.BankVerifyRequest:
     properties:
       accountHolder:
         type: string
@@ -131,7 +131,7 @@ definitions:
     - bankCode
     - bankName
     type: object
-  w-gift-server_internal_app_services.CreateOrderInput:
+  seedream-gift-server_internal_app_services.CreateOrderInput:
     properties:
       items:
         items:
@@ -161,7 +161,7 @@ definitions:
     required:
     - items
     type: object
-  w-gift-server_internal_app_services.CreateTradeInInput:
+  seedream-gift-server_internal_app_services.CreateTradeInInput:
     properties:
       accountHolder:
         type: string
@@ -188,7 +188,7 @@ definitions:
     - productId
     - quantity
     type: object
-  w-gift-server_internal_app_services.PaymentInitiateRequest:
+  seedream-gift-server_internal_app_services.PaymentInitiateRequest:
     properties:
       amount:
         type: number
@@ -201,7 +201,7 @@ definitions:
     - method
     - orderId
     type: object
-  w-gift-server_internal_domain.Brand:
+  seedream-gift-server_internal_domain.Brand:
     properties:
       code:
         type: string
@@ -224,7 +224,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  w-gift-server_internal_domain.Event:
+  seedream-gift-server_internal_domain.Event:
     properties:
       createdAt:
         type: string
@@ -249,7 +249,7 @@ definitions:
       viewCount:
         type: integer
     type: object
-  w-gift-server_internal_domain.Faq:
+  seedream-gift-server_internal_domain.Faq:
     properties:
       answer:
         type: string
@@ -270,7 +270,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  w-gift-server_internal_domain.Notice:
+  seedream-gift-server_internal_domain.Notice:
     properties:
       content:
         type: string
@@ -287,27 +287,27 @@ definitions:
       viewCount:
         type: integer
     type: object
-  w-gift-server_internal_domain.NumericDecimal:
+  seedream-gift-server_internal_domain.NumericDecimal:
     properties:
       decimal.Decimal:
         type: number
     type: object
-  w-gift-server_internal_domain.Product:
+  seedream-gift-server_internal_domain.Product:
     properties:
       allowTradeIn:
         type: boolean
       brand:
-        $ref: '#/definitions/w-gift-server_internal_domain.Brand'
+        $ref: '#/definitions/seedream-gift-server_internal_domain.Brand'
       brandCode:
         type: string
       buyPrice:
-        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+        $ref: '#/definitions/seedream-gift-server_internal_domain.NumericDecimal'
       createdAt:
         type: string
       description:
         type: string
       discountRate:
-        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+        $ref: '#/definitions/seedream-gift-server_internal_domain.NumericDecimal'
       id:
         type: integer
       imageUrl:
@@ -317,17 +317,17 @@ definitions:
       name:
         type: string
       price:
-        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+        $ref: '#/definitions/seedream-gift-server_internal_domain.NumericDecimal'
       shippingMethod:
         type: string
       tradeInRate:
-        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+        $ref: '#/definitions/seedream-gift-server_internal_domain.NumericDecimal'
       type:
         type: string
       updatedAt:
         type: string
     type: object
-  w-gift-server_internal_domain.User:
+  seedream-gift-server_internal_domain.User:
     properties:
       accountHolder:
         type: string
@@ -348,9 +348,9 @@ definitions:
       createdAt:
         type: string
       customLimitPerDay:
-        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+        $ref: '#/definitions/seedream-gift-server_internal_domain.NumericDecimal'
       customLimitPerTx:
-        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+        $ref: '#/definitions/seedream-gift-server_internal_domain.NumericDecimal'
       email:
         type: string
       emailNotification:
@@ -382,7 +382,7 @@ definitions:
       role:
         type: string
       totalTradeInVolume:
-        $ref: '#/definitions/w-gift-server_internal_domain.NumericDecimal'
+        $ref: '#/definitions/seedream-gift-server_internal_domain.NumericDecimal'
       updatedAt:
         type: string
       verifyAttemptCount:
@@ -390,7 +390,7 @@ definitions:
       zipCode:
         type: string
     type: object
-  w-gift-server_internal_domain.VoucherCode:
+  seedream-gift-server_internal_domain.VoucherCode:
     properties:
       createdAt:
         type: string
@@ -407,7 +407,7 @@ definitions:
       pinHash:
         type: string
       product:
-        $ref: '#/definitions/w-gift-server_internal_domain.Product'
+        $ref: '#/definitions/seedream-gift-server_internal_domain.Product'
       productId:
         type: integer
       securityCode:
@@ -537,7 +537,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.Brand'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.Brand'
       produces:
       - application/json
       responses:
@@ -598,7 +598,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.Brand'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.Brand'
       produces:
       - application/json
       responses:
@@ -772,7 +772,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.Event'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.Event'
       produces:
       - application/json
       responses:
@@ -866,7 +866,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.Event'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.Event'
       produces:
       - application/json
       responses:
@@ -927,7 +927,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.Faq'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.Faq'
       produces:
       - application/json
       responses:
@@ -1021,7 +1021,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.Faq'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.Faq'
       produces:
       - application/json
       responses:
@@ -1307,7 +1307,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.Notice'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.Notice'
       produces:
       - application/json
       responses:
@@ -1401,7 +1401,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.Notice'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.Notice'
       produces:
       - application/json
       responses:
@@ -1571,7 +1571,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.Product'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.Product'
       produces:
       - application/json
       responses:
@@ -1636,7 +1636,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.Product'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.Product'
       produces:
       - application/json
       responses:
@@ -2255,7 +2255,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.User'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.User'
       produces:
       - application/json
       responses:
@@ -2349,7 +2349,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.User'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.User'
       produces:
       - application/json
       responses:
@@ -2626,7 +2626,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/w-gift-server_internal_domain.VoucherCode'
+            $ref: '#/definitions/seedream-gift-server_internal_domain.VoucherCode'
           type: array
       produces:
       - application/json
@@ -2973,7 +2973,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_domain.User'
+          $ref: '#/definitions/seedream-gift-server_internal_domain.User'
       produces:
       - application/json
       responses:
@@ -3850,7 +3850,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_app_services.BankVerifyConfirmRequest'
+          $ref: '#/definitions/seedream-gift-server_internal_app_services.BankVerifyConfirmRequest'
       produces:
       - application/json
       responses:
@@ -3877,7 +3877,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_app_services.BankVerifyRequest'
+          $ref: '#/definitions/seedream-gift-server_internal_app_services.BankVerifyRequest'
       produces:
       - application/json
       responses:
@@ -4091,7 +4091,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_app_services.CreateOrderInput'
+          $ref: '#/definitions/seedream-gift-server_internal_app_services.CreateOrderInput'
       produces:
       - application/json
       responses:
@@ -4295,7 +4295,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_app_services.PaymentInitiateRequest'
+          $ref: '#/definitions/seedream-gift-server_internal_app_services.PaymentInitiateRequest'
       produces:
       - application/json
       responses:
@@ -4454,7 +4454,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/w-gift-server_internal_app_services.CreateTradeInInput'
+          $ref: '#/definitions/seedream-gift-server_internal_app_services.CreateTradeInInput'
       produces:
       - application/json
       responses:

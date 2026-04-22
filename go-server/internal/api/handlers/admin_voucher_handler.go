@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"strconv"
-	"w-gift-server/internal/app/services"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/pagination"
-	"w-gift-server/pkg/response"
+	"seedream-gift-server/internal/app/services"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/pagination"
+	"seedream-gift-server/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

@@ -2,7 +2,7 @@ package services
 
 import (
 	"time"
-	"w-gift-server/internal/domain"
+	"seedream-gift-server/internal/domain"
 
 	"gorm.io/gorm"
 )

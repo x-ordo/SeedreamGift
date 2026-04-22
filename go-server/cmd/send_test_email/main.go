@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"w-gift-server/internal/config"
-	"w-gift-server/pkg/email"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/pkg/email"
+	"seedream-gift-server/pkg/logger"
 )
 
 func main() {

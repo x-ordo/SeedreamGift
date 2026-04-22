@@ -4,9 +4,9 @@ Package handlers는 KCB(Korea Credit Bureau) 휴대폰 본인확인 서비스를
 package handlers
 
 import (
-	"w-gift-server/internal/app/services"
-	"w-gift-server/pkg/logger"
-	"w-gift-server/pkg/response"
+	"seedream-gift-server/internal/app/services"
+	"seedream-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/response"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

@@ -14,7 +14,7 @@ import (
 
 	"github.com/sony/gobreaker/v2"
 	"go.uber.org/zap"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/logger"
 )
 
 const (

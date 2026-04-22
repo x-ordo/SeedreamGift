@@ -10,9 +10,9 @@ Brand Service는 브랜드 카탈로그를 관리합니다.
 package services
 
 import (
-	"w-gift-server/internal/domain"
-	"w-gift-server/internal/infra/repository"
-	"w-gift-server/pkg/pagination"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/internal/infra/repository"
+	"seedream-gift-server/pkg/pagination"
 
 	"gorm.io/gorm"
 )

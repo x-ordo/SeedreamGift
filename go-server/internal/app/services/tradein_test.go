@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"w-gift-server/internal/app/interfaces"
-	"w-gift-server/internal/config"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/crypto"
-	"w-gift-server/pkg/pagination"
+	"seedream-gift-server/internal/app/interfaces"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/crypto"
+	"seedream-gift-server/pkg/pagination"
 
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"

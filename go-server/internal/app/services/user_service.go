@@ -5,9 +5,9 @@ package services
 import (
 	"fmt"
 	"time"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/apperror"
-	"w-gift-server/pkg/crypto"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/apperror"
+	"seedream-gift-server/pkg/crypto"
 
 	"gorm.io/gorm"
 )

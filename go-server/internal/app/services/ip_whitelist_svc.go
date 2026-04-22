@@ -3,8 +3,8 @@ package services
 import (
 	"net"
 	"strings"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/apperror"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/apperror"
 
 	"gorm.io/gorm"
 )

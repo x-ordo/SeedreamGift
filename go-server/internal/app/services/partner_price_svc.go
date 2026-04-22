@@ -1,9 +1,9 @@
 package services
 
 import (
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/apperror"
-	"w-gift-server/pkg/pagination"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/apperror"
+	"seedream-gift-server/pkg/pagination"
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"

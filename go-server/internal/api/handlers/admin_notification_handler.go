@@ -10,11 +10,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"w-gift-server/internal/app/services"
-	"w-gift-server/pkg/email"
-	"w-gift-server/pkg/kakao"
-	"w-gift-server/pkg/response"
-	"w-gift-server/pkg/telegram"
+	"seedream-gift-server/internal/app/services"
+	"seedream-gift-server/pkg/email"
+	"seedream-gift-server/pkg/kakao"
+	"seedream-gift-server/pkg/response"
+	"seedream-gift-server/pkg/telegram"
 
 	"github.com/gin-gonic/gin"
 )

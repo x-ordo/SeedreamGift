@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"w-gift-server/internal/app/interfaces"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/internal/app/interfaces"
+	"seedream-gift-server/pkg/logger"
 
 	"go.uber.org/zap"
 )

@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"w-gift-server/internal/config"
+	"seedream-gift-server/internal/config"
 
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"

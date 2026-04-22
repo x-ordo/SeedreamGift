@@ -2,8 +2,8 @@ package services
 
 import (
 	"encoding/json"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/logger"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"

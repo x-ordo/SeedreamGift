@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/logger"
 )
 
 // DashboardReadService는 관리자 대시보드 통계를 위한 읽기 전용 서비스입니다.

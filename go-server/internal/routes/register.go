@@ -2,9 +2,9 @@ package routes
 
 import (
 	"time"
-	"w-gift-server/internal/api/middleware"
-	"w-gift-server/internal/app/services"
-	"w-gift-server/internal/config"
+	"seedream-gift-server/internal/api/middleware"
+	"seedream-gift-server/internal/app/services"
+	"seedream-gift-server/internal/config"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

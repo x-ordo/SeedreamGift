@@ -9,8 +9,8 @@ import (
 	"io"
 	"regexp"
 	"strings"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

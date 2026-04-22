@@ -1,4 +1,4 @@
-module w-gift-server
+module seedream-gift-server
 
 go 1.26.1
 

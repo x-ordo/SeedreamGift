@@ -9,8 +9,8 @@ import (
 
 	"github.com/sony/gobreaker/v2"
 	"go.uber.org/zap"
-	"w-gift-server/pkg/logger"
-	"w-gift-server/pkg/telegram"
+	"seedream-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/telegram"
 )
 
 // CBConfig는 Circuit Breaker 인스턴스 생성에 필요한 설정을 담습니다.

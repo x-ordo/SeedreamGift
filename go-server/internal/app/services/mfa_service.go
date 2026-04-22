@@ -3,10 +3,10 @@
 package services
 
 import (
-	"w-gift-server/internal/config"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/apperror"
-	"w-gift-server/pkg/crypto"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/apperror"
+	"seedream-gift-server/pkg/crypto"
 
 	"github.com/pquerna/otp/totp"
 	"gorm.io/gorm"

@@ -9,7 +9,7 @@ import (
 	"io"
 	"net/http"
 	"time"
-	"w-gift-server/internal/app/interfaces"
+	"seedream-gift-server/internal/app/interfaces"
 
 	"github.com/sony/gobreaker/v2"
 )

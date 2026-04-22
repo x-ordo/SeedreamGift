@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/logger"
-	"w-gift-server/pkg/telegram"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/telegram"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"

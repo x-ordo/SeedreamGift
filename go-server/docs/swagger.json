@@ -189,7 +189,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Brand"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Brand"
                         }
                     }
                 ],
@@ -286,7 +286,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Brand"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Brand"
                         }
                     }
                 ],
@@ -564,7 +564,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Event"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Event"
                         }
                     }
                 ],
@@ -713,7 +713,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Event"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Event"
                         }
                     }
                 ],
@@ -810,7 +810,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Faq"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Faq"
                         }
                     }
                 ],
@@ -959,7 +959,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Faq"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Faq"
                         }
                     }
                 ],
@@ -1416,7 +1416,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Notice"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Notice"
                         }
                     }
                 ],
@@ -1565,7 +1565,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Notice"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Notice"
                         }
                     }
                 ],
@@ -1834,7 +1834,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Product"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Product"
                         }
                     }
                 ],
@@ -1937,7 +1937,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.Product"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.Product"
                         }
                     }
                 ],
@@ -2926,7 +2926,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.User"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.User"
                         }
                     }
                 ],
@@ -3075,7 +3075,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.User"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.User"
                         }
                     }
                 ],
@@ -3365,7 +3365,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/w-gift-server_internal_domain.VoucherCode"
+                                "$ref": "#/definitions/seedream-gift-server_internal_domain.VoucherCode"
                             }
                         }
                     }
@@ -4068,7 +4068,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_domain.User"
+                            "$ref": "#/definitions/seedream-gift-server_internal_domain.User"
                         }
                     }
                 ],
@@ -5462,7 +5462,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_app_services.BankVerifyConfirmRequest"
+                            "$ref": "#/definitions/seedream-gift-server_internal_app_services.BankVerifyConfirmRequest"
                         }
                     }
                 ],
@@ -5506,7 +5506,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_app_services.BankVerifyRequest"
+                            "$ref": "#/definitions/seedream-gift-server_internal_app_services.BankVerifyRequest"
                         }
                     }
                 ],
@@ -5841,7 +5841,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_app_services.CreateOrderInput"
+                            "$ref": "#/definitions/seedream-gift-server_internal_app_services.CreateOrderInput"
                         }
                     }
                 ],
@@ -6171,7 +6171,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_app_services.PaymentInitiateRequest"
+                            "$ref": "#/definitions/seedream-gift-server_internal_app_services.PaymentInitiateRequest"
                         }
                     }
                 ],
@@ -6419,7 +6419,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/w-gift-server_internal_app_services.CreateTradeInInput"
+                            "$ref": "#/definitions/seedream-gift-server_internal_app_services.CreateTradeInInput"
                         }
                     }
                 ],
@@ -6722,7 +6722,7 @@
                 }
             }
         },
-        "w-gift-server_internal_app_services.BankVerifyConfirmRequest": {
+        "seedream-gift-server_internal_app_services.BankVerifyConfirmRequest": {
             "type": "object",
             "required": [
                 "accountNumber",
@@ -6750,7 +6750,7 @@
                 }
             }
         },
-        "w-gift-server_internal_app_services.BankVerifyRequest": {
+        "seedream-gift-server_internal_app_services.BankVerifyRequest": {
             "type": "object",
             "required": [
                 "accountHolder",
@@ -6773,7 +6773,7 @@
                 }
             }
         },
-        "w-gift-server_internal_app_services.CreateOrderInput": {
+        "seedream-gift-server_internal_app_services.CreateOrderInput": {
             "type": "object",
             "required": [
                 "items"
@@ -6818,7 +6818,7 @@
                 }
             }
         },
-        "w-gift-server_internal_app_services.CreateTradeInInput": {
+        "seedream-gift-server_internal_app_services.CreateTradeInInput": {
             "type": "object",
             "required": [
                 "accountHolder",
@@ -6856,7 +6856,7 @@
                 }
             }
         },
-        "w-gift-server_internal_app_services.PaymentInitiateRequest": {
+        "seedream-gift-server_internal_app_services.PaymentInitiateRequest": {
             "type": "object",
             "required": [
                 "amount",
@@ -6875,7 +6875,7 @@
                 }
             }
         },
-        "w-gift-server_internal_domain.Brand": {
+        "seedream-gift-server_internal_domain.Brand": {
             "type": "object",
             "properties": {
                 "code": {
@@ -6910,7 +6910,7 @@
                 }
             }
         },
-        "w-gift-server_internal_domain.Event": {
+        "seedream-gift-server_internal_domain.Event": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -6948,7 +6948,7 @@
                 }
             }
         },
-        "w-gift-server_internal_domain.Faq": {
+        "seedream-gift-server_internal_domain.Faq": {
             "type": "object",
             "properties": {
                 "answer": {
@@ -6980,7 +6980,7 @@
                 }
             }
         },
-        "w-gift-server_internal_domain.Notice": {
+        "seedream-gift-server_internal_domain.Notice": {
             "type": "object",
             "properties": {
                 "content": {
@@ -7006,7 +7006,7 @@
                 }
             }
         },
-        "w-gift-server_internal_domain.NumericDecimal": {
+        "seedream-gift-server_internal_domain.NumericDecimal": {
             "type": "object",
             "properties": {
                 "decimal.Decimal": {
@@ -7014,20 +7014,20 @@
                 }
             }
         },
-        "w-gift-server_internal_domain.Product": {
+        "seedream-gift-server_internal_domain.Product": {
             "type": "object",
             "properties": {
                 "allowTradeIn": {
                     "type": "boolean"
                 },
                 "brand": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.Brand"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.Brand"
                 },
                 "brandCode": {
                     "type": "string"
                 },
                 "buyPrice": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "createdAt": {
                     "type": "string"
@@ -7036,7 +7036,7 @@
                     "type": "string"
                 },
                 "discountRate": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "id": {
                     "type": "integer"
@@ -7051,13 +7051,13 @@
                     "type": "string"
                 },
                 "price": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "shippingMethod": {
                     "type": "string"
                 },
                 "tradeInRate": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "type": {
                     "type": "string"
@@ -7067,7 +7067,7 @@
                 }
             }
         },
-        "w-gift-server_internal_domain.User": {
+        "seedream-gift-server_internal_domain.User": {
             "type": "object",
             "properties": {
                 "accountHolder": {
@@ -7098,10 +7098,10 @@
                     "type": "string"
                 },
                 "customLimitPerDay": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "customLimitPerTx": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "email": {
                     "type": "string"
@@ -7149,7 +7149,7 @@
                     "type": "string"
                 },
                 "totalTradeInVolume": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.NumericDecimal"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.NumericDecimal"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -7162,7 +7162,7 @@
                 }
             }
         },
-        "w-gift-server_internal_domain.VoucherCode": {
+        "seedream-gift-server_internal_domain.VoucherCode": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -7187,7 +7187,7 @@
                     "type": "string"
                 },
                 "product": {
-                    "$ref": "#/definitions/w-gift-server_internal_domain.Product"
+                    "$ref": "#/definitions/seedream-gift-server_internal_domain.Product"
                 },
                 "productId": {
                     "type": "integer"

@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"w-gift-server/internal/config"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/blacklistdb"
-	"w-gift-server/pkg/crypto"
-	"w-gift-server/pkg/thecheat"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/blacklistdb"
+	"seedream-gift-server/pkg/crypto"
+	"seedream-gift-server/pkg/thecheat"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

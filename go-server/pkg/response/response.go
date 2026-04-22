@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"w-gift-server/pkg/logger"
-	"w-gift-server/pkg/telegram"
+	"seedream-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/telegram"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

@@ -3,7 +3,7 @@ package handlers
 
 import (
 	"strconv"
-	"w-gift-server/pkg/response"
+	"seedream-gift-server/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,8 +3,8 @@ package services
 import (
 	"errors"
 
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/logger"
 
 	"github.com/glebarez/sqlite"
 	"github.com/shopspring/decimal"

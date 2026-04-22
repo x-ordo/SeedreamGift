@@ -3,7 +3,7 @@ package popbill
 import (
 	"fmt"
 	"time"
-	"w-gift-server/internal/app/interfaces"
+	"seedream-gift-server/internal/app/interfaces"
 )
 
 // StubCashReceiptProvider는 개발/테스트용 Stub 구현입니다.

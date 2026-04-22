@@ -4,9 +4,9 @@ package handlers
 
 import (
 	"net/http"
-	"w-gift-server/internal/app/services"
-	"w-gift-server/internal/config"
-	"w-gift-server/pkg/response"
+	"seedream-gift-server/internal/app/services"
+	"seedream-gift-server/internal/config"
+	"seedream-gift-server/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

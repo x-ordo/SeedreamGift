@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"html"
 
-	"w-gift-server/pkg/email"
-	"w-gift-server/pkg/kakao"
-	"w-gift-server/pkg/logger"
-	"w-gift-server/pkg/telegram"
+	"seedream-gift-server/pkg/email"
+	"seedream-gift-server/pkg/kakao"
+	"seedream-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/telegram"
 
 	"go.uber.org/zap"
 )

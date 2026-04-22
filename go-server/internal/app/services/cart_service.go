@@ -4,9 +4,9 @@ package services
 
 import (
 	"time"
-	"w-gift-server/internal/domain"
-	"w-gift-server/internal/infra/repository"
-	"w-gift-server/pkg/apperror"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/internal/infra/repository"
+	"seedream-gift-server/pkg/apperror"
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"

@@ -2,10 +2,10 @@ package services
 
 import (
 	"time"
-	"w-gift-server/internal/domain"
-	"w-gift-server/internal/infra/repository"
-	"w-gift-server/pkg/apperror"
-	"w-gift-server/pkg/pagination"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/internal/infra/repository"
+	"seedream-gift-server/pkg/apperror"
+	"seedream-gift-server/pkg/pagination"
 
 	"gorm.io/gorm"
 )

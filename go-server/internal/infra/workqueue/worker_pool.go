@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/logger"
 )
 
 // Job은 워커 풀에서 실행될 작업의 인터페이스입니다.

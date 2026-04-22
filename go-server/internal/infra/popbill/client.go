@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
-	"w-gift-server/internal/app/interfaces"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/internal/app/interfaces"
+	"seedream-gift-server/pkg/logger"
 
 	"github.com/sony/gobreaker/v2"
 	"go.uber.org/zap"

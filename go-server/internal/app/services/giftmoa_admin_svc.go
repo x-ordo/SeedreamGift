@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 
-	"w-gift-server/internal/infra/issuance"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/internal/infra/issuance"
+	"seedream-gift-server/pkg/logger"
 
 	"go.uber.org/zap"
 )

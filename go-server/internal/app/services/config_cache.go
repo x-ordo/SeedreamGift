@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	"w-gift-server/internal/domain"
+	"seedream-gift-server/internal/domain"
 
 	"gorm.io/gorm"
 )

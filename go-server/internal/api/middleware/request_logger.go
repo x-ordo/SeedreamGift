@@ -4,7 +4,7 @@ package middleware
 
 import (
 	"time"
-	"w-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

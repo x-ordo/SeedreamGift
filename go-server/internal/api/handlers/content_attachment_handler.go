@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"w-gift-server/internal/app/services"
-	"w-gift-server/internal/domain"
-	"w-gift-server/pkg/response"
+	"seedream-gift-server/internal/app/services"
+	"seedream-gift-server/internal/domain"
+	"seedream-gift-server/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

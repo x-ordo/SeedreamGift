@@ -12,8 +12,8 @@ package middleware
 
 import (
 	"strings"
-	"w-gift-server/pkg/jwt"
-	"w-gift-server/pkg/response"
+	"seedream-gift-server/pkg/jwt"
+	"seedream-gift-server/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,12 +3,12 @@ package handlers
 import (
 	"strconv"
 
-	"w-gift-server/internal/app/services"
-	"w-gift-server/pkg/email"
-	"w-gift-server/pkg/logger"
-	"w-gift-server/pkg/notification"
-	"w-gift-server/pkg/pagination"
-	"w-gift-server/pkg/response"
+	"seedream-gift-server/internal/app/services"
+	"seedream-gift-server/pkg/email"
+	"seedream-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/notification"
+	"seedream-gift-server/pkg/pagination"
+	"seedream-gift-server/pkg/response"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

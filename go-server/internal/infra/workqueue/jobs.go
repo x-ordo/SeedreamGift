@@ -5,8 +5,8 @@ import (
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"w-gift-server/pkg/logger"
-	"w-gift-server/pkg/telegram"
+	"seedream-gift-server/pkg/logger"
+	"seedream-gift-server/pkg/telegram"
 )
 
 // TelegramAlertJob은 텔레그램 알림을 비동기로 발송합니다.
