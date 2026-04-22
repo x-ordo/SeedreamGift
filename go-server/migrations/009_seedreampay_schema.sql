@@ -1,6 +1,6 @@
 -- Migration 009: Seedreampay 자체 발행 상품권 스키마
 -- Phase 1: 순수 additive — 기존 컬럼 DROP 없음
--- 참조: docs/superpowers/specs/2026-04-22-seedreampay-voucher-design.md §11
+-- 참조: docs/superpowers/specs/2026-04-22-seedreampay-voucher-design.md §11.1
 
 -- ─────────────────────────────────────────────────────────
 -- 1. Brand insert
@@ -20,9 +20,11 @@ GO
 -- ─────────────────────────────────────────────────────────
 IF COL_LENGTH('VoucherCodes','SerialNo') IS NULL
 BEGIN
-    ALTER TABLE VoucherCodes ADD SerialNo NVARCHAR(20) NULL;
+    ALTER TABLE VoucherCodes ADD SerialNo NVARCHAR(32) NULL;
     PRINT 'Added VoucherCodes.SerialNo';
 END
+ELSE
+    PRINT 'VoucherCodes.SerialNo already exists - skipping';
 GO
 
 IF COL_LENGTH('VoucherCodes','SecretHash') IS NULL
@@ -30,6 +32,8 @@ BEGIN
     ALTER TABLE VoucherCodes ADD SecretHash CHAR(64) NULL;
     PRINT 'Added VoucherCodes.SecretHash';
 END
+ELSE
+    PRINT 'VoucherCodes.SecretHash already exists - skipping';
 GO
 
 IF COL_LENGTH('VoucherCodes','RedeemedOrderId') IS NULL
@@ -37,6 +41,8 @@ BEGIN
     ALTER TABLE VoucherCodes ADD RedeemedOrderId INT NULL;
     PRINT 'Added VoucherCodes.RedeemedOrderId';
 END
+ELSE
+    PRINT 'VoucherCodes.RedeemedOrderId already exists - skipping';
 GO
 
 IF COL_LENGTH('VoucherCodes','RedeemedIp') IS NULL
@@ -44,6 +50,8 @@ BEGIN
     ALTER TABLE VoucherCodes ADD RedeemedIp NVARCHAR(45) NULL;
     PRINT 'Added VoucherCodes.RedeemedIp';
 END
+ELSE
+    PRINT 'VoucherCodes.RedeemedIp already exists - skipping';
 GO
 
 -- ─────────────────────────────────────────────────────────
@@ -68,12 +76,12 @@ USING (VALUES
     ('SEEDREAMPAY','씨드림페이 10,000원권', 10000, 'API','SEEDREAMPAY','10000'),
     ('SEEDREAMPAY','씨드림페이 100,000원권',100000,'API','SEEDREAMPAY','100000'),
     ('SEEDREAMPAY','씨드림페이 500,000원권',500000,'API','SEEDREAMPAY','500000')
-) AS src (Brand, Name, Price, FulfillmentType, ProviderCode, ProviderProductCode)
-ON target.Brand = src.Brand AND target.ProviderProductCode = src.ProviderProductCode
+) AS src (BrandCode, Name, Price, FulfillmentType, ProviderCode, ProviderProductCode)
+ON target.BrandCode = src.BrandCode AND target.ProviderProductCode = src.ProviderProductCode
 WHEN NOT MATCHED THEN
-    INSERT (Brand, Name, Price, DiscountRate, TradeInRate,
+    INSERT (BrandCode, Name, Price, BuyPrice, DiscountRate, TradeInRate,
             FulfillmentType, ProviderCode, ProviderProductCode)
-    VALUES (src.Brand, src.Name, src.Price, 0, 0,
+    VALUES (src.BrandCode, src.Name, src.Price, src.Price, 0, 0,
             src.FulfillmentType, src.ProviderCode, src.ProviderProductCode);
 PRINT 'Seedreampay Products merged (4 denominations)';
 GO
