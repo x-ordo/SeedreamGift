@@ -56,7 +56,7 @@ PORT=5140
 # ============================================================
 
 # FRONTEND_URL - 프로덕션 프론트엔드 URL (CORS origin)
-FRONTEND_URL=https://wowgift.co.kr
+FRONTEND_URL=https://seedreamgift.com
 
 # COOKIE_SECURE - HTTPS 환경에서 true (쿠키 Secure 플래그)
 # 개발: false, 프로덕션(HTTPS): true
@@ -99,4 +99,4 @@ PAYMENT_GATEWAY=mock
 # ============================================================
 # CORS 추가 Origin (쉼표 구분)
 # ============================================================
-# ADDITIONAL_CORS_ORIGINS=https://www.wowgift.co.kr
+# ADDITIONAL_CORS_ORIGINS=https://www.seedreamgift.com
