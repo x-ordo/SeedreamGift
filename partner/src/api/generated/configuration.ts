@@ -1,6 +1,6 @@
 /* tslint:disable */
 /**
- * W기프트 API
+ * 씨드림기프트 API
  * Configuration class for API client
  */
 
