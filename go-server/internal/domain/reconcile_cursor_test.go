@@ -24,4 +24,7 @@ func TestReconcileCursor_SingletonIDDefault(t *testing.T) {
 	// 여기서는 타입이 int 인지만 확인.
 	assert.IsType(t, 0, c.ID)
 	assert.Equal(t, 2026, c.LastSyncAt.Year())
+	assert.Equal(t, 1, c.LastRunAt.Hour())
+	assert.Nil(t, c.LastErrorAt)
+	assert.Nil(t, c.LastError)
 }
