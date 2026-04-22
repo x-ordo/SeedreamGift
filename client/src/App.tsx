@@ -142,7 +142,7 @@ function App() {
                   />
 
                   {/* 파트너 포털 리다이렉트 */}
-                  <Route path="/partner/*" element={<Navigate to="/wow_partner_portal" replace />} />
+                  <Route path="/partner/*" element={<Navigate to="/seedream_partner_portal" replace />} />
 
                   {/* 404 — 매칭되지 않는 모든 경로를 처리 */}
                   <Route path="*" element={<NotFoundPage />} />

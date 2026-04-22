@@ -1,6 +1,6 @@
 /**
  * @file App.tsx
- * @description W기프트 파트너 앱
+ * @description 씨드림기프트 파트너 앱
  *
  * Routes:
  * - /login  -> PartnerLoginPage

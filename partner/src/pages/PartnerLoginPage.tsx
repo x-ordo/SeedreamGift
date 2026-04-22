@@ -11,7 +11,7 @@ import { useAuthStore, MFARequiredError } from '../store/useAuthStore';
 import { isWebAuthnSupported, startWebAuthnAuthentication } from '../utils/webauthn';
 import { webauthnApi } from '../api/manual';
 
-const MAIN_SITE = import.meta.env.VITE_MAIN_URL || 'https://wowgift.co.kr';
+const MAIN_SITE = import.meta.env.VITE_MAIN_URL || 'https://seedreamgift.com';
 
 const PartnerLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -24,8 +24,8 @@ const PartnerLoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = '파트너 로그인 | W기프트';
-    return () => { document.title = 'W기프트 파트너'; };
+    document.title = '파트너 로그인 | 씨드림기프트';
+    return () => { document.title = '씨드림기프트 파트너'; };
   }, []);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -127,7 +127,7 @@ const PartnerLoginPage: React.FC = () => {
             파트너 포털
           </h1>
           <p style={{ fontSize: '14px', color: '#8b95a1', marginTop: '4px' }}>
-            W기프트 파트너 로그인
+            씨드림기프트 파트너 로그인
           </p>
         </div>
 

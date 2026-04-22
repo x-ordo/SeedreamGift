@@ -68,8 +68,8 @@ const PartnerPage: React.FC = () => {
   const activeTabConfig = PARTNER_TABS.find(t => t.id === activeTab);
 
   useEffect(() => {
-    document.title = `${activeTabConfig?.title || '파트너'} | W기프트 파트너`;
-    return () => { document.title = 'W기프트 파트너'; };
+    document.title = `${activeTabConfig?.title || '파트너'} | 씨드림기프트 파트너`;
+    return () => { document.title = '씨드림기프트 파트너'; };
   }, [activeTabConfig]);
 
   if (authLoading) return null;
@@ -116,7 +116,7 @@ const PartnerPage: React.FC = () => {
               <Handshake size={22} />
             </div>
             <div>
-              <span>W GIFT</span>
+              <span>SEEDREAM GIFT</span>
               <small style={{ display: 'block', marginLeft: 0 }}>Partner Portal</small>
             </div>
           </div>
