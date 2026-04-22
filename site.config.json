@@ -1,52 +1,49 @@
 {
   "company": {
-    "name": "주식회사 바우처팩토리",
-    "nameShort": "W기프트",
-    "nameEn": "Voucher Factory Inc.",
-    "brand": "W GIFT",
-    "owner": "고정희",
-    "licenseNo": "841-88-04007",
-    "address": "서울특별시 강남구 강남대로112길 47, 2층-J859호",
-    "zipCode": "06110",
-    "establishedDate": "2026-03-20"
+    "name": "주식회사 디앤더블유그룹",
+    "nameShort": "씨드림기프트",
+    "nameEn": "D&W Group Inc.",
+    "brand": "SEEDREAM GIFT",
+    "owner": "권종달",
+    "licenseNo": "459-88-02135",
+    "address": "경기도 화성시 장안면 장안로 607, 2동",
+    "zipCode": "18583",
+    "establishedDate": "2026-04-21"
   },
   "contact": {
-    "phone": "010-9780-2486",
-    "phoneHref": "tel:010-9780-2486",
+    "phone": "1551-9440",
+    "phoneHref": "tel:1551-9440",
     "phoneHours": "평일 09:00 - 18:00",
-    "email": "wow_gift@naver.com",
-    "emailHref": "mailto:wow_gift@naver.com",
+    "email": "admin@seedream.com",
+    "emailHref": "mailto:admin@seedream.com",
     "emailHours": "24시간 접수",
-    "complianceEmail": "wow_gift@naver.com",
-    "kakao": "@W기프트",
-    "kakaoHref": "https://pf.kakao.com/_wgift",
-    "kakaoHours": "연중무휴 응답"
+    "complianceEmail": "admin@seedream.com"
   },
   "privacy": {
-    "officer": "고정희",
+    "officer": "권종달",
     "officerTitle": "대표이사",
-    "handler": "고정희",
+    "handler": "권종달",
     "handlerTitle": "개인정보처리담당자",
     "department": "개인정보보호팀",
-    "email": "wow_gift@naver.com",
-    "phone": "010-9780-2486"
+    "email": "admin@seedream.com",
+    "phone": "1551-9440"
   },
   "urls": {
-    "domain": "wowgift.co.kr",
-    "home": "https://wowgift.co.kr",
-    "admin": "https://wowgift.co.kr/wow_admin_portal/",
-    "bizCheck": "https://www.ftc.go.kr/bizCommPop.do?wrkr_no=8418804007"
+    "domain": "seedreamgift.com",
+    "home": "https://seedreamgift.com",
+    "admin": "https://seedreamgift.com/seedream_admin_portal/",
+    "bizCheck": "https://www.ftc.go.kr/bizCommPop.do?wrkr_no=4598802135"
   },
   "seo": {
-    "title": "W기프트 - 상품권 최저가 구매 · 최고가 판매",
+    "title": "씨드림기프트 - 상품권 최저가 구매 · 최고가 판매",
     "description": "백화점 상품권(신세계, 현대, 롯데) 최저가 구매 · 최고가 매입. 30초 즉시 PIN 발급. 정품 보장.",
     "ogImage": "/og-image.png"
   },
   "tradeIn": {
-    "recipientName": "주식회사 바우처팩토리",
-    "zipCode": "06110",
-    "address": "서울특별시 강남구 강남대로112길 47, 2층-J859호",
-    "phone": "010-9780-2486",
+    "recipientName": "주식회사 디앤더블유그룹",
+    "zipCode": "18583",
+    "address": "경기도 화성시 장안면 장안로 607, 2동",
+    "phone": "1551-9440",
     "notice": "상품권 수령 확인 후 영업일 1~2일 내에 입금됩니다."
   }
 }
