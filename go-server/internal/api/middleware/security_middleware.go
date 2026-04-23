@@ -117,6 +117,12 @@ var botPatterns = regexp.MustCompile(`(?i)` + strings.Join([]string{
 // 반복 침해 시도 IP는 자동으로 블랙리스트에 등록됩니다 (5회 누적).
 func BotBlocker() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// /webhook/seedream 는 §8.6.3 "never 4xx" 정책 — middleware 4xx 차단 무효화.
+		// 웹훅 핸들러가 자체 1 MiB body cap + HMAC 검증 수행 (500 로 통일 반환).
+		if c.Request.URL.Path == "/webhook/seedream" {
+			c.Next()
+			return
+		}
 		// 비표준 HTTP 메서드 차단 (PROPFIND, TRACE 등)
 		if !allowedMethods[c.Request.Method] {
 			monitor.RecordThreatStrike(c.ClientIP())
@@ -172,6 +178,12 @@ func TraceID() gin.HandlerFunc {
 // Content-Length 헤더가 없는(-1) 요청도 크기 제한이 반드시 적용되도록 합니다.
 func MaxBodySize(maxBytes int64) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// /webhook/seedream 는 §8.6.3 "never 4xx" 정책 — middleware 4xx 차단 무효화.
+		// 웹훅 핸들러가 자체 1 MiB body cap + HMAC 검증 수행 (500 로 통일 반환).
+		if c.Request.URL.Path == "/webhook/seedream" {
+			c.Next()
+			return
+		}
 		// 청크 요청 포함 모든 요청에 항상 MaxBytesReader 적용 (H-9 우회 방지)
 		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxBytes)
 

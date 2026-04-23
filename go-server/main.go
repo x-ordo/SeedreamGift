@@ -108,6 +108,9 @@ func main() {
 	if !cfg.SMTPEnabled || cfg.SMTPHost == "" {
 		logger.Log.Warn("Pre-flight: SMTP 미설정 — 이메일 알림이 발송되지 않습니다")
 	}
+	if cfg.SeedreamWebhookSecret == "" {
+		logger.Log.Fatal("Pre-flight: SEEDREAM_WEBHOOK_SECRET 미설정 — 웹훅 수신이 불가능합니다 (§8.6 HMAC 검증 필수)")
+	}
 	logger.Log.Info("Pre-flight 검증 완료")
 
 	headless := os.Getenv("HEADLESS")

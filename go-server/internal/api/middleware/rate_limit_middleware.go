@@ -20,6 +20,12 @@ import (
 // 2. 일치할 경우 403 Forbidden 응답과 함께 요청 처리를 즉시 중단(Abort)합니다.
 func IPBlacklist() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// /webhook/seedream 는 §8.6.3 "never 4xx" 정책 — middleware 4xx 차단 무효화.
+		// 웹훅 핸들러가 자체 1 MiB body cap + HMAC 검증 수행 (500 로 통일 반환).
+		if c.Request.URL.Path == "/webhook/seedream" {
+			c.Next()
+			return
+		}
 		// 클라이언트의 실제 IP가 블랙리스트에 있는지 실시간 확인
 		if monitor.IsIPBlacklisted(c.ClientIP()) {
 			response.Forbidden(c, "access denied")
@@ -46,7 +52,16 @@ func RateLimiter(rate string) gin.HandlerFunc {
 	instance := limiter.New(store, formattedRate)
 
 	// Gin 미들웨어 생성: 한도 도달 시 커스텀 핸들러를 통해 일관된 에러 형식을 반환합니다.
-	return mgin.NewMiddleware(instance, mgin.WithLimitReachedHandler(func(c *gin.Context) {
+	inner := mgin.NewMiddleware(instance, mgin.WithLimitReachedHandler(func(c *gin.Context) {
 		response.Error(c, http.StatusTooManyRequests, "Too many requests, please try again later.")
 	}))
+	return func(c *gin.Context) {
+		// /webhook/seedream 는 §8.6.3 "never 4xx" 정책 — middleware 4xx 차단 무효화.
+		// 웹훅 핸들러가 자체 1 MiB body cap + HMAC 검증 수행 (500 로 통일 반환).
+		if c.Request.URL.Path == "/webhook/seedream" {
+			c.Next()
+			return
+		}
+		inner(c)
+	}
 }
