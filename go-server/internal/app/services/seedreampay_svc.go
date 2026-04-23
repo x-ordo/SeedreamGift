@@ -7,11 +7,13 @@ import (
 	"fmt"
 	"time"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	"seedream-gift-server/internal/app/interfaces"
 	"seedream-gift-server/internal/domain"
 	"seedream-gift-server/internal/infra/issuance"
+	"seedream-gift-server/pkg/logger"
 )
 
 // Sentinel errors for the redeem/refund flow. Handlers use errors.Is to
@@ -313,6 +315,20 @@ func (s *SeedreampayService) tryRefundPayment(ctx context.Context, tx *gorm.DB, 
 		return fmt.Errorf("payment refund failed for order %d: %w", orderID, err)
 	}
 	return nil
+}
+
+// ExpireSeedreampayVouchers is a cron-friendly adapter around MarkExpiredVouchers.
+// It discards the row count for logging and swallows errors (cron-safe) so
+// the scheduler frame can move on. Satisfies cron.SeedreampayExpiryRunner.
+func (s *SeedreampayService) ExpireSeedreampayVouchers() {
+	count, err := s.MarkExpiredVouchers(context.Background())
+	if err != nil {
+		logger.Log.Error("expire seedreampay vouchers failed", zap.Error(err))
+		return
+	}
+	if count > 0 {
+		logger.Log.Info("expired seedreampay vouchers", zap.Int64("count", count))
+	}
 }
 
 // MarkExpiredVouchers transitions all SOLD Seedreampay vouchers whose

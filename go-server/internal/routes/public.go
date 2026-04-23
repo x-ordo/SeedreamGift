@@ -82,4 +82,11 @@ func RegisterPublicRoutes(api *gin.RouterGroup, _ *config.Config, h *Handlers) {
 
 	// Client error reporting (rate limited: IP당 분당 10건)
 	api.POST("/client-errors", middleware.EndpointRateLimit(10, time.Minute), h.ClientError.ReportError)
+
+	// Seedreampay (public lookup + pre-flight verify). Verify is rate-limited
+	// separately because it is the primary brute-force target; GET is kept
+	// under the standard global rate limit.
+	seedreampay := api.Group("/seedreampay")
+	seedreampay.GET("/vouchers/:serialNo", h.Seedreampay.GetVoucher)
+	seedreampay.POST("/vouchers/verify", middleware.EndpointRateLimit(20, time.Minute), h.Seedreampay.Verify)
 }

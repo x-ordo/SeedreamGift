@@ -302,6 +302,7 @@ func startAPIServer(cfg config.Config) {
 	// scheduler.SetCashReceiptService(h.CashReceiptSvc)
 	scheduler.SetOrderCleanupService(h.OrderSvc)
 	scheduler.SetOutboxService(services.NewOutboxService(infra.DB))
+	scheduler.SetSeedreampayExpiryService(h.SeedreampaySvc)
 	scheduler.Start()
 	defer scheduler.Stop()
 

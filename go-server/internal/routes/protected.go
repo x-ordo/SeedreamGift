@@ -69,6 +69,11 @@ func RegisterProtectedRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handle
 			tradeIn.GET("/:id", h.TradeIn.GetTradeIn)
 		}
 
+		// Seedreampay consumer actions (redeem requires JWT; refund bound to
+		// the 7-day user window enforced in the service).
+		consumer.POST("/seedreampay/vouchers/redeem", h.Seedreampay.Redeem)
+		consumer.POST("/seedreampay/vouchers/:serialNo/refund", h.Seedreampay.Refund)
+
 		// [비활성화] 유가증권은 현금영수증 발급 대상 아님 (부가가치세법 시행령 제73조)
 		// cashReceipts := consumer.Group("/cash-receipts")
 		// {

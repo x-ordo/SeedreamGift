@@ -113,6 +113,14 @@ type Handlers struct {
 
 	// Fraud check (더치트 사기 조회)
 	AdminFraud *handlers.AdminFraudHandler
+
+	// Seedreampay (재사용 가능한 자사 바우처)
+	// 주의: lockout.Guard는 현재 주입되지 않음 — 프로덕션에서는
+	// Redis 클라이언트를 생성해 h.Seedreampay.SetLockout(...)을 호출하도록
+	// 추후 확장 예정.
+	Seedreampay      *handlers.SeedreampayHandler
+	AdminSeedreampay *handlers.AdminSeedreampayHandler
+	SeedreampaySvc   *services.SeedreampayService
 }
 
 // NewHandlers creates all service and handler instances with proper dependency injection.
@@ -273,6 +281,11 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	businessInquirySvc := services.NewBusinessInquiryService(db, emailSvc, bizEmail)
 	partnerBusinessInfoSvc := services.NewPartnerBusinessInfoService(db)
 
+	// Seedreampay post-issuance lifecycle (lookup/verify/redeem/refund + daily
+	// expiry cron). Lockout guard is intentionally nil — production wiring
+	// should construct a Redis client and call h.Seedreampay.SetLockout(...).
+	seedreampaySvc := services.NewSeedreampayService(db, pp, time.Now)
+
 	// Fulfillment: 외부 API 발급 파이프라인
 	stubIssuer := issuance.NewStubIssuer()
 	seedreampayIssuer := issuance.NewSeedreampayIssuer(db, time.Now)
@@ -358,6 +371,10 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 		AdminNotification: handlers.NewAdminNotificationHandler(extConfigSvc),
 
 		AdminFraud: handlers.NewAdminFraudHandler(db, fraudChecker, blScreener),
+
+		Seedreampay:      handlers.NewSeedreampayHandler(seedreampaySvc),
+		AdminSeedreampay: handlers.NewAdminSeedreampayHandler(db),
+		SeedreampaySvc:   seedreampaySvc,
 	}
 
 	// Handlers 구조체 생성 후 setter injection
