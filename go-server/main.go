@@ -276,6 +276,9 @@ func startAPIServer(cfg config.Config) {
 	r.GET("/health", h.Health.Check)
 	r.GET("/sitemap.xml", sitemapHandler(cfg))
 
+	// Seedream 웹훅 수신 (인증 없음 — HMAC 으로만 검증. /api/v1/ 밖에 위치)
+	r.POST("/webhook/seedream", h.SeedreamWebhook.Receive)
+
 	// ─── API v1 라우트 (모듈식) ───
 	api := r.Group("/api/v1")
 	api.Use(middleware.NoCacheAPI())
@@ -343,6 +346,9 @@ func startAPIServer(cfg config.Config) {
 	}
 	if h.AuditPool != nil {
 		h.AuditPool.Shutdown(5 * time.Second)
+	}
+	if h.WebhookPool != nil {
+		h.WebhookPool.Shutdown(10 * time.Second)
 	}
 
 	logger.Log.Info("Server exited")

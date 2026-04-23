@@ -15,6 +15,7 @@ import (
 	"seedream-gift-server/pkg/blacklistdb"
 	"seedream-gift-server/pkg/email"
 	"seedream-gift-server/pkg/kakao"
+	"seedream-gift-server/pkg/logger"
 	"seedream-gift-server/pkg/notification"
 	"seedream-gift-server/pkg/thecheat"
 	"sync"
@@ -62,8 +63,9 @@ type Handlers struct {
 	OrderSvc *services.OrderService
 
 	// WorkerPools (비동기 작업 큐 — Graceful Shutdown 시 종료)
-	NotifyPool *workqueue.WorkerPool
-	AuditPool  *workqueue.WorkerPool
+	NotifyPool  *workqueue.WorkerPool
+	AuditPool   *workqueue.WorkerPool
+	WebhookPool *workqueue.WorkerPool
 
 	// Admin handlers
 	Admin        *handlers.AdminHandler
@@ -118,6 +120,9 @@ type Handlers struct {
 	Seedreampay      *handlers.SeedreampayHandler
 	AdminSeedreampay *handlers.AdminSeedreampayHandler
 	SeedreampaySvc   *services.SeedreampayService
+
+	// SeedreamWebhook (Phase 3)
+	SeedreamWebhook *handlers.SeedreamWebhookHandler
 }
 
 // NewHandlers creates all service and handler instances with proper dependency injection.
@@ -133,6 +138,11 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	notifyPool.Start()
 	auditPool := workqueue.NewWorkerPool(workqueue.WorkerPoolConfig{Name: "audit", Workers: 2, QueueSize: 200})
 	auditPool.Start()
+	// 웹훅 처리 전용 워커 풀 — 결제 처리와 감사 로그 기록에서 격리.
+	webhookPool := workqueue.NewWorkerPool(workqueue.WorkerPoolConfig{
+		Name: "seedream_webhook", Workers: 4, QueueSize: 200,
+	})
+	webhookPool.Start()
 
 	// External service config (런타임 알림 채널 관리 — 다른 서비스보다 먼저 초기화)
 	extConfigSvc := services.NewExternalServiceConfigService(db, cfg.EncryptionKey, cfg)
@@ -283,6 +293,10 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	// middleware.EndpointRateLimit — no lockout store is required.
 	seedreampaySvc := services.NewSeedreampayService(db, pp, time.Now)
 
+	// VAccount 상태 전이 + 웹훅 dispatch (Phase 3)
+	vaccountStateSvc := services.NewVAccountStateService(db, logger.Log)
+	vaccountWebhookSvc := services.NewVAccountWebhookService(db, vaccountStateSvc, logger.Log)
+
 	// Fulfillment: 외부 API 발급 파이프라인
 	stubIssuer := issuance.NewStubIssuer()
 	seedreampayIssuer := issuance.NewSeedreampayIssuer(db, time.Now)
@@ -372,6 +386,9 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 		Seedreampay:      handlers.NewSeedreampayHandler(seedreampaySvc),
 		AdminSeedreampay: handlers.NewAdminSeedreampayHandler(db),
 		SeedreampaySvc:   seedreampaySvc,
+
+		SeedreamWebhook: handlers.NewSeedreamWebhookHandler(db, vaccountWebhookSvc, webhookPool, cfg.SeedreamWebhookSecret),
+		WebhookPool:     webhookPool,
 	}
 
 	// Handlers 구조체 생성 후 setter injection
