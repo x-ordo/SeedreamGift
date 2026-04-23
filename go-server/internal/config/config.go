@@ -266,6 +266,22 @@ type Config struct {
 	BlacklistEnabled bool `mapstructure:"BLACKLIST_ENABLED"`
 	// BlacklistCacheTTL은 블랙리스트 스크리닝 결과 캐시 유효 기간입니다.
 	BlacklistCacheTTL time.Duration `mapstructure:"BLACKLIST_CACHE_TTL"`
+
+	// ─── Seedream API 통합 ───
+
+	// SeedreamAPIBase 는 Seedream REST API 의 base URL 입니다.
+	// TEST: https://test.seedreamapi.kr · PROD: https://api.seedreamapi.kr
+	SeedreamAPIBase string `mapstructure:"SEEDREAM_API_BASE"`
+	// SeedreamAPIKey 는 Seedream 이 발급한 X-API-Key 입니다. 시크릿 매니저에만 보관.
+	SeedreamAPIKey string `mapstructure:"SEEDREAM_API_KEY"`
+	// SeedreamWebhookSecret 은 웹훅 HMAC-SHA256 서명 검증용 시크릿입니다 (Phase 3 에서 사용).
+	SeedreamWebhookSecret string `mapstructure:"SEEDREAM_WEBHOOK_SECRET"`
+	// SeedreamCallerID 는 참고용 CallerID (Seedream 내부 식별자). 호출엔 불필요, 로그 매칭용.
+	SeedreamCallerID string `mapstructure:"SEEDREAM_CALLER_ID"`
+	// SeedreamReconcileInterval 은 safety-net Reconcile cron 주기입니다 (Phase 5 에서 사용, 기본 10m).
+	SeedreamReconcileInterval time.Duration `mapstructure:"SEEDREAM_RECONCILE_INTERVAL"`
+	// SeedreamVAccountExpiryCheckInterval 은 만료 타이머 cron 주기입니다 (Phase 5 에서 사용, 기본 1m).
+	SeedreamVAccountExpiryCheckInterval time.Duration `mapstructure:"SEEDREAM_VACCOUNT_EXPIRY_CHECK_INTERVAL"`
 }
 
 // LoadConfig는 .env 파일과 환경 변수로부터 설정을 로드합니다.
@@ -391,6 +407,14 @@ func LoadConfig(path string) (config Config, err error) {
 	viper.SetDefault("BLACKLIST_PARTNER_ID", "")
 	viper.SetDefault("BLACKLIST_ENABLED", false)
 	viper.SetDefault("BLACKLIST_CACHE_TTL", "24h")
+
+	// Seedream API 통합 기본 설정 (Phase 2+)
+	viper.SetDefault("SEEDREAM_API_BASE", "https://test.seedreamapi.kr")
+	viper.SetDefault("SEEDREAM_API_KEY", "")
+	viper.SetDefault("SEEDREAM_WEBHOOK_SECRET", "")
+	viper.SetDefault("SEEDREAM_CALLER_ID", "seedreamgift-test")
+	viper.SetDefault("SEEDREAM_RECONCILE_INTERVAL", "10m")
+	viper.SetDefault("SEEDREAM_VACCOUNT_EXPIRY_CHECK_INTERVAL", "1m")
 
 	// 설정 파일 읽기 시도
 	err = viper.ReadInConfig()
