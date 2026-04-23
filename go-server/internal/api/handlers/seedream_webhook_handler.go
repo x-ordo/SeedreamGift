@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -107,10 +108,14 @@ func (h *SeedreamWebhookHandler) Receive(c *gin.Context) {
 		DeliveryID: deliveryID, Event: event, RawBody: raw, Processor: h.webhookSvc,
 	}
 	if err := h.webhookPool.Submit(job); err != nil {
-		// 큐 포화 등 — 동기 fallback 으로 직접 처리 (Seedream 재시도 유도 피하기 위해)
+		// 큐 포화 등 — 동기 fallback 으로 직접 처리 (Seedream 재시도 유도 피하기 위해).
+		// I-2 fix: c.Request.Context() 는 응답 반환 직후 취소되어 중간에 DB 쓰기가
+		// 중단될 수 있음. 독립 context + 8s 타임아웃을 써서 fallback 완료 보장.
 		logger.Log.Warn("webhook worker pool submit 실패 — sync fallback",
 			zap.Error(err), zap.Int64("deliveryId", deliveryID))
-		if err := h.webhookSvc.Handle(ctx, deliveryID, event, raw); err != nil {
+		syncCtx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+		defer cancel()
+		if err := h.webhookSvc.Handle(syncCtx, deliveryID, event, raw); err != nil {
 			logger.Log.Error("sync fallback 도 실패", zap.Error(err))
 			c.Status(http.StatusInternalServerError)
 			return

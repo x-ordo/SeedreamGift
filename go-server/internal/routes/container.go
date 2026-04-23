@@ -11,6 +11,7 @@ import (
 	"seedream-gift-server/internal/infra/issuance"
 	"seedream-gift-server/internal/infra/popbill"
 	"seedream-gift-server/internal/infra/resilience"
+	"seedream-gift-server/internal/infra/seedream"
 	"seedream-gift-server/internal/infra/workqueue"
 	"seedream-gift-server/pkg/blacklistdb"
 	"seedream-gift-server/pkg/email"
@@ -123,6 +124,9 @@ type Handlers struct {
 
 	// SeedreamWebhook (Phase 3)
 	SeedreamWebhook *handlers.SeedreamWebhookHandler
+
+	// SeedreamCancel (Phase 4) — POST /api/v1/payment/seedream/cancel
+	SeedreamCancel *handlers.SeedreamCancelHandler
 }
 
 // NewHandlers creates all service and handler instances with proper dependency injection.
@@ -297,6 +301,17 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	vaccountStateSvc := services.NewVAccountStateService(db, logger.Log)
 	vaccountWebhookSvc := services.NewVAccountWebhookService(db, vaccountStateSvc, logger.Log)
 
+	// Seedream REST 클라이언트 (Phase 4) — Cancel/Refund 호출 공유 인스턴스.
+	// 향후 IssueVAccount (Phase 2 발급) 도 동일 인스턴스를 사용하도록 확장 예정.
+	seedreamClient := seedream.New(seedream.ClientConfig{
+		BaseURL: cfg.SeedreamAPIBase,
+		APIKey:  cfg.SeedreamAPIKey,
+		Timeout: 10 * time.Second,
+	}, nil, nil, logger.Log)
+
+	// Cancel/Refund 오케스트레이션 (Phase 4)
+	cancelSvc := services.NewCancelService(db, seedreamClient, logger.Log)
+
 	// Fulfillment: 외부 API 발급 파이프라인
 	stubIssuer := issuance.NewStubIssuer()
 	seedreampayIssuer := issuance.NewSeedreampayIssuer(db, time.Now)
@@ -388,6 +403,7 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 		SeedreampaySvc:   seedreampaySvc,
 
 		SeedreamWebhook: handlers.NewSeedreamWebhookHandler(db, vaccountWebhookSvc, webhookPool, cfg.SeedreamWebhookSecret),
+		SeedreamCancel:  handlers.NewSeedreamCancelHandler(cancelSvc),
 		WebhookPool:     webhookPool,
 	}
 
