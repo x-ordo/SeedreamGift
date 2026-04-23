@@ -67,3 +67,40 @@ const (
 	HeaderSignature  = "X-Seedream-Signature"
 	HeaderDeliveryID = "X-Seedream-Delivery-Id"
 )
+
+// ─────────────────────────────────────────────────────────
+// Phase 4 에서 처리할 payload
+// ─────────────────────────────────────────────────────────
+
+// PaymentCanceledPayload — 가맹점 요청 입금 전 취소 성공 (미국식 L 하나).
+type PaymentCanceledPayload struct {
+	EventID    string    `json:"eventId"`
+	CallerID   string    `json:"callerId"`
+	OrderNo    string    `json:"orderNo"`
+	Reason     string    `json:"reason"`
+	CanceledAt time.Time `json:"canceledAt"`
+}
+
+// VAccountDepositCanceledPayload — 가맹점 요청 입금 후 환불 성공 (미국식 L 하나).
+// PaymentCanceledPayload 와 동일 shape (type alias).
+type VAccountDepositCanceledPayload = PaymentCanceledPayload
+
+// VAccountCancelledPayload — 외부(키움/은행) 자동 취소 (영국식 L 두 개).
+type VAccountCancelledPayload struct {
+	EventID     string    `json:"eventId"`
+	CallerID    string    `json:"callerId"`
+	OrderNo     string    `json:"orderNo"`
+	DaouTrx     string    `json:"daouTrx"`
+	Reason      string    `json:"reason"`
+	CancelledAt time.Time `json:"cancelledAt"`
+}
+
+// DepositCancelDepositedPayload — 환불 VA 에 실제 입금 확인.
+type DepositCancelDepositedPayload struct {
+	EventID       string `json:"eventId"`
+	CallerID      string `json:"callerId"`
+	OrderNo       string `json:"orderNo"`
+	RefundDaouTrx string `json:"refundDaouTrx"`
+	Amount        int64  `json:"amount"`
+	CancelDate    string `json:"cancelDate"` // YYYYMMDDhhmmss 원본
+}
