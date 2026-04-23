@@ -15,10 +15,16 @@ type IssuedVoucher struct {
 }
 
 // IssueRequest는 외부 API 발급 요청에 필요한 정보입니다.
+//
+// ProductID / OrderID 는 "Issuer 가 VoucherCode row 를 직접 INSERT 하는" 내부
+// 발급 구현체(예: SEEDREAMPAY)를 위한 필드다. 외부 API 기반 Issuer(giftmoa·
+// EXPay 등)는 이 값을 무시한다.
 type IssueRequest struct {
 	ProductCode string // Product.ProviderProductCode 값
 	Quantity    int
 	OrderCode   string // 우리 주문번호 (멱등성 키)
+	ProductID   int    // VoucherCode.ProductId 에 저장될 값 (내부 발급자 전용)
+	OrderID     int    // VoucherCode.OrderId 에 저장될 값 (내부 발급자 전용)
 }
 
 // VoucherIssuer는 외부 상품권 발급 API의 어댑터 인터페이스입니다.
