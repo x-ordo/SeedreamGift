@@ -115,9 +115,6 @@ type Handlers struct {
 	AdminFraud *handlers.AdminFraudHandler
 
 	// Seedreampay (재사용 가능한 자사 바우처)
-	// 주의: lockout.Guard는 현재 주입되지 않음 — 프로덕션에서는
-	// Redis 클라이언트를 생성해 h.Seedreampay.SetLockout(...)을 호출하도록
-	// 추후 확장 예정.
 	Seedreampay      *handlers.SeedreampayHandler
 	AdminSeedreampay *handlers.AdminSeedreampayHandler
 	SeedreampaySvc   *services.SeedreampayService
@@ -282,8 +279,8 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	partnerBusinessInfoSvc := services.NewPartnerBusinessInfoService(db)
 
 	// Seedreampay post-issuance lifecycle (lookup/verify/redeem/refund + daily
-	// expiry cron). Lockout guard is intentionally nil — production wiring
-	// should construct a Redis client and call h.Seedreampay.SetLockout(...).
+	// expiry cron). Per-IP rate limiting on /verify is provided by
+	// middleware.EndpointRateLimit — no lockout store is required.
 	seedreampaySvc := services.NewSeedreampayService(db, pp, time.Now)
 
 	// Fulfillment: 외부 API 발급 파이프라인

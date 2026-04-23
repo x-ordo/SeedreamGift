@@ -38,30 +38,6 @@ func (f *fakeSdpSvc) Refund(ctx context.Context, in services.RefundInput) error 
 	return f.refundFn(ctx, in)
 }
 
-// fakeLockout is a dependency-free SeedreampayLockout stand-in. Flags toggle
-// the block state for the IP- and serial-keyed variants independently.
-type fakeLockout struct {
-	ipBlocked              bool
-	serialBlocked          bool
-	serialFailuresRecorded int
-	ipFailuresRecorded     int
-}
-
-func (f *fakeLockout) IsSerialBlocked(_ context.Context, _ string) (bool, error) {
-	return f.serialBlocked, nil
-}
-func (f *fakeLockout) IsIPBlocked(_ context.Context, _ string) (bool, error) {
-	return f.ipBlocked, nil
-}
-func (f *fakeLockout) RegisterSerialFailure(_ context.Context, _ string) (bool, error) {
-	f.serialFailuresRecorded++
-	return false, nil
-}
-func (f *fakeLockout) RegisterIPFailure(_ context.Context, _ string) (bool, error) {
-	f.ipFailuresRecorded++
-	return false, nil
-}
-
 func init() {
 	// Quiet mode so tests don't spam stdout with gin route logs.
 	gin.SetMode(gin.TestMode)
@@ -126,19 +102,15 @@ func TestSeedreampayHandler_GetVoucher(t *testing.T) {
 
 func TestSeedreampayHandler_Verify(t *testing.T) {
 	cases := []struct {
-		name        string
-		svcErr      error
-		lockout     *fakeLockout
-		wantCode    int
-		wantFailCnt bool
+		name     string
+		svcErr   error
+		wantCode int
 	}{
-		{"200 ok", nil, nil, http.StatusOK, false},
-		{"404 not found", services.ErrVoucherNotFound, nil, http.StatusNotFound, false},
-		{"401 secret mismatch, no lockout", services.ErrSecretMismatch, nil, http.StatusUnauthorized, false},
-		{"401 secret mismatch + lockout records", services.ErrSecretMismatch, &fakeLockout{}, http.StatusUnauthorized, true},
-		{"409 already used", services.ErrVoucherAlreadyUsed, nil, http.StatusConflict, false},
-		{"410 expired", services.ErrVoucherExpired, nil, http.StatusGone, false},
-		{"429 ip blocked", nil, &fakeLockout{ipBlocked: true}, http.StatusTooManyRequests, false},
+		{"200 ok", nil, http.StatusOK},
+		{"404 not found", services.ErrVoucherNotFound, http.StatusNotFound},
+		{"401 secret mismatch", services.ErrSecretMismatch, http.StatusUnauthorized},
+		{"409 already used", services.ErrVoucherAlreadyUsed, http.StatusConflict},
+		{"410 expired", services.ErrVoucherExpired, http.StatusGone},
 	}
 
 	for _, tc := range cases {
@@ -146,9 +118,6 @@ func TestSeedreampayHandler_Verify(t *testing.T) {
 			h := newTestHandler(&fakeSdpSvc{verifyFn: func(_ context.Context, _, _ string) error {
 				return tc.svcErr
 			}})
-			if tc.lockout != nil {
-				h.setLockoutIface(tc.lockout)
-			}
 
 			r := gin.New()
 			r.POST("/verify", h.Verify)
@@ -160,10 +129,6 @@ func TestSeedreampayHandler_Verify(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			require.Equal(t, tc.wantCode, w.Code)
-			if tc.wantFailCnt {
-				require.Equal(t, 1, tc.lockout.serialFailuresRecorded, "expected serial failure to be registered")
-				require.Equal(t, 1, tc.lockout.ipFailuresRecorded, "expected ip failure to be registered")
-			}
 		})
 	}
 }
