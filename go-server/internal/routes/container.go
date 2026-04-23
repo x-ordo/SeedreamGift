@@ -127,6 +127,9 @@ type Handlers struct {
 
 	// SeedreamCancel (Phase 4) — POST /api/v1/payment/seedream/cancel
 	SeedreamCancel *handlers.SeedreamCancelHandler
+
+	// VAccount (Phase 2) — POST /api/v1/payments/initiate (Seedream LINK 모드 발급)
+	VAccount *handlers.VAccountHandler
 }
 
 // NewHandlers creates all service and handler instances with proper dependency injection.
@@ -312,6 +315,9 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	// Cancel/Refund 오케스트레이션 (Phase 4)
 	cancelSvc := services.NewCancelService(db, seedreamClient, logger.Log)
 
+	// VAccount 발급 오케스트레이션 (Phase 2) — seedreamClient 공유 인스턴스 재사용
+	vaccountService := services.NewVAccountService(db, seedreamClient, logger.Log)
+
 	// Fulfillment: 외부 API 발급 파이프라인
 	stubIssuer := issuance.NewStubIssuer()
 	seedreampayIssuer := issuance.NewSeedreampayIssuer(db, time.Now)
@@ -404,6 +410,7 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 
 		SeedreamWebhook: handlers.NewSeedreamWebhookHandler(db, vaccountWebhookSvc, webhookPool, cfg.SeedreamWebhookSecret),
 		SeedreamCancel:  handlers.NewSeedreamCancelHandler(cancelSvc),
+		VAccount:        handlers.NewVAccountHandler(vaccountService),
 		WebhookPool:     webhookPool,
 	}
 

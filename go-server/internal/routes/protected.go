@@ -31,11 +31,11 @@ func RegisterProtectedRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handle
 			cart.DELETE("", h.Cart.ClearCart)
 		}
 
-		// Payments
+		// Payments — Seedream LINK 모드 VA 발급 (Phase 2).
+		// 구 /verify 엔드포인트는 Seedream 2단계 비동기 모델(입금 후 webhook)에 맞지 않아 Phase 2 에서 제거.
 		payments := consumer.Group("/payments")
 		{
-			payments.POST("/initiate", middleware.EndpointRateLimit(10, time.Minute), h.Payment.InitiatePayment)
-			payments.GET("/verify", h.Payment.VerifyPayment)
+			payments.POST("/initiate", middleware.EndpointRateLimit(10, time.Minute), h.VAccount.Initiate)
 		}
 
 		// Orders
