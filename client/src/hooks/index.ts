@@ -32,3 +32,4 @@ export * from './useLiveRates';
 export * from './mutations/useCreateOrder';
 export * from './mutations/useCreateTradeIn';
 export * from './mutations/useCancelOrder';
+export * from './mutations/useInitiatePayment';

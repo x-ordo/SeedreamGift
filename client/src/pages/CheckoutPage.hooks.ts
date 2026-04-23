@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useShallow } from 'zustand/react/shallow';
-import { useCart, useCreateOrder, useBankInfo } from '../hooks';
+import { useCart, useCreateOrder, useBankInfo, useInitiatePayment } from '../hooks';
 import { useCheckoutStore } from '../store/useCheckoutStore';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -29,6 +29,7 @@ export const useCheckoutPage = () => {
   const location = useLocation();
   const { showToast } = useToast();
   const createOrderMutation = useCreateOrder();
+  const initiatePaymentMutation = useInitiatePayment();
   const bankInfo = useBankInfo();
 
   // 현금영수증 상태
@@ -201,6 +202,39 @@ export const useCheckoutPage = () => {
       },
       {
         onSuccess: (orderData) => {
+          // VIRTUAL_ACCOUNT: Seedream LINK 모드 — 주문 생성 후 바로 VA 발급 요청 →
+          // /checkout/redirect 로 이동해 키움페이 은행선택 창으로 auto-submit.
+          // PIN 결과 표시와 checkout 정리는 아직 하지 않음 (결제 완료는 webhook 경유).
+          if (paymentMethod === 'VIRTUAL_ACCOUNT') {
+            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+            initiatePaymentMutation.mutate(
+              { orderId: orderData.id, clientType: isMobile ? 'M' : 'P' },
+              {
+                onSuccess: (ip) => {
+                  submitLockRef.current = false;
+                  setShowConfirmModal(false);
+                  sessionStorage.removeItem('seedream_checkout_form');
+                  idempotencyKeyRef.current = crypto.randomUUID().replace(/-/g, '');
+                  navigate('/checkout/redirect', {
+                    state: {
+                      targetUrl: ip.targetUrl,
+                      formData: ip.formData,
+                      orderCode: ip.orderCode,
+                    },
+                    replace: true,
+                  });
+                },
+                onError: (err) => {
+                  submitLockRef.current = false;
+                  setShowConfirmModal(false);
+                  const errMsg = err instanceof Error ? err.message : '결제창 연결에 실패했어요';
+                  showToast({ message: errMsg, type: 'error' });
+                },
+              }
+            );
+            return;
+          }
+
           submitLockRef.current = false;
           setShowConfirmModal(false);
           // 먼저 정리 — 이탈/새로고침 시에도 중복 주문 방지
@@ -241,7 +275,7 @@ export const useCheckoutPage = () => {
         },
       }
     );
-  }, [items, paymentMethod, cashReceiptType, cashReceiptNumber, totalPrice, removeSelectedItems, clearCheckout, showToast, giftTarget, createOrderMutation, hasPhysicalItems, shippingInfo]);
+  }, [items, paymentMethod, cashReceiptType, cashReceiptNumber, totalPrice, removeSelectedItems, clearCheckout, showToast, giftTarget, createOrderMutation, initiatePaymentMutation, navigate, hasPhysicalItems, shippingInfo]);
 
   return {
     items,

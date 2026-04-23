@@ -36,6 +36,7 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const ProductListPage = lazy(() => import('./pages/Product/ProductListPage'));
 const CartPage = lazy(() => import('./pages/CartPage'));
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const CheckoutRedirect = lazy(() => import('./pages/CheckoutRedirect'));
 const MyPage = lazy(() => import('./pages/MyPage'));
 const LoginPage = lazy(() => import('./pages/Auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/Auth/RegisterPage'));
@@ -82,6 +83,15 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <CheckoutPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  {/* Seedream VA 발급 직후 auto-submit — formData.TOKEN 은 memory-only */}
+                  <Route
+                    path="/checkout/redirect"
+                    element={
+                      <ProtectedRoute>
+                        <CheckoutRedirect />
                       </ProtectedRoute>
                     }
                   />
