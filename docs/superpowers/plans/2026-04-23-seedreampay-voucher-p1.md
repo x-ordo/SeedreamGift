@@ -117,8 +117,9 @@ git checkout -b feat/seedreampay-voucher-p1-schema
 -- ─────────────────────────────────────────────────────────
 IF NOT EXISTS (SELECT 1 FROM Brands WHERE Code='SEEDREAMPAY')
 BEGIN
-    INSERT INTO Brands (Code, Name, Color, [Order])
-    VALUES ('SEEDREAMPAY', '씨드림페이', '#3182F6', 99);
+    -- UpdatedAt 은 Prisma @updatedAt 관리 대상이라 DB default 없음 → 명시 필요
+    INSERT INTO Brands (Code, Name, Color, [Order], UpdatedAt)
+    VALUES ('SEEDREAMPAY', '씨드림페이', '#3182F6', 99, GETDATE());
     PRINT 'Inserted Brand: SEEDREAMPAY';
 END
 ELSE
@@ -189,10 +190,11 @@ USING (VALUES
 ) AS src (BrandCode, Name, Price, FulfillmentType, ProviderCode, ProviderProductCode)
 ON target.BrandCode = src.BrandCode AND target.ProviderProductCode = src.ProviderProductCode
 WHEN NOT MATCHED THEN
+    -- UpdatedAt 은 Prisma @updatedAt 관리 대상이라 DB default 없음 → 명시 필요
     INSERT (BrandCode, Name, Price, BuyPrice, DiscountRate, TradeInRate,
-            FulfillmentType, ProviderCode, ProviderProductCode)
+            FulfillmentType, ProviderCode, ProviderProductCode, UpdatedAt)
     VALUES (src.BrandCode, src.Name, src.Price, src.Price, 0, 0,
-            src.FulfillmentType, src.ProviderCode, src.ProviderProductCode);
+            src.FulfillmentType, src.ProviderCode, src.ProviderProductCode, GETDATE());
 PRINT 'Seedreampay Products merged (4 denominations)';
 GO
 ```

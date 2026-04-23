@@ -438,10 +438,10 @@ seedreampay_voucher_status_gauge{status="SOLD|USED|EXPIRED|REFUNDED"}   gauge (5
 ```sql
 BEGIN TRANSACTION;
 
--- Brand
+-- Brand — UpdatedAt 은 Prisma @updatedAt 관리 대상이라 DB default 없음 → 명시 필요
 IF NOT EXISTS (SELECT 1 FROM Brands WHERE Code='SEEDREAMPAY')
-    INSERT INTO Brands (Code, Name, Color, [Order])
-    VALUES ('SEEDREAMPAY', '씨드림페이', '#3182F6', 99);
+    INSERT INTO Brands (Code, Name, Color, [Order], UpdatedAt)
+    VALUES ('SEEDREAMPAY', '씨드림페이', '#3182F6', 99, GETDATE());
 
 -- VoucherCodes 컬럼
 IF COL_LENGTH('VoucherCodes','SerialNo')        IS NULL
@@ -468,8 +468,8 @@ USING (VALUES
 ) AS src (BrandCode, Name, Price, FulfillmentType, ProviderCode, ProviderProductCode)
 ON target.BrandCode = src.BrandCode AND target.ProviderProductCode = src.ProviderProductCode
 WHEN NOT MATCHED THEN
-    INSERT (BrandCode, Name, Price, BuyPrice, DiscountRate, TradeInRate, FulfillmentType, ProviderCode, ProviderProductCode)
-    VALUES (src.BrandCode, src.Name, src.Price, src.Price, 0, 0, src.FulfillmentType, src.ProviderCode, src.ProviderProductCode);
+    INSERT (BrandCode, Name, Price, BuyPrice, DiscountRate, TradeInRate, FulfillmentType, ProviderCode, ProviderProductCode, UpdatedAt)
+    VALUES (src.BrandCode, src.Name, src.Price, src.Price, 0, 0, src.FulfillmentType, src.ProviderCode, src.ProviderProductCode, GETDATE());
 
 COMMIT;
 ```
