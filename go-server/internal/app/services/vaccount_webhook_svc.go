@@ -54,15 +54,33 @@ func (s *VAccountWebhookService) Handle(ctx context.Context, deliveryID int64, e
 		}
 		handlerErr = s.state.ApplyDeposited(ctx, &p.OrderNo, p)
 
-	case seedream.EventPaymentCanceled,
-		seedream.EventVAccountDepositCanceled,
-		seedream.EventVAccountCancelled,
-		seedream.EventDepositCancelDeposited:
-		// Phase 4 구현 범위 — 현재는 로그만 남기고 no-op.
-		// 재시도 폭풍 방지를 위해 에러 반환 안 함 (receipt 만 남겨 감사 추적).
-		s.log.Info("Phase 4 이벤트 수신 — 현재는 no-op",
-			zap.Int64("deliveryId", deliveryID),
-			zap.String("event", event))
+	case seedream.EventPaymentCanceled:
+		var p seedream.PaymentCanceledPayload
+		if err := json.Unmarshal(raw, &p); err != nil {
+			return fmt.Errorf("parse PaymentCanceledPayload: %w", err)
+		}
+		handlerErr = s.state.ApplyPaymentCanceled(ctx, &p.OrderNo, p)
+
+	case seedream.EventVAccountDepositCanceled:
+		var p seedream.VAccountDepositCanceledPayload
+		if err := json.Unmarshal(raw, &p); err != nil {
+			return fmt.Errorf("parse VAccountDepositCanceledPayload: %w", err)
+		}
+		handlerErr = s.state.ApplyVAccountDepositCanceled(ctx, &p.OrderNo, p)
+
+	case seedream.EventVAccountCancelled:
+		var p seedream.VAccountCancelledPayload
+		if err := json.Unmarshal(raw, &p); err != nil {
+			return fmt.Errorf("parse VAccountCancelledPayload: %w", err)
+		}
+		handlerErr = s.state.ApplyVAccountCancelled(ctx, &p.OrderNo, p)
+
+	case seedream.EventDepositCancelDeposited:
+		var p seedream.DepositCancelDepositedPayload
+		if err := json.Unmarshal(raw, &p); err != nil {
+			return fmt.Errorf("parse DepositCancelDepositedPayload: %w", err)
+		}
+		handlerErr = s.state.ApplyDepositCancelDeposited(ctx, &p.OrderNo, p)
 
 	default:
 		// 알 수 없는 이벤트 — 기록만 하고 no-op. 재시도 트리거하지 않음.

@@ -107,3 +107,137 @@ func TestVAccountWebhookService_Handle_Deposited(t *testing.T) {
 	require.NoError(t, db.First(&got, order.ID).Error)
 	assert.Equal(t, "PAID", got.Status)
 }
+
+func TestVAccountWebhookService_Handle_PaymentCanceled(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	setupWebhookReceiptTable(t, db)
+	// ISSUED → CANCELLED (가맹점 요청 입금 전 취소)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "ISSUED").Error)
+
+	require.NoError(t, db.Create(&domain.WebhookReceipt{
+		DeliveryID: 71, Event: string(seedream.EventPaymentCanceled), RawBody: `{}`,
+	}).Error)
+
+	svc := NewVAccountWebhookService(db, NewVAccountStateService(db, zap.NewNop()), zap.NewNop())
+	payload := seedream.PaymentCanceledPayload{
+		EventID:    "evt-cancel-1",
+		CallerID:   "admin",
+		OrderNo:    *order.OrderCode,
+		Reason:     "customer request",
+		CanceledAt: time.Now().UTC(),
+	}
+	raw, _ := json.Marshal(payload)
+
+	err := svc.Handle(context.Background(), 71, string(seedream.EventPaymentCanceled), raw)
+	require.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "CANCELLED", got.Status)
+
+	var r domain.WebhookReceipt
+	require.NoError(t, db.Where("DeliveryId = ?", 71).First(&r).Error)
+	require.NotNil(t, r.ProcessedAt)
+}
+
+func TestVAccountWebhookService_Handle_VAccountDepositCanceled(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	setupWebhookReceiptTable(t, db)
+	// PAID → REFUNDED (가맹점 요청 입금 후 환불)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "PAID").Error)
+
+	require.NoError(t, db.Create(&domain.WebhookReceipt{
+		DeliveryID: 72, Event: string(seedream.EventVAccountDepositCanceled), RawBody: `{}`,
+	}).Error)
+
+	svc := NewVAccountWebhookService(db, NewVAccountStateService(db, zap.NewNop()), zap.NewNop())
+	payload := seedream.VAccountDepositCanceledPayload{
+		EventID:    "evt-refund-1",
+		CallerID:   "admin",
+		OrderNo:    *order.OrderCode,
+		Reason:     "post-deposit refund",
+		CanceledAt: time.Now().UTC(),
+	}
+	raw, _ := json.Marshal(payload)
+
+	err := svc.Handle(context.Background(), 72, string(seedream.EventVAccountDepositCanceled), raw)
+	require.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "REFUNDED", got.Status)
+
+	var r domain.WebhookReceipt
+	require.NoError(t, db.Where("DeliveryId = ?", 72).First(&r).Error)
+	require.NotNil(t, r.ProcessedAt)
+}
+
+func TestVAccountWebhookService_Handle_VAccountCancelled(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	setupWebhookReceiptTable(t, db)
+	// ISSUED → CANCELLED (외부 자동 취소 — 키움/은행)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "ISSUED").Error)
+
+	require.NoError(t, db.Create(&domain.WebhookReceipt{
+		DeliveryID: 73, Event: string(seedream.EventVAccountCancelled), RawBody: `{}`,
+	}).Error)
+
+	svc := NewVAccountWebhookService(db, NewVAccountStateService(db, zap.NewNop()), zap.NewNop())
+	payload := seedream.VAccountCancelledPayload{
+		EventID:     "evt-ext-cancel-1",
+		CallerID:    "system",
+		OrderNo:     *order.OrderCode,
+		DaouTrx:     "DAOU-1234567890",
+		Reason:      "bank auto-cancel (expired)",
+		CancelledAt: time.Now().UTC(),
+	}
+	raw, _ := json.Marshal(payload)
+
+	err := svc.Handle(context.Background(), 73, string(seedream.EventVAccountCancelled), raw)
+	require.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "CANCELLED", got.Status)
+
+	var r domain.WebhookReceipt
+	require.NoError(t, db.Where("DeliveryId = ?", 73).First(&r).Error)
+	require.NotNil(t, r.ProcessedAt)
+}
+
+func TestVAccountWebhookService_Handle_DepositCancelDeposited(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	setupWebhookReceiptTable(t, db)
+	// REFUNDED → REFUND_PAID (환불 VA 에 실제 입금 확인)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "REFUNDED").Error)
+
+	require.NoError(t, db.Create(&domain.WebhookReceipt{
+		DeliveryID: 74, Event: string(seedream.EventDepositCancelDeposited), RawBody: `{}`,
+	}).Error)
+
+	svc := NewVAccountWebhookService(db, NewVAccountStateService(db, zap.NewNop()), zap.NewNop())
+	payload := seedream.DepositCancelDepositedPayload{
+		EventID:       "evt-refund-paid-1",
+		CallerID:      "system",
+		OrderNo:       *order.OrderCode,
+		RefundDaouTrx: "DAOU-REFUND-0001",
+		Amount:        50000,
+		CancelDate:    "20260423214800",
+	}
+	raw, _ := json.Marshal(payload)
+
+	err := svc.Handle(context.Background(), 74, string(seedream.EventDepositCancelDeposited), raw)
+	require.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "REFUND_PAID", got.Status)
+
+	var r domain.WebhookReceipt
+	require.NoError(t, db.Where("DeliveryId = ?", 74).First(&r).Error)
+	require.NotNil(t, r.ProcessedAt)
+}
