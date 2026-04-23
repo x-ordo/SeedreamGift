@@ -275,8 +275,10 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 
 	// Fulfillment: 외부 API 발급 파이프라인
 	stubIssuer := issuance.NewStubIssuer()
+	seedreampayIssuer := issuance.NewSeedreampayIssuer(db, time.Now)
 	voucherIssuers := map[string]interfaces.VoucherIssuer{
-		stubIssuer.ProviderCode(): stubIssuer,
+		stubIssuer.ProviderCode():       stubIssuer,
+		seedreampayIssuer.ProviderCode(): seedreampayIssuer,
 	}
 	if cfg.EXPayBaseURL != "" && cfg.EXPayAPIKey != "" {
 		expayIssuer := issuance.NewEXPayIssuer(cfg.EXPayBaseURL, cfg.EXPayAPIKey, issuanceClient, expayCB)
