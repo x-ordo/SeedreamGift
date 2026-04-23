@@ -101,6 +101,62 @@ type VAccountIssueResponse struct {
 }
 
 // ─────────────────────────────────────────────────────────
+// 조회 DTO (§6 GET /api/v1/vaccount)
+// ─────────────────────────────────────────────────────────
+
+// VAccountResult 는 GET /api/v1/vaccount 응답 data.items 의 개별 요소.
+// 통합 가이드 §6.4 ListPage.Items 와 대응하며, POST /api/v1/vaccount 응답과도
+// 구조가 (거의) 동일한 합동 스키마.
+//
+// Phase/Status 는 string 유지 — 설계 doc 은 named type (Phase/ResultStatus) 을
+// 제안하지만 현 코드베이스는 VAccountIssueResponse 도 string 으로 통일. 일관성
+// 유지를 위해 동일 방식. 값 검증/전이 규칙은 app/services 레이어 책임.
+type VAccountResult struct {
+	ID             int64  `json:"id"`
+	PartnerID      string `json:"partnerId"`
+	ReservedIndex1 string `json:"reservedIndex1,omitempty"`
+	ReservedIndex2 string `json:"reservedIndex2,omitempty"`
+	ReservedString string `json:"reservedString,omitempty"`
+
+	OrderNo string `json:"orderNo"`
+	Amount  int64  `json:"amount"`
+
+	Status string `json:"status"` // PENDING | SUCCESS | FAILED | CANCELLED | AMOUNT_MISMATCH | DEAD_LETTER
+	Phase  string `json:"phase"`  // awaiting_bank_selection | awaiting_deposit | completed | cancelled | failed
+
+	TargetURL string            `json:"targetUrl,omitempty"`
+	FormData  map[string]string `json:"formData,omitempty"`
+
+	AccountNumber     *string    `json:"accountNumber,omitempty"`
+	AccountHolder     *string    `json:"accountHolder,omitempty"`
+	BankCode          *string    `json:"bankCode,omitempty"`
+	DepositBankCode   *string    `json:"depositBankCode,omitempty"`
+	DaouTrx           *string    `json:"daouTrx,omitempty"` // Phase 4 Cancel/Refund trxId 원천
+	DepositEndDate    *string    `json:"depositEndDate,omitempty"`
+	DepositEndDateAt  *time.Time `json:"depositEndDateAt,omitempty"`
+	DepositorName     *string    `json:"depositorName,omitempty"`
+	WillDepositorName *string    `json:"willDepositorName,omitempty"`
+
+	ResultCode    *string `json:"resultCode,omitempty"`
+	ResultMessage *string `json:"resultMessage,omitempty"`
+
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// VAccountListPage 는 GET /api/v1/vaccount 응답 Envelope 의 Data 필드.
+// 통합 가이드 §6.4 ListPage 와 대응.
+//
+// ★ 필드명 비대칭 주의: 요청 쿼리는 pageSize 지만 응답은 limit.
+type VAccountListPage struct {
+	Items   []VAccountResult `json:"items"`
+	Total   int64            `json:"total"`
+	Page    int              `json:"page"`
+	Limit   int              `json:"limit"`
+	HasMore bool             `json:"hasMore"`
+}
+
+// ─────────────────────────────────────────────────────────
 // 고정 상수 (§1.2.2 RESERVED 왕복 불변식)
 // ─────────────────────────────────────────────────────────
 

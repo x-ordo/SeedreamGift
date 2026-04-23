@@ -132,6 +132,12 @@ type Payment struct {
 	// 형식: gift:vaccount:{OrderCode} | gift:cancel:{OrderCode} | gift:refund:{OrderCode}:{ts}
 	// 주의: Order.IdempotencyKey (클라이언트 dedup) 와 별개. 이건 vendor 호출 감사 추적용.
 	SeedreamIdempotencyKey *string `gorm:"column:SeedreamIdempotencyKey;size:200" json:"seedreamIdempotencyKey,omitempty"`
+	// SeedreamDaouTrx 는 키움페이가 은행선택 완료 시 발급하는 거래번호입니다.
+	// Seedream GET /api/v1/vaccount?orderNo= 응답의 daouTrx 필드 또는
+	// VAccountCancelled/DepositCancelDeposited 웹훅 payload 에서 획득.
+	// 취소/환불 호출 시 CancelPaymentRequest.TrxID 로 전달 (통합 가이드 §7.3).
+	// awaiting_bank_selection 단계에서는 null (은행선택 전 발급 안 됨).
+	SeedreamDaouTrx *string `gorm:"column:SeedreamDaouTrx;size:20;index" json:"seedreamDaouTrx,omitempty"`
 
 	// UpdatedAt은 결제 정보 수정 시각입니다.
 	UpdatedAt time.Time `gorm:"column:UpdatedAt;autoUpdateTime" json:"updatedAt"`
