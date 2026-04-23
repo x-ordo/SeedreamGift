@@ -43,9 +43,20 @@ func (s *VAccountStateService) ApplyIssued(ctx context.Context, orderCode *strin
 		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
 			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
 		}
-		// 이미 ISSUED 이상이면 no-op (멱등)
-		if order.Status != domain.OrderStatusPending {
+		// 상태별 분기 (I-3 fix):
+		//   - PENDING: 정상 전이
+		//   - ISSUED/PAID/DELIVERED/COMPLETED: idempotent no-op (웹훅 재전송 등)
+		//   - CANCELLED/EXPIRED/AMOUNT_MISMATCH/REFUNDED/REFUND_PAID: terminal state 에 도달 — race condition 의심 → Warn
+		switch order.Status {
+		case domain.OrderStatusPending:
+			// fall through to transition
+		case domain.OrderStatusIssued, domain.OrderStatusPaid,
+			domain.OrderStatusDelivered, domain.OrderStatusCompleted:
 			s.logger.Info("vaccount.issued 재수신 — idempotent no-op",
+				zap.String("orderCode", *orderCode), zap.String("status", order.Status))
+			return nil
+		default: // CANCELLED, EXPIRED, AMOUNT_MISMATCH, REFUNDED, REFUND_PAID
+			s.logger.Warn("vaccount.issued arrived after terminal state — possible cancel race",
 				zap.String("orderCode", *orderCode), zap.String("status", order.Status))
 			return nil
 		}
@@ -54,7 +65,7 @@ func (s *VAccountStateService) ApplyIssued(ctx context.Context, orderCode *strin
 			return err
 		}
 
-		phase := "awaiting_deposit"
+		phase := domain.SeedreamPhaseAwaitingDeposit
 		bankCode := payload.BankCode
 		accountNo := payload.AccountNo
 		depositorName := payload.ReceiverName
@@ -127,6 +138,217 @@ func (s *VAccountStateService) ApplyDeposited(ctx context.Context, orderCode *st
 
 		// TODO(Phase 3.1 / 4): Voucher RESERVED → SOLD, Ledger.RecordPayment, OrderEvent 기록.
 		// Phase 3 MVP 는 Order/Payment 전이만 다루고, Voucher/Ledger 는 연계 작업 완결 후 추가.
+		return nil
+	})
+}
+
+// ApplyPaymentCanceled 는 payment.canceled 이벤트를 처리합니다 (미국식 L 하나).
+//
+// 가맹점 요청으로 입금 전 취소 성공 시 Seedream 이 발사하는 웹훅.
+//
+//	Order.Status: (PENDING|ISSUED) → CANCELLED
+//	Payment.SeedreamPhase: → cancelled
+//
+// 이미 CANCELLED 면 idempotent no-op.
+// PAID/DELIVERED/COMPLETED/REFUNDED/REFUND_PAID 에 도달하면 race 의심 → Warn no-op.
+func (s *VAccountStateService) ApplyPaymentCanceled(ctx context.Context, orderCode *string, payload seedream.PaymentCanceledPayload) error {
+	if orderCode == nil || *orderCode == "" {
+		return errors.New("orderCode 누락")
+	}
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var order domain.Order
+		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
+			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
+		}
+
+		switch order.Status {
+		case domain.OrderStatusPending, domain.OrderStatusIssued:
+			// fall through to transition
+		case domain.OrderStatusCancelled:
+			s.logger.Info("payment.canceled 재수신 — idempotent no-op",
+				zap.String("orderCode", *orderCode), zap.String("status", order.Status))
+			return nil
+		default: // PAID, DELIVERED, COMPLETED, REFUNDED, REFUND_PAID, EXPIRED, AMOUNT_MISMATCH
+			s.logger.Warn("payment.canceled arrived after non-cancellable state — possible race",
+				zap.String("orderCode", *orderCode), zap.String("status", order.Status),
+				zap.String("reason", payload.Reason))
+			return nil
+		}
+
+		if err := tx.Model(&order).Update("Status", domain.OrderStatusCancelled).Error; err != nil {
+			return err
+		}
+
+		phase := domain.SeedreamPhaseCancelled
+		if err := tx.Model(&domain.Payment{}).
+			Where("OrderId = ?", order.ID).
+			Updates(map[string]any{
+				"SeedreamPhase": &phase,
+			}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
+// ApplyVAccountDepositCanceled 는 vaccount.deposit_canceled 이벤트를 처리합니다 (미국식 L 하나).
+//
+// 가맹점 요청으로 입금 후 환불 성공 시 Seedream 이 발사하는 웹훅.
+// 실제 입금 확인은 별도 deposit_cancel.deposited 웹훅에서 처리 (ApplyDepositCancelDeposited).
+//
+//	Order.Status: (PAID|DELIVERED) → REFUNDED
+//	Payment.SeedreamPhase: → refunded
+//	Payment.Status: → REFUNDED
+//
+// 이미 REFUNDED/REFUND_PAID 면 idempotent no-op.
+// CANCELLED/EXPIRED/AMOUNT_MISMATCH 에 도달하면 race 의심 → Warn no-op.
+func (s *VAccountStateService) ApplyVAccountDepositCanceled(ctx context.Context, orderCode *string, payload seedream.VAccountDepositCanceledPayload) error {
+	if orderCode == nil || *orderCode == "" {
+		return errors.New("orderCode 누락")
+	}
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var order domain.Order
+		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
+			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
+		}
+
+		switch order.Status {
+		case domain.OrderStatusPaid, domain.OrderStatusDelivered:
+			// fall through to transition
+		case domain.OrderStatusRefunded, domain.OrderStatusRefundPaid:
+			s.logger.Info("vaccount.deposit_canceled 재수신 — idempotent no-op",
+				zap.String("orderCode", *orderCode), zap.String("status", order.Status))
+			return nil
+		default: // PENDING, ISSUED, CANCELLED, COMPLETED, EXPIRED, AMOUNT_MISMATCH
+			s.logger.Warn("vaccount.deposit_canceled arrived from unexpected state — possible race",
+				zap.String("orderCode", *orderCode), zap.String("status", order.Status),
+				zap.String("reason", payload.Reason))
+			return nil
+		}
+
+		if err := tx.Model(&order).Update("Status", domain.OrderStatusRefunded).Error; err != nil {
+			return err
+		}
+
+		phase := domain.SeedreamPhaseRefunded
+		if err := tx.Model(&domain.Payment{}).
+			Where("OrderId = ?", order.ID).
+			Updates(map[string]any{
+				"Status":        "REFUNDED",
+				"SeedreamPhase": &phase,
+			}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
+// ApplyVAccountCancelled 는 vaccount.cancelled 이벤트를 처리합니다 (영국식 L 두 개).
+//
+// 외부(키움/은행) 자동 취소로 발생한 이벤트. DaouTrx 로 감사 추적 필요.
+//
+//	Order.Status: (PENDING|ISSUED) → CANCELLED
+//	Payment.SeedreamPhase: → cancelled
+//
+// 이미 CANCELLED 면 idempotent no-op.
+// PAID/DELIVERED/COMPLETED/REFUNDED/REFUND_PAID 에 도달하면 race 의심 → Warn no-op.
+func (s *VAccountStateService) ApplyVAccountCancelled(ctx context.Context, orderCode *string, payload seedream.VAccountCancelledPayload) error {
+	if orderCode == nil || *orderCode == "" {
+		return errors.New("orderCode 누락")
+	}
+	// 외부 취소는 감사 추적을 위해 daouTrx 를 항상 Info 레벨로 로깅.
+	s.logger.Info("vaccount.cancelled received — external auto-cancel",
+		zap.String("orderCode", *orderCode),
+		zap.String("daouTrx", payload.DaouTrx),
+		zap.String("reason", payload.Reason))
+
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var order domain.Order
+		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
+			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
+		}
+
+		switch order.Status {
+		case domain.OrderStatusPending, domain.OrderStatusIssued:
+			// fall through to transition
+		case domain.OrderStatusCancelled:
+			s.logger.Info("vaccount.cancelled 재수신 — idempotent no-op",
+				zap.String("orderCode", *orderCode), zap.String("status", order.Status))
+			return nil
+		default: // PAID, DELIVERED, COMPLETED, REFUNDED, REFUND_PAID, EXPIRED, AMOUNT_MISMATCH
+			s.logger.Warn("vaccount.cancelled arrived after non-cancellable state — possible race",
+				zap.String("orderCode", *orderCode), zap.String("status", order.Status),
+				zap.String("daouTrx", payload.DaouTrx))
+			return nil
+		}
+
+		if err := tx.Model(&order).Update("Status", domain.OrderStatusCancelled).Error; err != nil {
+			return err
+		}
+
+		phase := domain.SeedreamPhaseCancelled
+		if err := tx.Model(&domain.Payment{}).
+			Where("OrderId = ?", order.ID).
+			Updates(map[string]any{
+				"SeedreamPhase": &phase,
+			}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
+// ApplyDepositCancelDeposited 는 deposit_cancel.deposited 이벤트를 처리합니다.
+//
+// 환불 VA 에 실제 입금이 확인된 시점의 웹훅. ApplyVAccountDepositCanceled 후속.
+//
+//	Order.Status: REFUNDED → REFUND_PAID
+//	Payment.SeedreamPhase: → refund_paid
+//
+// 이미 REFUND_PAID 면 idempotent no-op.
+// PAID (deposit_canceled 를 아직 못 받은 경우) 포함 다른 상태 → Warn no-op (out-of-order 가능).
+func (s *VAccountStateService) ApplyDepositCancelDeposited(ctx context.Context, orderCode *string, payload seedream.DepositCancelDepositedPayload) error {
+	if orderCode == nil || *orderCode == "" {
+		return errors.New("orderCode 누락")
+	}
+	// 환불 입금 확인은 금액 감사 기록 필수.
+	s.logger.Info("deposit_cancel.deposited received — refund VA deposit confirmed",
+		zap.String("orderCode", *orderCode),
+		zap.String("refundDaouTrx", payload.RefundDaouTrx),
+		zap.Int64("amount", payload.Amount))
+
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var order domain.Order
+		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
+			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
+		}
+
+		switch order.Status {
+		case domain.OrderStatusRefunded:
+			// fall through to transition
+		case domain.OrderStatusRefundPaid:
+			s.logger.Info("deposit_cancel.deposited 재수신 — idempotent no-op",
+				zap.String("orderCode", *orderCode), zap.String("status", order.Status))
+			return nil
+		default: // PAID (deposit_canceled 아직 미수신), CANCELLED, EXPIRED 등 — race 의심
+			s.logger.Warn("deposit_cancel.deposited arrived from unexpected state — out-of-order delivery suspected",
+				zap.String("orderCode", *orderCode), zap.String("status", order.Status),
+				zap.Int64("amount", payload.Amount))
+			return nil
+		}
+
+		if err := tx.Model(&order).Update("Status", domain.OrderStatusRefundPaid).Error; err != nil {
+			return err
+		}
+
+		phase := domain.SeedreamPhaseRefundPaid
+		if err := tx.Model(&domain.Payment{}).
+			Where("OrderId = ?", order.ID).
+			Updates(map[string]any{
+				"SeedreamPhase": &phase,
+			}).Error; err != nil {
+			return err
+		}
 		return nil
 	})
 }

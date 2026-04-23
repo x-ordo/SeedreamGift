@@ -148,3 +148,251 @@ func TestApplyVAccountIssued_Idempotent(t *testing.T) {
 	err := svc.ApplyIssued(context.Background(), order.OrderCode, payload)
 	assert.NoError(t, err, "재수신은 idempotent no-op 이어야 함")
 }
+
+// ── I-3 fix: terminal state 에서 vaccount.issued 수신 시 Warn no-op ──
+
+func TestApplyVAccountIssued_TerminalState_Warns(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	// Order 를 CANCELLED 상태로 강제 변경 (terminal state)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "CANCELLED").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	payload := seedream.VAccountIssuedPayload{
+		OrderNo: *order.OrderCode, BankCode: "088", AccountNo: "110-1",
+		DepositEndDateAt: time.Now().Add(30 * time.Minute).UTC(),
+	}
+	err := svc.ApplyIssued(context.Background(), order.OrderCode, payload)
+	assert.NoError(t, err, "terminal state 에서 vaccount.issued 수신은 Warn no-op")
+
+	// Order.Status 변경 없음
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "CANCELLED", got.Status)
+}
+
+// ── ApplyPaymentCanceled (payment.canceled) ──
+
+func TestApplyPaymentCanceled_HappyPath(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	// ISSUED 상태에서 시작
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "ISSUED").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyPaymentCanceled(context.Background(), order.OrderCode, seedream.PaymentCanceledPayload{
+		OrderNo: *order.OrderCode, Reason: "가맹점 요청", CanceledAt: time.Now().UTC(),
+	})
+	require.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "CANCELLED", got.Status)
+
+	var p domain.Payment
+	require.NoError(t, db.Where("OrderId = ?", order.ID).First(&p).Error)
+	require.NotNil(t, p.SeedreamPhase)
+	assert.Equal(t, "cancelled", *p.SeedreamPhase)
+}
+
+func TestApplyPaymentCanceled_Idempotent(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "CANCELLED").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyPaymentCanceled(context.Background(), order.OrderCode, seedream.PaymentCanceledPayload{
+		OrderNo: *order.OrderCode, Reason: "재수신", CanceledAt: time.Now().UTC(),
+	})
+	assert.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "CANCELLED", got.Status)
+}
+
+func TestApplyPaymentCanceled_WarnNoOp(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	// 이미 PAID — cancel 불가 상태
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "PAID").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyPaymentCanceled(context.Background(), order.OrderCode, seedream.PaymentCanceledPayload{
+		OrderNo: *order.OrderCode, Reason: "race", CanceledAt: time.Now().UTC(),
+	})
+	assert.NoError(t, err, "Warn no-op: 에러 없이 반환")
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "PAID", got.Status, "Status 변경 없음")
+}
+
+// ── ApplyVAccountDepositCanceled (vaccount.deposit_canceled) ──
+
+func TestApplyVAccountDepositCanceled_HappyPath(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "PAID").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyVAccountDepositCanceled(context.Background(), order.OrderCode, seedream.VAccountDepositCanceledPayload{
+		OrderNo: *order.OrderCode, Reason: "가맹점 환불", CanceledAt: time.Now().UTC(),
+	})
+	require.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "REFUNDED", got.Status)
+
+	var p domain.Payment
+	require.NoError(t, db.Where("OrderId = ?", order.ID).First(&p).Error)
+	assert.Equal(t, "REFUNDED", p.Status)
+	require.NotNil(t, p.SeedreamPhase)
+	assert.Equal(t, "refunded", *p.SeedreamPhase)
+}
+
+func TestApplyVAccountDepositCanceled_Idempotent(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "REFUNDED").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyVAccountDepositCanceled(context.Background(), order.OrderCode, seedream.VAccountDepositCanceledPayload{
+		OrderNo: *order.OrderCode, Reason: "재수신", CanceledAt: time.Now().UTC(),
+	})
+	assert.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "REFUNDED", got.Status)
+}
+
+func TestApplyVAccountDepositCanceled_WarnNoOp(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	// 환불 불가 상태 — CANCELLED
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "CANCELLED").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyVAccountDepositCanceled(context.Background(), order.OrderCode, seedream.VAccountDepositCanceledPayload{
+		OrderNo: *order.OrderCode, Reason: "race", CanceledAt: time.Now().UTC(),
+	})
+	assert.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "CANCELLED", got.Status)
+}
+
+// ── ApplyVAccountCancelled (vaccount.cancelled — 외부 자동 취소) ──
+
+func TestApplyVAccountCancelled_HappyPath(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "ISSUED").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyVAccountCancelled(context.Background(), order.OrderCode, seedream.VAccountCancelledPayload{
+		OrderNo: *order.OrderCode, DaouTrx: "DAOU-XYZ-123", Reason: "키움 자동 취소", CancelledAt: time.Now().UTC(),
+	})
+	require.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "CANCELLED", got.Status)
+
+	var p domain.Payment
+	require.NoError(t, db.Where("OrderId = ?", order.ID).First(&p).Error)
+	require.NotNil(t, p.SeedreamPhase)
+	assert.Equal(t, "cancelled", *p.SeedreamPhase)
+}
+
+func TestApplyVAccountCancelled_Idempotent(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "CANCELLED").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyVAccountCancelled(context.Background(), order.OrderCode, seedream.VAccountCancelledPayload{
+		OrderNo: *order.OrderCode, DaouTrx: "DAOU-XYZ-123", CancelledAt: time.Now().UTC(),
+	})
+	assert.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "CANCELLED", got.Status)
+}
+
+func TestApplyVAccountCancelled_WarnNoOp(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	// 이미 PAID → 외부 자동 취소가 도달하면 안 됨
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "PAID").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyVAccountCancelled(context.Background(), order.OrderCode, seedream.VAccountCancelledPayload{
+		OrderNo: *order.OrderCode, DaouTrx: "DAOU-XYZ-123", CancelledAt: time.Now().UTC(),
+	})
+	assert.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "PAID", got.Status)
+}
+
+// ── ApplyDepositCancelDeposited (deposit_cancel.deposited — 환불 VA 실제 입금) ──
+
+func TestApplyDepositCancelDeposited_HappyPath(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "REFUNDED").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyDepositCancelDeposited(context.Background(), order.OrderCode, seedream.DepositCancelDepositedPayload{
+		OrderNo: *order.OrderCode, RefundDaouTrx: "REFUND-DAOU-456", Amount: 50000, CancelDate: "20260423120000",
+	})
+	require.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "REFUND_PAID", got.Status)
+
+	var p domain.Payment
+	require.NoError(t, db.Where("OrderId = ?", order.ID).First(&p).Error)
+	require.NotNil(t, p.SeedreamPhase)
+	assert.Equal(t, "refund_paid", *p.SeedreamPhase)
+}
+
+func TestApplyDepositCancelDeposited_Idempotent(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "REFUND_PAID").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyDepositCancelDeposited(context.Background(), order.OrderCode, seedream.DepositCancelDepositedPayload{
+		OrderNo: *order.OrderCode, RefundDaouTrx: "REFUND-DAOU-456", Amount: 50000,
+	})
+	assert.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "REFUND_PAID", got.Status)
+}
+
+func TestApplyDepositCancelDeposited_WarnNoOp(t *testing.T) {
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	// PAID — deposit_canceled 아직 미수신. out-of-order 가능성.
+	require.NoError(t, db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "PAID").Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	err := svc.ApplyDepositCancelDeposited(context.Background(), order.OrderCode, seedream.DepositCancelDepositedPayload{
+		OrderNo: *order.OrderCode, RefundDaouTrx: "REFUND-DAOU-456", Amount: 50000,
+	})
+	assert.NoError(t, err)
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "PAID", got.Status, "Status 변경 없음")
+}
