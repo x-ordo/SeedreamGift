@@ -112,8 +112,8 @@ CREATE UNIQUE INDEX UX_VoucherCode_SerialNo
 | 형식 | `SEED-{tag}-{nnnn}-{nnnn}-{cccc}` (접두사 + 4그룹 하이픈) |
 | 길이 | 하이픈 제외 16자 |
 | `tag` | 권종 태그 4자 (가시성↑): `1K01`, `10K1`, `100K`, `500K` |
-| `nnnn-nnnn` | `crypto/rand` 8자리. 32-char alphabet (`0/O/1/I/L/U` 제외) |
-| `cccc` | `CRC32(prefix+tag+random) mod 32^4` → base32 4자리 |
+| `nnnn-nnnn` | `crypto/rand` 8자리. 30-char alphabet (Base32 minus 6 ambiguous: `0/O/1/I/L/U`) |
+| `cccc` | `CRC32(prefix+tag+random) mod 30^4` → 30-char alphabet 투영, 4자리 |
 | 유일성 | 부분 UNIQUE 인덱스. 충돌 시 발급 트랜잭션 내 최대 3회 재생성 |
 
 **예시**: `SEED-10K1-X7AB-K9PD-M3QY`
