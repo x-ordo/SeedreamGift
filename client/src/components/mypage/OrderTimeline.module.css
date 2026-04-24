@@ -1,0 +1,127 @@
+/* MyPage 주문 카드 내부에 표시되는 결제 진행 타임라인. */
+
+.wrapper {
+  margin: 0 var(--space-4) var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-grey-50);
+  border: 1px solid var(--color-grey-100);
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--color-grey-700);
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.015em;
+}
+
+.toggleBtn {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  border: 1px solid var(--color-grey-200);
+  color: var(--color-grey-600);
+  font-size: var(--text-caption);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.toggleBtn:hover {
+  background: var(--color-grey-100);
+  border-color: var(--color-grey-300);
+}
+
+.toggleBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+/* 세로 연결 선 */
+.list::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--color-grey-200);
+}
+
+.item {
+  position: relative;
+  padding: var(--space-2) 0 var(--space-3) var(--space-6);
+  font-size: var(--text-body);
+}
+
+.dot {
+  position: absolute;
+  left: 2px;
+  top: 10px;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  border: 2px solid var(--color-grey-50);
+  box-shadow: 0 0 0 1px var(--color-grey-200);
+}
+
+.dotSuccess {
+  background: var(--color-success);
+}
+
+.dotError {
+  background: var(--color-error);
+}
+
+.dotWarning {
+  background: var(--color-warning);
+}
+
+.label {
+  font-weight: 600;
+  color: var(--color-grey-900);
+}
+
+.time {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.meta {
+  margin-top: var(--space-1);
+  font-size: var(--text-caption);
+  color: var(--color-grey-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.loadingText,
+.errorText,
+.emptyText {
+  padding: var(--space-2);
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+}
+
+.errorText {
+  color: var(--color-error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggleBtn {
+    transition: none;
+  }
+}

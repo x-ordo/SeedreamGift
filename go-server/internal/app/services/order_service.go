@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -904,6 +905,87 @@ func classifyPaymentUIStatus(order *domain.Order, payment *domain.Payment) strin
 		return PaymentUIStatusAwaitingDeposit
 	}
 	return PaymentUIStatusUnknown
+}
+
+// OrderTimelineEvent 는 GET /orders/:id/timeline 응답의 개별 엔트리입니다.
+// OrderEvent domain 의 raw 필드 중 유저에게 안전/유의미한 것만 노출.
+type OrderTimelineEvent struct {
+	ID        int            `json:"id"`
+	EventType string         `json:"eventType"`
+	Payload   map[string]any `json:"payload,omitempty"`
+	CreatedAt time.Time      `json:"createdAt"`
+}
+
+// timelinePayloadAllowList 는 Timeline payload 에서 유저 노출이 허용된 키 집합입니다.
+// 누락된 키는 응답에서 제거됩니다 (민감/내부 필드 방어).
+var timelinePayloadAllowList = map[string]struct{}{
+	"orderCode":        {},
+	"bankCode":         {},
+	"depositEndDateAt": {},
+	"amount":           {},
+	"depositedAt":      {},
+	"vouchersSold":     {},
+	"reason":           {},
+	"canceledAt":       {},
+	"cancelledAt":      {},
+	"source":           {},
+	"cancelDate":       {},
+	// DaouTrx 는 유저가 고객센터 문의 시 참조용 — 해시 없이 노출해도 안전 (식별자 성격).
+	"daouTrx":       {},
+	"refundDaouTrx": {},
+}
+
+// sanitizeTimelinePayload 는 OrderEvent.Payload raw JSON 에서 allow-list 키만 남깁니다.
+func sanitizeTimelinePayload(raw string) map[string]any {
+	if raw == "" {
+		return nil
+	}
+	var decoded map[string]any
+	if err := json.Unmarshal([]byte(raw), &decoded); err != nil {
+		return nil
+	}
+	if len(decoded) == 0 {
+		return nil
+	}
+	filtered := make(map[string]any, len(decoded))
+	for k, v := range decoded {
+		if _, ok := timelinePayloadAllowList[k]; ok {
+			filtered[k] = v
+		}
+	}
+	if len(filtered) == 0 {
+		return nil
+	}
+	return filtered
+}
+
+// GetOrderTimeline 은 유저 본인의 주문에 대한 이벤트 타임라인을 시간순(과거→현재)으로
+// 반환합니다. 권한 없는 주문은 404 로 은폐. eventType 한국어 라벨 매핑은 프론트엔드 책임.
+func (s *OrderService) GetOrderTimeline(orderID, userID int, role string) ([]OrderTimelineEvent, error) {
+	q := s.db.Select("Id", "UserId")
+	if role != "ADMIN" {
+		q = q.Where("UserId = ?", userID)
+	}
+	var ownerCheck domain.Order
+	if err := q.First(&ownerCheck, orderID).Error; err != nil {
+		return nil, apperror.NotFound("주문을 찾을 수 없습니다")
+	}
+
+	var events []domain.OrderEvent
+	if err := s.db.Where(`"OrderId" = ?`, orderID).Order(`"CreatedAt" ASC`).Find(&events).Error; err != nil {
+		return nil, apperror.Internal("이벤트를 조회할 수 없습니다", err)
+	}
+
+	result := make([]OrderTimelineEvent, 0, len(events))
+	for _, e := range events {
+		result = append(result, OrderTimelineEvent{
+			ID:        e.ID,
+			EventType: e.EventType,
+			Payload:   sanitizeTimelinePayload(e.Payload),
+			CreatedAt: e.CreatedAt,
+		})
+	}
+	return result, nil
 }
 
 // canResumePayment 는 "결제창 다시 열기" 버튼을 유저에게 보여줄지 판정합니다.

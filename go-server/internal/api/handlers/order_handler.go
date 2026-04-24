@@ -135,6 +135,25 @@ func (h *OrderHandler) GetPaymentStatus(c *gin.Context) {
 	response.Success(c, resp)
 }
 
+// GetOrderTimeline 은 GET /api/v1/orders/:id/timeline 핸들러.
+//
+// 유저 본인 주문의 OrderEvent 이력을 시간순으로 반환합니다. 서비스 레이어가
+// payload allow-list 필터를 적용해 민감 필드를 제거합니다.
+func (h *OrderHandler) GetOrderTimeline(c *gin.Context) {
+	userID := c.GetInt("userId")
+	role := c.GetString("role")
+	id, ok := parseIDParam(c, "id")
+	if !ok {
+		return
+	}
+	events, err := h.service.GetOrderTimeline(id, userID, role)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	response.Success(c, events)
+}
+
 func (h *OrderHandler) GetMyExport(c *gin.Context) {
 	c.JSON(http.StatusNotImplemented, gin.H{"error": "미구현 기능입니다"})
 }

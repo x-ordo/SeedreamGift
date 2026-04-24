@@ -47,6 +47,7 @@ func RegisterProtectedRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handle
 			orders.GET("/my", h.Order.GetMyOrders)
 			orders.GET("/:id", h.Order.GetOrderDetail)
 			orders.GET("/:id/payment-status", h.Order.GetPaymentStatus)
+			orders.GET("/:id/timeline", h.Order.GetOrderTimeline)
 			orders.POST("/:id/cancel", h.Order.CancelOrder)
 			orders.POST("/payment/confirm", middleware.IdempotencyMiddleware(db), h.Order.ConfirmPayment)
 			orders.GET("/my/export", h.Order.GetMyExport)
