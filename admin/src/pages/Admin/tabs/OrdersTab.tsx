@@ -13,6 +13,7 @@ import { ConfirmModal } from '../components/ConfirmModal';
 import { exportToExcel, exportBankReport } from '../utils/exportExcel';
 import type { PinOption } from '../utils/exportExcel';
 import { useAdminList, useCheckboxSelect, useDebouncedSearch } from '../hooks';
+import { useAdminOrderTimeline, adminEventLabel, adminEventSummary } from '../hooks/useAdminOrderTimeline';
 
 interface OrderItem {
   id: number;
@@ -78,6 +79,8 @@ const OrdersTab = () => {
   });
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const { events: timelineEvents, loading: timelineLoading, error: timelineError } =
+    useAdminOrderTimeline(detailOrder?.id ?? null);
   const { showToast } = useToast();
 
   // Bank report state
@@ -656,23 +659,38 @@ const OrdersTab = () => {
               </Button>
             </AdminDetailModal.Section>
 
-            {/* 주문 타임라인 */}
+            {/* 주문 타임라인 — OrderEvent 기반 (server /orders/:id/timeline).
+                ADMIN 이므로 payload 에 DaouTrx / SerialNo 등 운영용 식별자도 표시. */}
             <AdminDetailModal.Section title="주문 이력">
-              <AdminDetailModal.Timeline
-                items={[
-                  {
-                    label: '주문 생성',
-                    date: new Date(detailOrder.createdAt).toLocaleString('ko-KR'),
-                    active: true,
-                  },
-                  {
-                    label: '최종 수정',
-                    date: detailOrder.updatedAt
-                      ? new Date(detailOrder.updatedAt).toLocaleString('ko-KR')
-                      : null,
-                  },
-                ]}
-              />
+              {timelineLoading && <div style={{ fontSize: 12, color: '#888' }}>이력 불러오는 중...</div>}
+              {timelineError && <div style={{ fontSize: 12, color: '#c33' }}>{timelineError}</div>}
+              {!timelineLoading && !timelineError && (
+                <AdminDetailModal.Timeline
+                  items={[
+                    {
+                      label: '주문 생성',
+                      date: new Date(detailOrder.createdAt).toLocaleString('ko-KR'),
+                      active: timelineEvents.length === 0,
+                    },
+                    ...timelineEvents.map((e, idx) => {
+                      const summary = adminEventSummary(e);
+                      return {
+                        label: summary
+                          ? `${adminEventLabel(e.eventType)} · ${summary}`
+                          : adminEventLabel(e.eventType),
+                        date: new Date(e.createdAt).toLocaleString('ko-KR'),
+                        active: idx === timelineEvents.length - 1, // 최신 이벤트 강조
+                      };
+                    }),
+                    {
+                      label: '최종 수정',
+                      date: detailOrder.updatedAt
+                        ? new Date(detailOrder.updatedAt).toLocaleString('ko-KR')
+                        : null,
+                    },
+                  ]}
+                />
+              )}
             </AdminDetailModal.Section>
 
             <AdminDetailModal.ActionBar>

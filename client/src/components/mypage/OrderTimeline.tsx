@@ -36,6 +36,10 @@ function describeEvent(eventType: string): EventMeta {
       return { label: '주문 생성', tone: 'default' };
     case 'STATUS_CHANGED':
       return { label: '상태 변경', tone: 'default' };
+    case 'VOUCHER_REDEEMED':
+      return { label: '상품권 사용됨', tone: 'success' };
+    case 'VOUCHER_REFUNDED':
+      return { label: '상품권 환불됨', tone: 'warning' };
     default:
       return { label: eventType, tone: 'default' };
   }
@@ -47,9 +51,11 @@ function summarizePayload(e: OrderTimelineEvent): string | null {
   const parts: string[] = [];
   const p = e.payload;
   if (typeof p.amount === 'number') parts.push(`${Number(p.amount).toLocaleString()}원`);
+  if (typeof p.amountApplied === 'number') parts.push(`${Number(p.amountApplied).toLocaleString()}원 사용`);
   if (typeof p.vouchersSold === 'number' && p.vouchersSold > 0) {
     parts.push(`바우처 ${p.vouchersSold}장`);
   }
+  if (typeof p.serialNo === 'string') parts.push(`바우처 ${p.serialNo}`);
   if (typeof p.bankCode === 'string') parts.push(`은행 ${p.bankCode}`);
   if (typeof p.reason === 'string' && p.reason.length > 0) parts.push(`사유: ${p.reason}`);
   if (typeof p.daouTrx === 'string') parts.push(`거래번호 ${p.daouTrx}`);

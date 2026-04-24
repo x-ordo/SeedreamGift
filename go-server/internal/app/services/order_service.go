@@ -933,6 +933,12 @@ var timelinePayloadAllowList = map[string]struct{}{
 	// DaouTrx 는 유저가 고객센터 문의 시 참조용 — 해시 없이 노출해도 안전 (식별자 성격).
 	"daouTrx":       {},
 	"refundDaouTrx": {},
+	// Seedreampay (자사 바우처) 경로
+	"serialNo":      {}, // 바우처 일련번호 — 구매자에게 노출 가능 (secret 은 별도)
+	"amountApplied": {}, // Redeem 시 적용 금액
+	"usedAt":        {},
+	"refundedAt":    {},
+	"actorType":     {}, // USER / ADMIN — 환불 주체 감사
 }
 
 // sanitizeTimelinePayload 는 OrderEvent.Payload raw JSON 에서 allow-list 키만 남깁니다.
