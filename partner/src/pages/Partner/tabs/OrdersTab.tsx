@@ -8,12 +8,15 @@ import { partnerApi } from '@/api/manual';
 import { usePartnerList } from '../hooks/usePartnerList';
 import { ORDER_STATUS_MAP, PARTNER_PAGINATION } from '../constants';
 import PaymentTimeline from '../components/PaymentTimeline';
+import { usePartnerOrderTimeline, partnerEventLabel, partnerEventSummary } from '../hooks/usePartnerOrderTimeline';
 
 const OrdersTab: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
   const [detailModal, setDetailModal] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const { events: timelineEvents, loading: timelineLoading, error: timelineError } =
+    usePartnerOrderTimeline(detailModal?.id ?? null);
 
   // Focus trap for detail modal
   const modalRef = useRef<HTMLDivElement>(null);
@@ -240,6 +243,58 @@ const OrdersTab: React.FC = () => {
                       결제 시도 이력
                     </h4>
                     <PaymentTimeline items={detailModal?.payments} />
+                  </div>
+
+                  {/* Order Event Timeline — 발급/입금/취소/환불/바우처 사용 이력 */}
+                  <div className="partner-info-card" style={{ marginTop: '16px' }}>
+                    <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px', margin: '0 0 8px' }}>
+                      주문 진행 이력
+                    </h4>
+                    {timelineLoading && (
+                      <div style={{ fontSize: '12px', color: '#888' }} role="status">
+                        이력 불러오는 중...
+                      </div>
+                    )}
+                    {timelineError && (
+                      <div style={{ fontSize: '12px', color: '#c33' }} role="alert">
+                        {timelineError}
+                      </div>
+                    )}
+                    {!timelineLoading && !timelineError && timelineEvents.length === 0 && (
+                      <div style={{ fontSize: '12px', color: '#888' }}>
+                        아직 기록된 이력이 없어요
+                      </div>
+                    )}
+                    {!timelineLoading && !timelineError && timelineEvents.length > 0 && (
+                      <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                        {timelineEvents.map((e) => {
+                          const summary = partnerEventSummary(e);
+                          return (
+                            <li
+                              key={e.id}
+                              style={{
+                                padding: '8px 0',
+                                borderBottom: '1px solid #eee',
+                                fontSize: '13px',
+                              }}
+                            >
+                              <div style={{ fontWeight: 600 }}>{partnerEventLabel(e.eventType)}</div>
+                              <time
+                                dateTime={e.createdAt}
+                                style={{ display: 'block', marginTop: '2px', fontSize: '11px', color: '#888' }}
+                              >
+                                {new Date(e.createdAt).toLocaleString('ko-KR')}
+                              </time>
+                              {summary && (
+                                <div style={{ marginTop: '4px', fontSize: '12px', color: '#555' }}>
+                                  {summary}
+                                </div>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
                   </div>
                 </>
               )}
