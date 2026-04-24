@@ -158,7 +158,7 @@ func validateAccountNo(no string) error {
 //  1. cancelReason 검증.
 //  2. Order + Payment 조회 (OrderCode AND UserId).
 //  3. DaouTrx 해석 (cache-aside).
-//  4. Seedream.CancelIssued 호출 (Idempotency-Key: "gift:cancel:{orderCode}").
+//  4. Seedream.CancelIssued 호출 (Idempotency-Key: "gift:cancel:{OrderCode}" — 원본 케이스 보존).
 //  5. ErrCancelAlreadyDone 은 성공으로 매핑.
 func (s *CancelService) CancelIssued(ctx context.Context, in SeedreamCancelInput) (*SeedreamCancelResult, error) {
 	if err := validateCancelReason(in.CancelReason); err != nil {
@@ -192,7 +192,7 @@ func (s *CancelService) CancelIssued(ctx context.Context, in SeedreamCancelInput
 
 // Refund 는 입금 후 환불을 오케스트레이션 합니다.
 //
-// Idempotency-Key 는 "gift:refund:{orderCode}:{yyyymmddhhmmss}" (통합 가이드 §7.2) —
+// Idempotency-Key 는 "gift:refund:{OrderCode}:{yyyymmddhhmmss}" (통합 가이드 §7.2, 원본 케이스) —
 // 환불은 성격상 재시도 분리를 위해 timestamp 를 포함합니다.
 func (s *CancelService) Refund(ctx context.Context, in SeedreamRefundInput) (*SeedreamCancelResult, error) {
 	if err := validateCancelReason(in.CancelReason); err != nil {
