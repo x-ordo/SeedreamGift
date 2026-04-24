@@ -117,3 +117,11 @@ blacklist-frontend/
 
 # Uploaded partner documents
 go-server/uploads/
+
+# SSL certificates and private keys (deploy staging)
+deploy/ssl/*.key
+deploy/ssl/*.pem
+deploy/ssl/*.crt
+deploy/ssl/privkey*
+deploy/ssl/fullchain*
+# README.md in deploy/ssl/ is kept to document procedure

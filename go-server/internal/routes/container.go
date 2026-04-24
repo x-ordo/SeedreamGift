@@ -11,10 +11,12 @@ import (
 	"seedream-gift-server/internal/infra/issuance"
 	"seedream-gift-server/internal/infra/popbill"
 	"seedream-gift-server/internal/infra/resilience"
+	"seedream-gift-server/internal/infra/seedream"
 	"seedream-gift-server/internal/infra/workqueue"
 	"seedream-gift-server/pkg/blacklistdb"
 	"seedream-gift-server/pkg/email"
 	"seedream-gift-server/pkg/kakao"
+	"seedream-gift-server/pkg/logger"
 	"seedream-gift-server/pkg/notification"
 	"seedream-gift-server/pkg/thecheat"
 	"sync"
@@ -62,8 +64,9 @@ type Handlers struct {
 	OrderSvc *services.OrderService
 
 	// WorkerPools (비동기 작업 큐 — Graceful Shutdown 시 종료)
-	NotifyPool *workqueue.WorkerPool
-	AuditPool  *workqueue.WorkerPool
+	NotifyPool  *workqueue.WorkerPool
+	AuditPool   *workqueue.WorkerPool
+	WebhookPool *workqueue.WorkerPool
 
 	// Admin handlers
 	Admin        *handlers.AdminHandler
@@ -113,6 +116,26 @@ type Handlers struct {
 
 	// Fraud check (더치트 사기 조회)
 	AdminFraud *handlers.AdminFraudHandler
+
+	// Seedreampay (재사용 가능한 자사 바우처)
+	Seedreampay      *handlers.SeedreampayHandler
+	AdminSeedreampay *handlers.AdminSeedreampayHandler
+	SeedreampaySvc   *services.SeedreampayService
+
+	// SeedreamWebhook (Phase 3)
+	SeedreamWebhook *handlers.SeedreamWebhookHandler
+
+	// SeedreamCancel (Phase 4) — POST /api/v1/payment/seedream/cancel
+	SeedreamCancel *handlers.SeedreamCancelHandler
+
+	// VAccount (Phase 2) — POST /api/v1/payments/initiate (Seedream LINK 모드 발급)
+	VAccount *handlers.VAccountHandler
+
+	// SeedreamExpirySvc (Phase 5) — depositEndDate 경과 VA 주문 EXPIRED 전이 (1분 cron)
+	SeedreamExpirySvc *services.SeedreamExpiryService
+
+	// SeedreamReconcileSvc (Phase 5) — Seedream 드리프트 스캔 (10분 cron, 관찰 전용)
+	SeedreamReconcileSvc *services.SeedreamReconcileService
 }
 
 // NewHandlers creates all service and handler instances with proper dependency injection.
@@ -128,6 +151,11 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	notifyPool.Start()
 	auditPool := workqueue.NewWorkerPool(workqueue.WorkerPoolConfig{Name: "audit", Workers: 2, QueueSize: 200})
 	auditPool.Start()
+	// 웹훅 처리 전용 워커 풀 — 결제 처리와 감사 로그 기록에서 격리.
+	webhookPool := workqueue.NewWorkerPool(workqueue.WorkerPoolConfig{
+		Name: "seedream_webhook", Workers: 4, QueueSize: 200,
+	})
+	webhookPool.Start()
 
 	// External service config (런타임 알림 채널 관리 — 다른 서비스보다 먼저 초기화)
 	extConfigSvc := services.NewExternalServiceConfigService(db, cfg.EncryptionKey, cfg)
@@ -273,10 +301,41 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	businessInquirySvc := services.NewBusinessInquiryService(db, emailSvc, bizEmail)
 	partnerBusinessInfoSvc := services.NewPartnerBusinessInfoService(db)
 
+	// Seedreampay post-issuance lifecycle (lookup/verify/redeem/refund + daily
+	// expiry cron). Per-IP rate limiting on /verify is provided by
+	// middleware.EndpointRateLimit — no lockout store is required.
+	seedreampaySvc := services.NewSeedreampayService(db, pp, time.Now)
+
+	// VAccount 상태 전이 + 웹훅 dispatch (Phase 3)
+	vaccountStateSvc := services.NewVAccountStateService(db, logger.Log)
+	vaccountWebhookSvc := services.NewVAccountWebhookService(db, vaccountStateSvc, logger.Log)
+
+	// Seedream REST 클라이언트 (Phase 4) — Cancel/Refund 호출 공유 인스턴스.
+	// 향후 IssueVAccount (Phase 2 발급) 도 동일 인스턴스를 사용하도록 확장 예정.
+	seedreamClient := seedream.New(seedream.ClientConfig{
+		BaseURL: cfg.SeedreamAPIBase,
+		APIKey:  cfg.SeedreamAPIKey,
+		Timeout: 10 * time.Second,
+	}, nil, nil, logger.Log)
+
+	// Cancel/Refund 오케스트레이션 (Phase 4)
+	cancelSvc := services.NewCancelService(db, seedreamClient, logger.Log)
+
+	// VAccount 발급 오케스트레이션 (Phase 2) — seedreamClient 공유 인스턴스 재사용
+	vaccountService := services.NewVAccountService(db, seedreamClient, logger.Log)
+
+	// Seedream VA 만료 처리 (Phase 5) — 1분 cron 진입점
+	seedreamExpirySvc := services.NewSeedreamExpiryService(db, logger.Log)
+
+	// Seedream 상태 동기화 (Phase 5) — 10분 cron, Seedream API 호출 포함
+	seedreamReconcileSvc := services.NewSeedreamReconcileService(db, seedreamClient, logger.Log)
+
 	// Fulfillment: 외부 API 발급 파이프라인
 	stubIssuer := issuance.NewStubIssuer()
+	seedreampayIssuer := issuance.NewSeedreampayIssuer(db, time.Now)
 	voucherIssuers := map[string]interfaces.VoucherIssuer{
-		stubIssuer.ProviderCode(): stubIssuer,
+		stubIssuer.ProviderCode():       stubIssuer,
+		seedreampayIssuer.ProviderCode(): seedreampayIssuer,
 	}
 	if cfg.EXPayBaseURL != "" && cfg.EXPayAPIKey != "" {
 		expayIssuer := issuance.NewEXPayIssuer(cfg.EXPayBaseURL, cfg.EXPayAPIKey, issuanceClient, expayCB)
@@ -356,6 +415,17 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 		AdminNotification: handlers.NewAdminNotificationHandler(extConfigSvc),
 
 		AdminFraud: handlers.NewAdminFraudHandler(db, fraudChecker, blScreener),
+
+		Seedreampay:      handlers.NewSeedreampayHandler(seedreampaySvc),
+		AdminSeedreampay: handlers.NewAdminSeedreampayHandler(db),
+		SeedreampaySvc:   seedreampaySvc,
+
+		SeedreamWebhook:   handlers.NewSeedreamWebhookHandler(db, vaccountWebhookSvc, webhookPool, cfg.SeedreamWebhookSecret),
+		SeedreamCancel:    handlers.NewSeedreamCancelHandler(cancelSvc),
+		VAccount:          handlers.NewVAccountHandler(vaccountService),
+		SeedreamExpirySvc:    seedreamExpirySvc,
+		SeedreamReconcileSvc: seedreamReconcileSvc,
+		WebhookPool:          webhookPool,
 	}
 
 	// Handlers 구조체 생성 후 setter injection

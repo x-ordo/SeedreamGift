@@ -185,6 +185,8 @@ func (s *FulfillmentService) fulfillItem(
 		ProductCode: productCode,
 		Quantity:    item.Quantity,
 		OrderCode:   orderCode,
+		ProductID:   product.ID,
+		OrderID:     order.ID,
 	}
 
 	// IssuanceLog 생성
@@ -240,43 +242,49 @@ func (s *FulfillmentService) fulfillItem(
 		return s.handleFailure(order, &logEntry, lastErr)
 	}
 
-	// 성공: VoucherCode 생성
-	for _, v := range vouchers {
-		encrypted, err := crypto.Encrypt(v.PinCode, s.encKey)
-		if err != nil {
-			return apperror.Internal("PIN 암호화 실패", err)
-		}
-
-		pinHash := crypto.SHA256Hash(v.PinCode)
-		txRef := v.TransactionRef
-
-		vc := domain.VoucherCode{
-			ProductID:              product.ID,
-			PinCode:                encrypted,
-			PinHash:                pinHash,
-			Status:                 "SOLD",
-			OrderID:                &order.ID,
-			SoldAt:                 timePtr(time.Now()),
-			ExpiredAt:              v.ExpiresAt,
-			Source:                 "API",
-			ExternalTransactionRef: strPtr(txRef),
-		}
-		if v.SecurityCode != "" {
-			encSec, encErr := crypto.Encrypt(v.SecurityCode, s.encKey)
-			if encErr != nil {
-				logger.Log.Error("SecurityCode 암호화 실패",
-					zap.Int("orderId", order.ID),
-					zap.Error(encErr),
-				)
-				return fmt.Errorf("SecurityCode 암호화 실패: %w", encErr)
+	// 내부 발급자(SEEDREAMPAY 등)는 Issuer.Issue() 가 자체 트랜잭션 내에서
+	// VoucherCode row 를 이미 INSERT 한다. 여기서 또 INSERT 하면 이중 row 가
+	// 되므로 이 루프를 건너뛴다. IssuanceLog 갱신·Order 상태 전이·알림은
+	// 루프 이후 공통 로직을 그대로 탄다.
+	if *product.ProviderCode != "SEEDREAMPAY" {
+		// 성공: VoucherCode 생성
+		for _, v := range vouchers {
+			encrypted, err := crypto.Encrypt(v.PinCode, s.encKey)
+			if err != nil {
+				return apperror.Internal("PIN 암호화 실패", err)
 			}
-			vc.SecurityCode = &encSec
-		}
-		if v.GiftNumber != "" {
-			vc.GiftNumber = &v.GiftNumber
-		}
-		if err := s.db.Create(&vc).Error; err != nil {
-			return apperror.Internal("VoucherCode 저장 실패", err)
+
+			pinHash := crypto.SHA256Hash(v.PinCode)
+			txRef := v.TransactionRef
+
+			vc := domain.VoucherCode{
+				ProductID:              product.ID,
+				PinCode:                encrypted,
+				PinHash:                pinHash,
+				Status:                 "SOLD",
+				OrderID:                &order.ID,
+				SoldAt:                 timePtr(time.Now()),
+				ExpiredAt:              v.ExpiresAt,
+				Source:                 "API",
+				ExternalTransactionRef: strPtr(txRef),
+			}
+			if v.SecurityCode != "" {
+				encSec, encErr := crypto.Encrypt(v.SecurityCode, s.encKey)
+				if encErr != nil {
+					logger.Log.Error("SecurityCode 암호화 실패",
+						zap.Int("orderId", order.ID),
+						zap.Error(encErr),
+					)
+					return fmt.Errorf("SecurityCode 암호화 실패: %w", encErr)
+				}
+				vc.SecurityCode = &encSec
+			}
+			if v.GiftNumber != "" {
+				vc.GiftNumber = &v.GiftNumber
+			}
+			if err := s.db.Create(&vc).Error; err != nil {
+				return apperror.Internal("VoucherCode 저장 실패", err)
+			}
 		}
 	}
 

@@ -31,11 +31,11 @@ func RegisterProtectedRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handle
 			cart.DELETE("", h.Cart.ClearCart)
 		}
 
-		// Payments
+		// Payments — Seedream LINK 모드 VA 발급 (Phase 2).
+		// 구 /verify 엔드포인트는 Seedream 2단계 비동기 모델(입금 후 webhook)에 맞지 않아 Phase 2 에서 제거.
 		payments := consumer.Group("/payments")
 		{
-			payments.POST("/initiate", middleware.EndpointRateLimit(10, time.Minute), h.Payment.InitiatePayment)
-			payments.GET("/verify", h.Payment.VerifyPayment)
+			payments.POST("/initiate", middleware.EndpointRateLimit(10, time.Minute), h.VAccount.Initiate)
 		}
 
 		// Orders
@@ -68,6 +68,16 @@ func RegisterProtectedRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handle
 			tradeIn.GET("/my", h.TradeIn.GetMyTradeIns)
 			tradeIn.GET("/:id", h.TradeIn.GetTradeIn)
 		}
+
+		// Seedreampay consumer actions (redeem requires JWT; refund bound to
+		// the 7-day user window enforced in the service).
+		consumer.POST("/seedreampay/vouchers/redeem", h.Seedreampay.Redeem)
+		consumer.POST("/seedreampay/vouchers/:serialNo/refund", h.Seedreampay.Refund)
+
+		// Seedream 결제 취소/환불 (Phase 4) — payMethod 로 VACCOUNT-ISSUECAN | BANK 분기.
+		// 권한은 서비스 레이어에서 OrderCode AND UserId 결합 쿼리로 강제 (타인 주문 차단).
+		// JWT 만 필요 (UserOnly 제한 없음 — 파트너도 본인 주문 취소 가능).
+		protected.POST("/payment/seedream/cancel", h.SeedreamCancel.Handle)
 
 		// [비활성화] 유가증권은 현금영수증 발급 대상 아님 (부가가치세법 시행령 제73조)
 		// cashReceipts := consumer.Group("/cash-receipts")

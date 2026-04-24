@@ -236,6 +236,10 @@ func RegisterAdminRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handlers) 
 			adminBusinessInfo.DELETE("/:id", h.PartnerBusinessInfo.AdminDelete)
 		}
 
+		// Seedreampay admin read endpoints — always filtered to ProviderCode='SEEDREAMPAY'.
+		admin.GET("/seedreampay/vouchers", h.AdminSeedreampay.ListVouchers)
+		admin.GET("/seedreampay/vouchers/:serialNo", h.AdminSeedreampay.GetVoucher)
+
 		// 알림 채널 관리 (이메일/카카오/텔레그램/팝빌 런타임 설정)
 		notifChannels := admin.Group("/notification-channels")
 		{

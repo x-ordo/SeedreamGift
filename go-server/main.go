@@ -108,6 +108,9 @@ func main() {
 	if !cfg.SMTPEnabled || cfg.SMTPHost == "" {
 		logger.Log.Warn("Pre-flight: SMTP 미설정 — 이메일 알림이 발송되지 않습니다")
 	}
+	if cfg.SeedreamWebhookSecret == "" {
+		logger.Log.Fatal("Pre-flight: SEEDREAM_WEBHOOK_SECRET 미설정 — 웹훅 수신이 불가능합니다 (§8.6 HMAC 검증 필수)")
+	}
 	logger.Log.Info("Pre-flight 검증 완료")
 
 	headless := os.Getenv("HEADLESS")
@@ -276,6 +279,9 @@ func startAPIServer(cfg config.Config) {
 	r.GET("/health", h.Health.Check)
 	r.GET("/sitemap.xml", sitemapHandler(cfg))
 
+	// Seedream 웹훅 수신 (인증 없음 — HMAC 으로만 검증. /api/v1/ 밖에 위치)
+	r.POST("/webhook/seedream", h.SeedreamWebhook.Receive)
+
 	// ─── API v1 라우트 (모듈식) ───
 	api := r.Group("/api/v1")
 	api.Use(middleware.NoCacheAPI())
@@ -302,6 +308,9 @@ func startAPIServer(cfg config.Config) {
 	// scheduler.SetCashReceiptService(h.CashReceiptSvc)
 	scheduler.SetOrderCleanupService(h.OrderSvc)
 	scheduler.SetOutboxService(services.NewOutboxService(infra.DB))
+	scheduler.SetSeedreampayExpiryService(h.SeedreampaySvc)
+	scheduler.SetSeedreamExpiryService(h.SeedreamExpirySvc)
+	scheduler.SetSeedreamReconcileService(h.SeedreamReconcileSvc)
 	scheduler.Start()
 	defer scheduler.Stop()
 
@@ -342,6 +351,9 @@ func startAPIServer(cfg config.Config) {
 	}
 	if h.AuditPool != nil {
 		h.AuditPool.Shutdown(5 * time.Second)
+	}
+	if h.WebhookPool != nil {
+		h.WebhookPool.Shutdown(10 * time.Second)
 	}
 
 	logger.Log.Info("Server exited")

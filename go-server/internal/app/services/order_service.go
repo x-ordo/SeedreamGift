@@ -652,12 +652,19 @@ func (s *OrderService) GetOrderDetail(orderID int, userID int, role string) (*do
 
 // CancelExpiredOrders는 결제 기한이 만료된 PENDING/FRAUD_HOLD 주문을 자동 취소하고 바우처를 해제합니다.
 // 크론에서 5분 간격으로 호출됩니다.
+//
+// 주의: Seedream VA 주문(Payment.Method='VIRTUAL_ACCOUNT_SEEDREAM')은 여기서 제외합니다 —
+// 내부만 CANCELLED 시키면 Seedream 쪽은 여전히 대기 중이라 사용자가 이후 입금 시 유령 입금이
+// 발생합니다. Seedream VA 전용 만료는 SeedreamExpiryService.ExpireSeedreamOrders 가 담당
+// (Order→EXPIRED, Payment→CANCELLED 로 전이하며 Seedream 은 자체 타임아웃으로 자동 만료).
 func (s *OrderService) CancelExpiredOrders() {
 	now := time.Now()
 
-	// PENDING: 결제 기한 만료
+	// PENDING: 결제 기한 만료 (Seedream VA 는 별도 SeedreamExpiryService 가 처리)
 	var pendingOrders []domain.Order
-	s.db.Where("Status = ? AND PaymentDeadlineAt IS NOT NULL AND PaymentDeadlineAt < ?", "PENDING", now).
+	s.db.
+		Where("Orders.Status = ? AND Orders.PaymentDeadlineAt IS NOT NULL AND Orders.PaymentDeadlineAt < ?", "PENDING", now).
+		Where("NOT EXISTS (SELECT 1 FROM Payments p WHERE p.OrderId = Orders.Id AND p.Method = ?)", "VIRTUAL_ACCOUNT_SEEDREAM").
 		Select("Id", "OrderCode").
 		Find(&pendingOrders)
 

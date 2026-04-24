@@ -27,6 +27,10 @@ type VoucherCode struct {
 	DisputedAt            *time.Time      `gorm:"column:DisputedAt" json:"disputedAt,omitempty"`                                                                                         // 분쟁(클레임) 발생 일시
 	DisputeReason          *string         `gorm:"column:DisputeReason;size:200" json:"disputeReason,omitempty"`                                                                          // 분쟁 사유
 	ExternalTransactionRef *string         `gorm:"column:ExternalTransactionRef;size:100" json:"externalTransactionRef,omitempty"`                                                           // 외부 발급 거래 참조 ID
+	SerialNo               *string         `gorm:"column:SerialNo;size:32" json:"serialNo,omitempty"`                                                                                        // 씨드림페이 바우처 일련번호
+	SecretHash             *string         `gorm:"column:SecretHash;size:64" json:"-"`                                                                                                       // 씨드림페이 비밀번호 해시 (절대 API 응답에 포함 금지)
+	RedeemedOrderID        *int            `gorm:"column:RedeemedOrderId" json:"redeemedOrderId,omitempty"`                                                                                  // 씨드림페이 사용 처리된 주문 ID
+	RedeemedIP             *string         `gorm:"column:RedeemedIp;size:45" json:"redeemedIp,omitempty"`                                                                                    // 씨드림페이 사용 요청 클라이언트 IP
 	CreatedAt              time.Time       `gorm:"column:CreatedAt;autoCreateTime" json:"createdAt"`                                                                                      // 등록 일시
 	UpdatedAt             time.Time       `gorm:"column:UpdatedAt;autoUpdateTime" json:"updatedAt"`                                                                                      // 수정 일시
 }

@@ -19,9 +19,10 @@ import (
 
 // sensitiveFields는 로그 기록 시 마스킹 처리할 민감한 필드 이름 목록입니다.
 var sensitiveFields = []string{
-	"password", "pinCode", "pin", "accountNumber", "accountNum", "bankAccount",
+	"password", "pinCode", "pin", "accountNumber", "accountNo", "accountNum", "bankAccount",
 	"cardNumber", "cvv", "token", "refreshToken", "accessToken", "secret",
 	"apiKey", "securityCode", "giftNumber", "encryptionKey",
+	"receiverName", "depositorName",
 }
 
 // sensitiveFieldPatterns는 sanitizeBody에서 JSON 문자열 내 민감 필드를 교체하기 위해
@@ -29,7 +30,7 @@ var sensitiveFields = []string{
 var sensitiveFieldPatterns []*regexp.Regexp
 
 func init() {
-	fields := []string{"password", "token", "pinCode", "accountNumber", "securityCode", "mfa_token", "totpSecret"}
+	fields := []string{"password", "token", "pinCode", "accountNumber", "accountNo", "securityCode", "mfa_token", "totpSecret", "receiverName", "depositorName"}
 	for _, field := range fields {
 		sensitiveFieldPatterns = append(sensitiveFieldPatterns,
 			regexp.MustCompile(`"`+field+`"\s*:\s*"[^"]*"`))
@@ -211,7 +212,7 @@ func sanitizeMap(m map[string]any) map[string]any {
 // It uses pre-compiled package-level patterns to avoid per-request regexp compilation overhead.
 func sanitizeBody(body []byte) string {
 	s := string(body)
-	fields := []string{"password", "token", "pinCode", "accountNumber", "securityCode", "mfa_token", "totpSecret"}
+	fields := []string{"password", "token", "pinCode", "accountNumber", "accountNo", "securityCode", "mfa_token", "totpSecret", "receiverName", "depositorName"}
 	for i, re := range sensitiveFieldPatterns {
 		s = re.ReplaceAllString(s, `"`+fields[i]+`":"***"`)
 	}

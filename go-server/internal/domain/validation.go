@@ -29,6 +29,7 @@ const (
 	OrderStatusCompleted      = "COMPLETED"
 	OrderStatusCancelled      = "CANCELLED"
 	OrderStatusRefunded       = "REFUNDED"
+	OrderStatusRefundPaid     = "REFUND_PAID"     // Seedream: 환불 VA에 실제 입금 확인
 	OrderStatusExpired        = "EXPIRED"         // Seedream: depositEndDate 만료
 	OrderStatusAmountMismatch = "AMOUNT_MISMATCH" // Seedream: 입금액 ≠ 주문액 (Reconcile 감지)
 )
@@ -40,6 +41,18 @@ const (
 	VoucherStatusSold      = "SOLD"
 	VoucherStatusUsed      = "USED"
 	VoucherStatusExpired   = "EXPIRED"
+)
+
+// ── Seedream Payment Phase 상수 ──
+// Payment.SeedreamPhase 에 저장되는 값. Seedream 통합 가이드 §5 참조.
+const (
+	SeedreamPhaseAwaitingBankSelection = "awaiting_bank_selection"
+	SeedreamPhaseAwaitingDeposit       = "awaiting_deposit"
+	SeedreamPhaseCompleted             = "completed"
+	SeedreamPhaseCancelled             = "cancelled"
+	SeedreamPhaseFailed                = "failed"
+	SeedreamPhaseRefunded              = "refunded"    // Phase 4
+	SeedreamPhaseRefundPaid            = "refund_paid" // Phase 4
 )
 
 // phoneRegex는 한국 휴대전화 번호 형식 (하이픈 유무 무관)
@@ -208,7 +221,10 @@ var validOrderTransitions = map[string][]string{
 	// 아래는 최종 상태.
 	"CANCELLED":       {},
 	"COMPLETED":       {},
-	"REFUNDED":        {},
+	// REFUNDED: 환불 VA 발행 완료 (vaccount.deposit_canceled 수신). REFUND_PAID 로 전이 가능.
+	"REFUNDED":        {"REFUND_PAID"},
+	// REFUND_PAID: 환불 VA 에 실제 입금 확인 (deposit_cancel.deposited 수신). 최종 상태.
+	"REFUND_PAID":     {},
 	"EXPIRED":         {},
 	"AMOUNT_MISMATCH": {}, // Ops 수동 처리 대기. 자동 전이 없음.
 }

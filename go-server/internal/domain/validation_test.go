@@ -151,6 +151,12 @@ func TestValidateOrderTransition_SeedreamStates(t *testing.T) {
 
 		// ISSUED 에서 DELIVERED 직접 전이 불가 (PAID 를 거쳐야 함)
 		{"ISSUED → DELIVERED 불가", "ISSUED", "DELIVERED", true},
+
+		// Phase 4: 환불 흐름 (REFUNDED → REFUND_PAID 허용, REFUND_PAID 는 최종 상태)
+		{"PAID → REFUNDED 허용", "PAID", "REFUNDED", false},
+		{"REFUNDED → REFUND_PAID 허용", "REFUNDED", "REFUND_PAID", false},
+		{"REFUND_PAID → PAID 불가", "REFUND_PAID", "PAID", true},
+		{"REFUND_PAID → REFUNDED 불가", "REFUND_PAID", "REFUNDED", true},
 	}
 
 	for _, tc := range tests {
