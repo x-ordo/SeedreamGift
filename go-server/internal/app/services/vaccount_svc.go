@@ -101,10 +101,9 @@ func (s *VAccountService) Issue(
 		return nil, apperror.Internal("주문 코드가 비어있습니다", nil)
 	}
 
-	// 3) 중복 발급 방지 — 같은 주문에 PENDING Payment 이미 있으면 재발급 안 함
-	var existing domain.Payment
-	err := s.db.WithContext(ctx).Where("OrderId = ? AND Status = 'PENDING'", orderID).First(&existing).Error
-	if err == nil {
+	// 3) 중복 발급 방지 (optimistic 빠른 경로) — 트랜잭션 안에서 한 번 더 재확인함.
+	// 같은 주문에 PENDING Payment 가 이미 있으면 Seedream 호출 자체를 하지 않아 orphan 을 줄임.
+	if alreadyPending(s.db.WithContext(ctx), orderID) {
 		return nil, apperror.Conflict("이미 결제가 진행 중입니다")
 	}
 
@@ -134,28 +133,54 @@ func (s *VAccountService) Issue(
 		ReservedString: seedream.ReservedStringFixed,
 		DepositEndDate: depositEndDate,
 	}
+	// 7a) Seedream 호출 직전 마지막 재확인 — race window 축소
+	if alreadyPending(s.db.WithContext(ctx), orderID) {
+		return nil, apperror.Conflict("이미 결제가 진행 중입니다")
+	}
+
 	resp, err := s.client.IssueVAccount(ctx, req, idempotencyKey, caller.TraceID)
 	if err != nil {
 		return nil, err
 	}
 
-	// 8) RESERVED 왕복 검증 — 위반 시 Seedream 회귀 버그, Ops 에스컬레이션
+	// 8) RESERVED 왕복 검증 — 위반 시 Seedream 회귀 버그, Ops 에스컬레이션.
+	// 이 시점 Seedream 에는 VA 가 이미 발급됐으므로 실패 시 orphan 감사 로그를 남김
+	// (Reconcile safety-net 이 감지 — Phase 5-B). Payment 는 아직 생성되지 않음.
 	if err := seedream.AssertReservedInvariant(reservedIndex2, seedream.ReservedFields{
 		ReservedIndex1: resp.ReservedIndex1,
 		ReservedIndex2: resp.ReservedIndex2,
 		ReservedString: resp.ReservedString,
 	}); err != nil {
-		s.logger.Error("seedream RESERVED 왕복 위반",
+		s.logger.Error("seedream RESERVED 왕복 위반 — Seedream orphan VA (Ops 수동 cancel 필요)",
 			zap.String("orderCode", *order.OrderCode),
+			zap.Int64("seedreamVaId", resp.ID),
 			zap.String("traceId", caller.TraceID),
 			zap.Error(err))
 		return nil, err // sentinel 포함
 	}
 
-	// 9) Payment 레코드 생성 — 트랜잭션 안에서 Order.PaymentDeadlineAt 도 업데이트
+	// 9) Payment 레코드 생성 — Order 락 + 트랜잭션 안 재확인 + Create 를 원자화.
+	// MSSQL UPDLOCK 으로 동일 Order 의 동시 Issue 요청을 직렬화. 테스트 SQLite 는
+	// query hint 를 무시하지만 단일 스레드라 race 없음.
 	phase := resp.Phase
 	vaID := resp.ID
 	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 9a) Order 행 잠금 — 동일 orderID 에 대한 동시 경로 serialization
+		var lockedOrder domain.Order
+		if err := tx.Set("gorm:query_option", "WITH (UPDLOCK)").
+			Select("Id").Where("Id = ?", orderID).First(&lockedOrder).Error; err != nil {
+			return err
+		}
+		// 9b) 트랜잭션 안 재확인 — race 우승자가 이미 Payment 를 만들었다면 조기 종료
+		var existingInTx domain.Payment
+		if err := tx.Where("OrderId = ? AND Status = 'PENDING'", orderID).First(&existingInTx).Error; err == nil {
+			s.logger.Warn("Seedream VA 발급 중 race 감지 — 기존 PENDING Payment 유지, Seedream orphan VA 발생 가능",
+				zap.Int("orderId", orderID),
+				zap.Int64("orphanSeedreamVaId", vaID),
+				zap.String("traceId", caller.TraceID))
+			return apperror.Conflict("이미 결제가 진행 중입니다")
+		}
+
 		p := &domain.Payment{
 			OrderID:                orderID,
 			Method:                 "VIRTUAL_ACCOUNT_SEEDREAM",
@@ -198,6 +223,13 @@ func (s *VAccountService) Issue(
 		DepositEndDateAt:   resp.DepositEndDateAt,
 		OrderCode:          *order.OrderCode,
 	}, nil
+}
+
+// alreadyPending 은 해당 orderID 에 PENDING Payment 가 존재하는지 확인합니다.
+// 두 번 호출 (빠른 경로 + Seedream 호출 직전) 으로 race window 를 축소.
+func alreadyPending(db *gorm.DB, orderID int) bool {
+	var existing domain.Payment
+	return db.Select("Id").Where("OrderId = ? AND Status = 'PENDING'", orderID).First(&existing).Error == nil
 }
 
 // checkOrderOwnership 은 3계층 소유권 경계를 강제합니다.
