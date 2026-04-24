@@ -251,17 +251,17 @@ const OrdersTab: React.FC = () => {
                       주문 진행 이력
                     </h4>
                     {timelineLoading && (
-                      <div style={{ fontSize: '12px', color: '#888' }} role="status">
+                      <div style={{ fontSize: '12px', color: 'var(--color-grey-500)' }} role="status">
                         이력 불러오는 중...
                       </div>
                     )}
                     {timelineError && (
-                      <div style={{ fontSize: '12px', color: '#c33' }} role="alert">
+                      <div style={{ fontSize: '12px', color: 'var(--color-error)' }} role="alert">
                         {timelineError}
                       </div>
                     )}
                     {!timelineLoading && !timelineError && timelineEvents.length === 0 && (
-                      <div style={{ fontSize: '12px', color: '#888' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--color-grey-500)' }}>
                         아직 기록된 이력이 없어요
                       </div>
                     )}
@@ -274,19 +274,30 @@ const OrdersTab: React.FC = () => {
                               key={e.id}
                               style={{
                                 padding: '8px 0',
-                                borderBottom: '1px solid #eee',
+                                borderBottom: '1px solid var(--color-grey-100)',
                                 fontSize: '13px',
                               }}
                             >
                               <div style={{ fontWeight: 600 }}>{partnerEventLabel(e.eventType)}</div>
                               <time
                                 dateTime={e.createdAt}
-                                style={{ display: 'block', marginTop: '2px', fontSize: '11px', color: '#888' }}
+                                style={{
+                                  display: 'block',
+                                  marginTop: '2px',
+                                  fontSize: '11px',
+                                  color: 'var(--color-grey-500)',
+                                }}
                               >
                                 {new Date(e.createdAt).toLocaleString('ko-KR')}
                               </time>
                               {summary && (
-                                <div style={{ marginTop: '4px', fontSize: '12px', color: '#555' }}>
+                                <div
+                                  style={{
+                                    marginTop: '4px',
+                                    fontSize: '12px',
+                                    color: 'var(--color-grey-700)',
+                                  }}
+                                >
                                   {summary}
                                 </div>
                               )}
