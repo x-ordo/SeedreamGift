@@ -626,3 +626,107 @@ func TestGetPaymentStatus_NoPaymentRecord_CashPending(t *testing.T) {
 	assert.Empty(t, resp.Method)
 	assert.True(t, resp.CanResume)
 }
+
+// setupOrderTestDBWithEvents 는 OrderEvents 테이블까지 생성한 in-memory DB 를 반환합니다.
+// OrderEvent.Payload nvarchar(max) 이 SQLite 에서 AutoMigrate 실패하므로 수동 CREATE.
+func setupOrderTestDBWithEvents(t *testing.T) *gorm.DB {
+	db := setupOrderTestDB(t)
+	require.NoError(t, db.Exec(`
+		CREATE TABLE IF NOT EXISTS "OrderEvents" (
+			"Id"        INTEGER PRIMARY KEY AUTOINCREMENT,
+			"OrderId"   INTEGER NOT NULL,
+			"EventType" TEXT NOT NULL,
+			"Payload"   TEXT,
+			"ActorId"   INTEGER,
+			"ActorType" TEXT,
+			"CreatedAt" DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+	`).Error)
+	return db
+}
+
+func TestGetOrderTimeline_OwnerSeesEvents(t *testing.T) {
+	db := setupOrderTestDBWithEvents(t)
+	cfg := defaultTestConfig()
+	cp := newMockConfigProvider()
+	svc := newOrderService(db, cfg, cp)
+
+	userID := createOrderTestUser(t, db, "tl-owner@test.com")
+	order := seedOrderForStatus(t, db, userID, "PAID", "ORD-TL-1")
+
+	// 두 개 이벤트 삽입 — 시간 간격으로
+	evtSvc := NewOrderEventService(db)
+	evtSvc.Record(nil, order.ID, "VACCOUNT_ISSUED", nil, "SYSTEM", map[string]any{
+		"orderCode": "ORD-TL-1", "bankCode": "088",
+	})
+	evtSvc.Record(nil, order.ID, "PAYMENT_CONFIRMED", nil, "SYSTEM", map[string]any{
+		"amount": 50000, "vouchersSold": 1,
+	})
+
+	events, err := svc.GetOrderTimeline(order.ID, userID, "USER")
+	require.NoError(t, err)
+	require.Len(t, events, 2)
+	assert.Equal(t, "VACCOUNT_ISSUED", events[0].EventType)
+	assert.Equal(t, "PAYMENT_CONFIRMED", events[1].EventType)
+	// Payload 필터링 확인 — 허용된 키만 존재
+	require.NotNil(t, events[0].Payload)
+	assert.Equal(t, "088", events[0].Payload["bankCode"])
+}
+
+func TestGetOrderTimeline_NotOwner_NotFound(t *testing.T) {
+	db := setupOrderTestDBWithEvents(t)
+	cfg := defaultTestConfig()
+	cp := newMockConfigProvider()
+	svc := newOrderService(db, cfg, cp)
+
+	owner := createOrderTestUser(t, db, "tl-own@test.com")
+	other := createOrderTestUser(t, db, "tl-other@test.com")
+	order := seedOrderForStatus(t, db, owner, "PAID", "ORD-TL-2")
+
+	evtSvc := NewOrderEventService(db)
+	evtSvc.Record(nil, order.ID, "PAYMENT_CONFIRMED", nil, "SYSTEM", map[string]any{"amount": 1000})
+
+	events, err := svc.GetOrderTimeline(order.ID, other, "USER")
+	assert.Error(t, err)
+	assert.Nil(t, events)
+}
+
+func TestGetOrderTimeline_SanitizesDisallowedKeys(t *testing.T) {
+	// Payload 에 민감 키(accountNumber, pinCode 등) 가 섞여 들어와도 allow-list 필터로
+	// 제거되어 응답에 포함되지 않아야 함.
+	db := setupOrderTestDBWithEvents(t)
+	cfg := defaultTestConfig()
+	cp := newMockConfigProvider()
+	svc := newOrderService(db, cfg, cp)
+
+	userID := createOrderTestUser(t, db, "tl-san@test.com")
+	order := seedOrderForStatus(t, db, userID, "PAID", "ORD-TL-3")
+
+	NewOrderEventService(db).Record(nil, order.ID, "PAYMENT_CONFIRMED", nil, "SYSTEM", map[string]any{
+		"amount":        50000,
+		"accountNumber": "110-SECRET-999", // 민감 — 제거돼야 함
+		"pinCode":       "9999",           // 민감 — 제거돼야 함
+	})
+
+	events, err := svc.GetOrderTimeline(order.ID, userID, "USER")
+	require.NoError(t, err)
+	require.Len(t, events, 1)
+	require.NotNil(t, events[0].Payload)
+	assert.Contains(t, events[0].Payload, "amount")
+	assert.NotContains(t, events[0].Payload, "accountNumber", "민감 키는 응답에서 제거돼야 함")
+	assert.NotContains(t, events[0].Payload, "pinCode")
+}
+
+func TestGetOrderTimeline_NoEvents_EmptySlice(t *testing.T) {
+	db := setupOrderTestDBWithEvents(t)
+	cfg := defaultTestConfig()
+	cp := newMockConfigProvider()
+	svc := newOrderService(db, cfg, cp)
+
+	userID := createOrderTestUser(t, db, "tl-empty@test.com")
+	order := seedOrderForStatus(t, db, userID, "PENDING", "ORD-TL-4")
+
+	events, err := svc.GetOrderTimeline(order.ID, userID, "USER")
+	require.NoError(t, err)
+	assert.Empty(t, events)
+}
