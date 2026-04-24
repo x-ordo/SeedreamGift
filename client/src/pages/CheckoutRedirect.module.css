@@ -1,0 +1,50 @@
+/* Seedream VA auto-submit 리디렉트 페이지. */
+
+.page {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.heading {
+  font-size: var(--text-heading-3);
+  margin-bottom: var(--space-2);
+}
+
+.subtext {
+  color: var(--color-neutral-600);
+  font-size: var(--text-body);
+}
+
+.form {
+  margin-top: var(--space-6);
+}
+
+.submitButton {
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  /* Primary 버튼 흰 텍스트는 Button.module.css 와 동일한 프로젝트 convention */
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: var(--text-body);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.submitButton:hover {
+  transform: translateY(-1px);
+}
+
+.submitButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submitButton {
+    transition: none;
+  }
+  .submitButton:hover {
+    transform: none;
+  }
+}

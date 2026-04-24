@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 import SEO from '../components/common/SEO';
+import styles from './CheckoutRedirect.module.css';
 
 interface RedirectState {
   targetUrl?: string;
@@ -43,32 +44,19 @@ const CheckoutRedirect: React.FC = () => {
   return (
     <>
       <SEO title="결제 진행 중" />
-      <div style={{ padding: 'var(--space-8) var(--space-4)', textAlign: 'center' }}>
+      <div className={styles.page}>
         <div role="status" aria-live="polite">
-          <h1 style={{ fontSize: 'var(--text-heading-3)', marginBottom: 'var(--space-2)' }}>
-            결제창으로 이동 중입니다
-          </h1>
-          <p style={{ color: 'var(--color-neutral-600)', fontSize: 'var(--text-body)' }}>
+          <h1 className={styles.heading}>결제창으로 이동 중입니다</h1>
+          <p className={styles.subtext}>
             {orderCode ? <>주문번호 {orderCode}<br /></> : null}
             자동으로 전환되지 않으면 아래 버튼을 눌러주세요.
           </p>
         </div>
-        <form ref={formRef} method="POST" action={targetUrl} style={{ marginTop: 'var(--space-6)' }}>
+        <form ref={formRef} method="POST" action={targetUrl} className={styles.form}>
           {Object.entries(formData).map(([key, value]) => (
             <input key={key} type="hidden" name={key} value={value} />
           ))}
-          <button
-            type="submit"
-            style={{
-              padding: 'var(--space-3) var(--space-6)',
-              borderRadius: 'var(--radius-sm)',
-              background: 'var(--color-primary)',
-              color: '#fff',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: 'var(--text-body)',
-            }}
-          >
+          <button type="submit" className={styles.submitButton}>
             결제창 열기
           </button>
         </form>
