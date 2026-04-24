@@ -12,6 +12,7 @@ import { PasswordModal } from '../components/mypage/PasswordModal';
 import { BankModal } from '../components/mypage/BankModal';
 import { WithdrawModal } from '../components/mypage/WithdrawModal';
 import { ExportOptionsModal } from '../components/mypage/ExportOptionsModal';
+import PendingPaymentCard from '../components/mypage/PendingPaymentCard';
 import { MYPAGE_TAB_CONFIG, getMyPageTabsForRole, MyPageTab, type Order, type TradeIn, type MyGift, type MyGiftVoucher, type BankAccount, type NotificationSettings } from '../types';
 import type { AuthUser } from '../api/manual';
 import type { CashReceipt } from '../types/mypage';
@@ -187,11 +188,9 @@ const OrderHistory = memo(({ orders, loading, onCancel, onCopy, onNavigate }: { 
                   </div>
                 </div>
 
-                {/* Status description for PENDING */}
+                {/* Pending payment detail card — VA 계좌/기한/재시도 버튼 */}
                 {order.status === 'PENDING' && (
-                  <div className="px-5 pb-3 sm:px-6">
-                    <p className="text-xs text-warning font-medium">결제가 진행 중입니다</p>
-                  </div>
+                  <PendingPaymentCard orderId={order.id} />
                 )}
 
                 {/* PIN Section */}
