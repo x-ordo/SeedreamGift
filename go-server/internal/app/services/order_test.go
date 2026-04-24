@@ -461,3 +461,168 @@ func TestGetOrderDetail_NotOwner(t *testing.T) {
 	assert.Error(t, err, "non-owner USER should get error")
 	assert.Nil(t, detail)
 }
+
+// classifyPaymentUIStatus 순수 함수 단위 테스트 — Order/Payment 조합 → UIStatus.
+func TestClassifyPaymentUIStatus(t *testing.T) {
+	awaitingBS := "awaiting_bank_selection"
+	awaitingDep := "awaiting_deposit"
+
+	tests := []struct {
+		name    string
+		order   *domain.Order
+		payment *domain.Payment
+		want    string
+	}{
+		{"nil order", nil, nil, PaymentUIStatusUnknown},
+		{"CANCELLED order", &domain.Order{Status: "CANCELLED"}, nil, PaymentUIStatusCancelled},
+		{"EXPIRED order", &domain.Order{Status: "EXPIRED"}, nil, PaymentUIStatusExpired},
+		{"PAID order", &domain.Order{Status: "PAID"}, nil, PaymentUIStatusPaid},
+		{"DELIVERED order", &domain.Order{Status: "DELIVERED"}, nil, PaymentUIStatusPaid},
+		{"COMPLETED order", &domain.Order{Status: "COMPLETED"}, nil, PaymentUIStatusPaid},
+		{"AMOUNT_MISMATCH distinct", &domain.Order{Status: "AMOUNT_MISMATCH"}, nil, PaymentUIStatusAmountMismatch},
+		{"FRAUD_HOLD → FAILED", &domain.Order{Status: "FRAUD_HOLD"}, nil, PaymentUIStatusFailed},
+		{"ISSUED → AwaitingDeposit", &domain.Order{Status: "ISSUED"}, nil, PaymentUIStatusAwaitingDeposit},
+		{
+			"PENDING + awaiting_bank_selection",
+			&domain.Order{Status: "PENDING"},
+			&domain.Payment{SeedreamPhase: &awaitingBS},
+			PaymentUIStatusAwaitingBankSelection,
+		},
+		{
+			"PENDING + awaiting_deposit race",
+			&domain.Order{Status: "PENDING"},
+			&domain.Payment{SeedreamPhase: &awaitingDep},
+			PaymentUIStatusAwaitingDeposit,
+		},
+		{"PENDING + CASH (payment nil)", &domain.Order{Status: "PENDING"}, nil, PaymentUIStatusAwaitingDeposit},
+		{"unknown status fallback", &domain.Order{Status: "SOMETHING_WEIRD"}, nil, PaymentUIStatusUnknown},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := classifyPaymentUIStatus(tt.order, tt.payment)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// canResumePayment 단위 테스트.
+func TestCanResumePayment(t *testing.T) {
+	past := time.Now().Add(-1 * time.Minute)
+	future := time.Now().Add(10 * time.Minute)
+
+	tests := []struct {
+		name    string
+		order   *domain.Order
+		payment *domain.Payment
+		want    bool
+	}{
+		{"nil order", nil, nil, false},
+		{"CANCELLED", &domain.Order{Status: "CANCELLED"}, nil, false},
+		{"EXPIRED", &domain.Order{Status: "EXPIRED"}, nil, false},
+		{"PAID", &domain.Order{Status: "PAID"}, nil, false},
+		{"PENDING + no payment → resume OK", &domain.Order{Status: "PENDING"}, nil, true},
+		{"PENDING + payment 기한 지남 → no", &domain.Order{Status: "PENDING"}, &domain.Payment{ExpiresAt: &past}, false},
+		{"PENDING + 기한 남음 → OK", &domain.Order{Status: "PENDING"}, &domain.Payment{ExpiresAt: &future}, true},
+		{"ISSUED + 기한 남음 → OK", &domain.Order{Status: "ISSUED"}, &domain.Payment{ExpiresAt: &future}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, canResumePayment(tt.order, tt.payment))
+		})
+	}
+}
+
+// seedOrderForStatus 는 GetPaymentStatus 통합 테스트용 Order 를 직접 insert 합니다.
+// CreateOrder 의 KYC 검증 파이프라인을 우회 (기존 테스트 fixture 와 동일 접근).
+func seedOrderForStatus(t *testing.T, db *gorm.DB, userID int, status string, code string) *domain.Order {
+	t.Helper()
+	o := &domain.Order{
+		UserID: userID, Status: status, Source: "USER",
+		TotalAmount: domain.NewNumericDecimal(decimal.NewFromInt(100000)),
+		OrderCode:   &code,
+	}
+	require.NoError(t, db.Create(o).Error)
+	return o
+}
+
+func TestGetPaymentStatus_OwnerPendingVA(t *testing.T) {
+	db := setupOrderTestDB(t)
+	cfg := defaultTestConfig()
+	cp := newMockConfigProvider()
+	svc := newOrderService(db, cfg, cp)
+
+	userID := createOrderTestUser(t, db, "pstatus@test.com")
+	order := seedOrderForStatus(t, db, userID, "PENDING", "ORD-PS-1")
+
+	phase := "awaiting_bank_selection"
+	bankCode := "088"
+	accountNo := "110-123-456789"
+	depositor := "씨드림기프트"
+	expires := time.Now().Add(30 * time.Minute)
+	require.NoError(t, db.Create(&domain.Payment{
+		OrderID: order.ID, Method: "VIRTUAL_ACCOUNT_SEEDREAM",
+		Amount: order.TotalAmount, Status: "PENDING",
+		SeedreamPhase: &phase, BankCode: &bankCode,
+		AccountNumber: &accountNo, DepositorName: &depositor,
+		ExpiresAt: &expires,
+	}).Error)
+
+	resp, err := svc.GetPaymentStatus(order.ID, userID, "USER")
+	require.NoError(t, err)
+	assert.Equal(t, "VIRTUAL_ACCOUNT_SEEDREAM", resp.Method)
+	assert.Equal(t, PaymentUIStatusAwaitingBankSelection, resp.UIStatus)
+	assert.True(t, resp.CanResume)
+	require.NotNil(t, resp.AccountNumber)
+	assert.Equal(t, accountNo, *resp.AccountNumber)
+	assert.Equal(t, int64(100000), resp.TotalAmount)
+}
+
+func TestGetPaymentStatus_NotOwner_NotFound(t *testing.T) {
+	db := setupOrderTestDB(t)
+	cfg := defaultTestConfig()
+	cp := newMockConfigProvider()
+	svc := newOrderService(db, cfg, cp)
+
+	owner := createOrderTestUser(t, db, "owner-ps@test.com")
+	other := createOrderTestUser(t, db, "other-ps@test.com")
+	order := seedOrderForStatus(t, db, owner, "PENDING", "ORD-PS-2")
+
+	resp, err := svc.GetPaymentStatus(order.ID, other, "USER")
+	assert.Error(t, err)
+	assert.Nil(t, resp)
+}
+
+func TestGetPaymentStatus_AdminCanSeeOthers(t *testing.T) {
+	db := setupOrderTestDB(t)
+	cfg := defaultTestConfig()
+	cp := newMockConfigProvider()
+	svc := newOrderService(db, cfg, cp)
+
+	owner := createOrderTestUser(t, db, "owner-admin@test.com")
+	admin := createOrderTestUser(t, db, "admin-viewer@test.com")
+	order := seedOrderForStatus(t, db, owner, "PAID", "ORD-PS-3")
+
+	resp, err := svc.GetPaymentStatus(order.ID, admin, "ADMIN")
+	require.NoError(t, err)
+	assert.Equal(t, PaymentUIStatusPaid, resp.UIStatus)
+	assert.False(t, resp.CanResume)
+}
+
+func TestGetPaymentStatus_NoPaymentRecord_CashPending(t *testing.T) {
+	// Payment 레코드가 아직 없는 PENDING 주문(CASH) — AwaitingDeposit 로 분류되고
+	// 결제 정보 필드는 nil.
+	db := setupOrderTestDB(t)
+	cfg := defaultTestConfig()
+	cp := newMockConfigProvider()
+	svc := newOrderService(db, cfg, cp)
+
+	userID := createOrderTestUser(t, db, "cash-ps@test.com")
+	order := seedOrderForStatus(t, db, userID, "PENDING", "ORD-PS-4")
+
+	resp, err := svc.GetPaymentStatus(order.ID, userID, "USER")
+	require.NoError(t, err)
+	assert.Equal(t, PaymentUIStatusAwaitingDeposit, resp.UIStatus)
+	assert.Nil(t, resp.AccountNumber)
+	assert.Empty(t, resp.Method)
+	assert.True(t, resp.CanResume)
+}

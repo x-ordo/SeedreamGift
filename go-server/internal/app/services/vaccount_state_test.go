@@ -107,6 +107,65 @@ func TestApplyVAccountDeposited_AmountMatches(t *testing.T) {
 	require.NotNil(t, p.ConfirmedAt)
 }
 
+func TestApplyVAccountDeposited_ReservedVouchers_TransitionToSold(t *testing.T) {
+	// 입금 완료 시 해당 Order 에 바인딩된 RESERVED 바우처가 SOLD 로 전이되어야 함.
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "ISSUED")
+
+	// RESERVED 바우처 2장 + 다른 주문의 RESERVED 1장 + AVAILABLE 1장 시드
+	reservedAt := time.Now().Add(-5 * time.Minute).UTC()
+	mine1 := &domain.VoucherCode{ProductID: 1, PinCode: "enc-A", PinHash: "ha", Status: "RESERVED", OrderID: &order.ID, SoldAt: &reservedAt}
+	mine2 := &domain.VoucherCode{ProductID: 1, PinCode: "enc-B", PinHash: "hb", Status: "RESERVED", OrderID: &order.ID, SoldAt: &reservedAt}
+	otherOrder := 999
+	others := &domain.VoucherCode{ProductID: 1, PinCode: "enc-C", PinHash: "hc", Status: "RESERVED", OrderID: &otherOrder}
+	freeOne := &domain.VoucherCode{ProductID: 1, PinCode: "enc-D", PinHash: "hd", Status: "AVAILABLE"}
+	require.NoError(t, db.Create(mine1).Error)
+	require.NoError(t, db.Create(mine2).Error)
+	require.NoError(t, db.Create(others).Error)
+	require.NoError(t, db.Create(freeOne).Error)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	require.NoError(t, svc.ApplyDeposited(context.Background(), order.OrderCode, seedream.VAccountDepositedPayload{
+		OrderNo: *order.OrderCode, Amount: 50000, DepositedAt: time.Now().UTC(),
+	}))
+
+	// 내 주문의 RESERVED 2장이 SOLD 로 전이
+	var gotMine []domain.VoucherCode
+	require.NoError(t, db.Where("OrderId = ?", order.ID).Find(&gotMine).Error)
+	require.Len(t, gotMine, 2)
+	for _, v := range gotMine {
+		assert.Equal(t, "SOLD", v.Status)
+		require.NotNil(t, v.SoldAt)
+	}
+
+	// 다른 주문의 RESERVED 는 건드리지 말아야
+	var gotOther domain.VoucherCode
+	require.NoError(t, db.First(&gotOther, others.ID).Error)
+	assert.Equal(t, "RESERVED", gotOther.Status)
+
+	// AVAILABLE 는 그대로
+	var gotFree domain.VoucherCode
+	require.NoError(t, db.First(&gotFree, freeOne.ID).Error)
+	assert.Equal(t, "AVAILABLE", gotFree.Status)
+}
+
+func TestApplyVAccountDeposited_NoReservedVouchers_NoError(t *testing.T) {
+	// 바우처가 없어도(= API 발급형 상품 등) 에러 없이 Order/Payment 전이는 성공.
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "ISSUED")
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	require.NoError(t, svc.ApplyDeposited(context.Background(), order.OrderCode, seedream.VAccountDepositedPayload{
+		OrderNo: *order.OrderCode, Amount: 50000, DepositedAt: time.Now().UTC(),
+	}))
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "PAID", got.Status)
+}
+
 func TestApplyVAccountDeposited_AmountMismatch_Rejected(t *testing.T) {
 	db := setupStateTestDB(t)
 	order, _ := seedPendingOrderWithPayment(t, db)

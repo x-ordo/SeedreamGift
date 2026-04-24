@@ -563,7 +563,7 @@ const OrderSummarySection = memo(({
   onOrderClick: () => void
 }) => (
   <FadeIn direction="up" distance={20} delay={0.3}>
-    <Card className="p-8 sm:p-10 rounded-2xl checkout-card mb-12" style={{ boxShadow: '0 4px 12px rgba(49,130,246,0.06), 0 2px 4px rgba(0,0,0,0.02)' }}>
+    <Card className="p-8 sm:p-10 rounded-2xl checkout-card mb-12" style={{ boxShadow: 'var(--shadow-md)' }}>
       <h3 className="text-lg font-bold text-base-content tracking-tight mb-6">최종 결제 금액</h3>
 
       <div className="space-y-4">

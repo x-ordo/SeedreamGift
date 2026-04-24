@@ -115,6 +115,26 @@ func (h *OrderHandler) GetOrderDetail(c *gin.Context) {
 	response.Success(c, order)
 }
 
+// GetPaymentStatus 는 GET /api/v1/orders/:id/payment-status 핸들러.
+//
+// 유저 본인의 주문에 대한 "결제/입금 대기" UI 구성 정보를 반환합니다.
+// 일반 GetOrderDetail 과 달리 Payment.AccountNumber (도메인 레벨 json:"-")
+// 포함을 위해 전용 DTO (PaymentStatusResponse) 를 사용합니다.
+func (h *OrderHandler) GetPaymentStatus(c *gin.Context) {
+	userID := c.GetInt("userId")
+	role := c.GetString("role")
+	id, ok := parseIDParam(c, "id")
+	if !ok {
+		return
+	}
+	resp, err := h.service.GetPaymentStatus(id, userID, role)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	response.Success(c, resp)
+}
+
 func (h *OrderHandler) GetMyExport(c *gin.Context) {
 	c.JSON(http.StatusNotImplemented, gin.H{"error": "미구현 기능입니다"})
 }

@@ -1,0 +1,161 @@
+/* MyPage PENDING 주문 내부에 표시되는 입금 대기 카드 */
+
+.card {
+  margin: 0 var(--space-4) var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-grey-50);
+  border: 1px solid var(--color-grey-100);
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption);
+  font-weight: 700;
+  color: var(--color-grey-700);
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.015em;
+}
+
+.headingDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-warning);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+  font-size: var(--text-body);
+  border-bottom: 1px solid var(--color-grey-100);
+}
+
+.row:last-of-type {
+  border-bottom: none;
+}
+
+.label {
+  color: var(--color-grey-500);
+  font-size: var(--text-caption);
+}
+
+.value {
+  font-weight: 600;
+  color: var(--color-grey-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.accountValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.copyBtn {
+  margin-left: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  border: 1px solid var(--color-grey-200);
+  color: var(--color-grey-700);
+  font-size: var(--text-caption);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.copyBtn:hover {
+  background: var(--color-grey-100);
+  border-color: var(--color-grey-300);
+}
+
+.copyBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.timerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) 0 var(--space-2);
+}
+
+.timer {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-warning);
+}
+
+.timerExpired {
+  color: var(--color-error);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-grey-100);
+}
+
+.resumeBtn {
+  flex: 1;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  font-size: var(--text-body);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.resumeBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.resumeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resumeBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.amountMismatch {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-error-bg, color-mix(in srgb, var(--color-error) 8%, transparent));
+  color: var(--color-error);
+  font-size: var(--text-caption);
+  line-height: 1.5;
+  margin-top: var(--space-2);
+}
+
+.loadingText,
+.errorText {
+  padding: var(--space-2);
+  font-size: var(--text-caption);
+  color: var(--color-grey-500);
+}
+
+.errorText {
+  color: var(--color-error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resumeBtn,
+  .copyBtn {
+    transition: none;
+  }
+  .resumeBtn:hover:not(:disabled) {
+    transform: none;
+  }
+}

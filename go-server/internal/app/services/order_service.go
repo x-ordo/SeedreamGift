@@ -732,6 +732,202 @@ func isOrderPINVisible(status string) bool {
 	}
 }
 
+// PaymentStatusResponse 는 GET /orders/:id/payment-status 전용 응답 DTO.
+//
+// 유저 본인의 주문에서 "결제 진행 중" 또는 "입금 대기" 화면을 구성하기 위해
+// 필요한 최소 정보를 제공합니다. Order 도메인의 Payment 구조체를 직접 노출하지
+// 않고 전용 DTO 를 통하는 이유:
+//  1. Payment.AccountNumber 는 `json:"-"` 로 전역 차단돼 있어 일반 직렬화 경로로
+//     내보낼 수 없음 — 이 DTO 는 유저 본인 & 활성 결제 건에 한해 노출 허용.
+//  2. UI 에 필요한 파생 상태(uiStatus, canResume 등) 를 서버에서 권위 있게 결정.
+//  3. 향후 Payment 도메인 변경에 UI 가 덜 결합되도록 shape 을 별도 관리.
+type PaymentStatusResponse struct {
+	OrderID       int        `json:"orderId"`
+	OrderCode     string     `json:"orderCode"`
+	OrderStatus   string     `json:"orderStatus"`   // Order.Status 원본
+	TotalAmount   int64      `json:"totalAmount"`
+	Method        string     `json:"method"`        // Payment.Method (VIRTUAL_ACCOUNT_SEEDREAM | CASH | ...)
+	PaymentStatus string     `json:"paymentStatus"` // Payment.Status 원본
+	SeedreamPhase *string    `json:"seedreamPhase,omitempty"`
+	BankCode      *string    `json:"bankCode,omitempty"`
+	BankName      *string    `json:"bankName,omitempty"`
+	AccountNumber *string    `json:"accountNumber,omitempty"`
+	DepositorName *string    `json:"depositorName,omitempty"`
+	ExpiresAt     *time.Time `json:"expiresAt,omitempty"`
+	// UIStatus 는 프론트가 스위치할 파생 상태 (아래 classifyPaymentUIStatus 참조).
+	UIStatus string `json:"uiStatus"`
+	// CanResume 은 "결제창 다시 열기" 버튼 노출 여부 — VA 재발급 가능한 상태일 때만 true.
+	CanResume bool `json:"canResume"`
+}
+
+// Payment UIStatus 상수 — 프론트가 switch 에 쓸 정형화된 값.
+//
+// 이 enum 은 Order.Status 와 Payment.SeedreamPhase 를 "유저 관점" 에서 재편성한
+// 표현입니다. 예를 들어 Seedream VA 의 Order.Status=PENDING 이라도 은행선택 전
+// (awaiting_bank_selection) 과 은행선택 후 입금 대기 (awaiting_deposit) 는
+// UI 가 전혀 다른 화면을 보여줘야 하므로 두 상태로 분리.
+const (
+	PaymentUIStatusAwaitingBankSelection = "AWAITING_BANK_SELECTION" // VA 발급 직후 — 유저가 키움페이로 이동해야 함
+	PaymentUIStatusAwaitingDeposit       = "AWAITING_DEPOSIT"        // 은행선택 완료 — 유저가 입금해야 함
+	PaymentUIStatusPaid                  = "PAID"                    // 입금/결제 완료
+	PaymentUIStatusExpired               = "EXPIRED"                 // 기한 초과
+	PaymentUIStatusCancelled             = "CANCELLED"
+	PaymentUIStatusFailed                = "FAILED"
+	PaymentUIStatusAmountMismatch        = "AMOUNT_MISMATCH" // 입금액 ≠ 주문액 — Ops 수동 처리 대기
+	PaymentUIStatusUnknown               = "UNKNOWN"
+)
+
+// classifyPaymentUIStatus 는 Order + Payment 를 UI 관점 단일 enum 으로 축약합니다.
+//
+// 이 함수의 출력은 프론트엔드가 어떤 화면을 그릴지 결정하는 단일 스위치 포인트이므로,
+// 유스케이스를 모두 아우르면서도 "유저가 다음에 해야 할 행동" 을 한 값으로 표현해야 합니다.
+//
+// 결정 트리 — **이 부분은 아래 TODO 로 표시된 블록에서 사용자가 구현**:
+//
+//   입력 조합:
+//     - order.Status: "PENDING" | "ISSUED" | "PAID" | "DELIVERED" | "COMPLETED"
+//                   | "CANCELLED" | "EXPIRED" | "AMOUNT_MISMATCH" | "FRAUD_HOLD"
+//     - payment.Status: "PENDING" | "CONFIRMED" | "CANCELLED" | "FAILED" (nil 가능)
+//     - payment.SeedreamPhase: "awaiting_bank_selection" | "awaiting_deposit"
+//                              | "completed" | "cancelled" | "failed" | nil
+//
+//   고민할 케이스들:
+//     1. Payment 레코드가 아직 없음 (nil) — VA 발급 전 상태. UI 는 뭘 보여줘야?
+//     2. Order=PENDING + Payment=PENDING + Phase=awaiting_bank_selection
+//     3. Order=ISSUED + Payment=PENDING + Phase=awaiting_deposit
+//     4. Order=PAID + Payment=CONFIRMED — PAID
+//     5. Order=EXPIRED — EXPIRED (VA 기한 만료)
+//     6. Order=CANCELLED — CANCELLED
+//     7. Order=AMOUNT_MISMATCH — FAILED? 별도? (Ops 수동 처리 대기)
+//     8. Order=FRAUD_HOLD — ? (특수 케이스, UI 표현 필요?)
+//     9. CASH 결제 (SeedreamPhase=nil) — Order.Status 만으로 판정
+//
+// TODO(user): classifyPaymentUIStatus 를 이 파일 아래에서 구현하세요.
+// 이 결정은 유저가 화면에서 보는 상태 분류 = UX 행동 유도 → **도메인 판단 필요**.
+
+// GetPaymentStatus 는 유저 본인의 주문에 대한 결제 상태 정보를 반환합니다.
+// ADMIN 은 타인 주문도 조회 가능 (관리 편의).
+//
+// 권한 경계:
+//   - role != "ADMIN" 이면 WHERE UserId = ? 로 본인 주문만 허용.
+//   - 404 vs 403: 존재 여부 자체를 노출하지 않기 위해 권한 없는 주문은 404 동일하게 처리.
+//
+// Payment 선택:
+//   - 가장 최근 활성 Payment 하나만 반환 (한 주문에 여러 결제 시도가 있을 수 있음).
+//   - 활성 = Status IN ('PENDING','CONFIRMED') — 취소/실패된 과거 시도는 제외.
+//   - 없으면 payment 필드는 nil 로 반환 (UIStatus 는 Order 기반으로만 판정).
+func (s *OrderService) GetPaymentStatus(orderID int, userID int, role string) (*PaymentStatusResponse, error) {
+	var order domain.Order
+	q := s.db.Select("Id", "OrderCode", "Status", "TotalAmount", "UserId")
+	if role != "ADMIN" {
+		q = q.Where("UserId = ?", userID)
+	}
+	if err := q.First(&order, orderID).Error; err != nil {
+		return nil, apperror.NotFound("주문을 찾을 수 없습니다")
+	}
+
+	var payment *domain.Payment
+	var p domain.Payment
+	err := s.db.
+		Where("OrderId = ? AND Status IN ?", orderID, []string{"PENDING", "CONFIRMED"}).
+		Order("CreatedAt DESC").
+		First(&p).Error
+	if err == nil {
+		payment = &p
+	}
+
+	resp := &PaymentStatusResponse{
+		OrderID:     order.ID,
+		OrderStatus: order.Status,
+		TotalAmount: order.TotalAmount.Decimal.IntPart(),
+	}
+	if order.OrderCode != nil {
+		resp.OrderCode = *order.OrderCode
+	}
+	if payment != nil {
+		resp.Method = payment.Method
+		resp.PaymentStatus = payment.Status
+		resp.SeedreamPhase = payment.SeedreamPhase
+		resp.BankCode = payment.BankCode
+		resp.BankName = payment.BankName
+		resp.AccountNumber = payment.AccountNumber
+		resp.DepositorName = payment.DepositorName
+		resp.ExpiresAt = payment.ExpiresAt
+	}
+
+	resp.UIStatus = classifyPaymentUIStatus(&order, payment)
+	resp.CanResume = canResumePayment(&order, payment)
+	return resp, nil
+}
+
+// classifyPaymentUIStatus 는 Order + Payment 조합을 UI 관점 단일 enum 으로 축약합니다.
+//
+// 결정:
+//   - CASH (payment=nil, Order=PENDING) → AwaitingDeposit (무통장 입금 대기 — yk24 패턴).
+//     프론트는 동일 AwaitingDeposit 에서 VA 는 payment.accountNumber, CASH 는 SiteConfig
+//     계좌를 참조.
+//   - AMOUNT_MISMATCH 는 별도 상수 — "입금액 ≠ 주문액 / 고객센터 문의" 특수 안내가
+//     FAILED 일반 실패와 구분되어야 함.
+//   - FRAUD_HOLD 는 유저가 직접 조치 불가 + "심사 중" 안내가 필요 → Failed 로 묶음
+//     (향후 별도 상수로 분리 가능).
+func classifyPaymentUIStatus(order *domain.Order, payment *domain.Payment) string {
+	if order == nil {
+		return PaymentUIStatusUnknown
+	}
+
+	switch order.Status {
+	case domain.OrderStatusCancelled:
+		return PaymentUIStatusCancelled
+	case domain.OrderStatusExpired:
+		return PaymentUIStatusExpired
+	case domain.OrderStatusPaid, domain.OrderStatusDelivered, domain.OrderStatusCompleted:
+		return PaymentUIStatusPaid
+	case "AMOUNT_MISMATCH":
+		return PaymentUIStatusAmountMismatch
+	case "FRAUD_HOLD":
+		return PaymentUIStatusFailed
+	case "ISSUED":
+		// 은행 선택 완료, 입금 대기 — VA 특유의 중간 상태.
+		return PaymentUIStatusAwaitingDeposit
+	case domain.OrderStatusPending:
+		if payment != nil && payment.SeedreamPhase != nil &&
+			*payment.SeedreamPhase == "awaiting_bank_selection" {
+			return PaymentUIStatusAwaitingBankSelection
+		}
+		// VA 은행선택 후 phase=awaiting_deposit 로 넘어갔지만 Order.Status 전이가 아직 안 된
+		// 희박한 race 케이스도 동일하게 AwaitingDeposit.
+		if payment != nil && payment.SeedreamPhase != nil &&
+			*payment.SeedreamPhase == "awaiting_deposit" {
+			return PaymentUIStatusAwaitingDeposit
+		}
+		// CASH 또는 아직 Payment 레코드가 없는 경우 — 무통장 입금 대기.
+		return PaymentUIStatusAwaitingDeposit
+	}
+	return PaymentUIStatusUnknown
+}
+
+// canResumePayment 는 "결제창 다시 열기" 버튼을 유저에게 보여줄지 판정합니다.
+// VA 발급은 TOKEN 이 1회용이라 재시도는 기존 PENDING Payment 를 취소하고 새로
+// 발급하는 형태 — Order 가 아직 살아있고 (PENDING/ISSUED) 기한이 남았을 때만 허용.
+func canResumePayment(order *domain.Order, payment *domain.Payment) bool {
+	if order == nil {
+		return false
+	}
+	// 종료 상태에서는 재시도 불가
+	switch order.Status {
+	case domain.OrderStatusCancelled, domain.OrderStatusCompleted,
+		domain.OrderStatusExpired, domain.OrderStatusRefundPaid,
+		domain.OrderStatusPaid, domain.OrderStatusDelivered:
+		return false
+	}
+	// Order.PaymentDeadlineAt 기반 기한 확인은 Order 엔티티에 해당 필드가 있을 때만
+	// 의미 있음. 여기선 Payment.ExpiresAt 을 대체 지표로 사용 (Seedream VA 의 경우 동일).
+	if payment != nil && payment.ExpiresAt != nil && payment.ExpiresAt.Before(time.Now()) {
+		return false
+	}
+	return true
+}
+
 func (s *OrderService) maskVoucherPINs(vouchers []domain.VoucherCode) {
 	for j := range vouchers {
 		vc := &vouchers[j]
