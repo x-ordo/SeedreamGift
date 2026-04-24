@@ -85,6 +85,11 @@ type SeedreampayExpiryRunner interface {
 	ExpireSeedreampayVouchers()
 }
 
+// SeedreamExpiryRunner 는 Seedream LINK 모드 VA 주문의 depositEndDate 만료를 실행하는 잡 인터페이스입니다.
+type SeedreamExpiryRunner interface {
+	ExpireSeedreamOrders()
+}
+
 // Scheduler는 robfig cron 스케줄러를 래핑하며 작업을 위한 데이터베이스 접근 권한을 가집니다.
 type Scheduler struct {
 	c                   *cron.Cron
@@ -97,6 +102,7 @@ type Scheduler struct {
 	orderCleanupSvc     OrderCleanupRunner
 	outboxSvc           OutboxRunner
 	seedreampayExpirySvc SeedreampayExpiryRunner
+	seedreamExpirySvc    SeedreamExpiryRunner
 }
 
 // jobDef는 한글 이름, 크론 표현식 및 핸들러 함수를 쌍으로 정의합니다.
@@ -133,6 +139,7 @@ func New(db *gorm.DB, archiveDays, deleteDays int) *Scheduler {
 		{"아웃박스 메시지 릴레이", "@every 30s", "30초 간격", s.processOutbox},
 		{"API 발급 처리", "@every 15s", "15초 간격", s.processFulfillment},
 		{"씨드림페이 바우처 만료 처리", "0 2 * * *", "매일 02:00 KST", s.expireSeedreampayVouchers},
+		{"Seedream VA 만료 처리", "@every 1m", "1분 간격", s.expireSeedreamOrders},
 		// [비활성화] 유가증권은 현금영수증 발급 대상 아님 (부가가치세법 시행령 제73조)
 		// {"현금영수증 실패 재시도", "@every 30m", "30분 간격", s.retryCashReceipts},
 		// {"현금영수증 상태 동기화", "0 4 * * *", "매일 04:00 KST", s.syncCashReceipts},
@@ -517,6 +524,20 @@ func (s *Scheduler) expireSeedreampayVouchers() {
 		return
 	}
 	s.seedreampayExpirySvc.ExpireSeedreampayVouchers()
+}
+
+// SetSeedreamExpiryService 는 Seedream VA 만료 처리 서비스를 주입합니다.
+func (s *Scheduler) SetSeedreamExpiryService(svc SeedreamExpiryRunner) {
+	s.seedreamExpirySvc = svc
+}
+
+// expireSeedreamOrders 는 1분마다 실행되어 depositEndDate 가 경과한 Seedream VA
+// 주문을 EXPIRED 로 전이시킵니다. 서비스가 미주입이면 경고 없이 스킵합니다.
+func (s *Scheduler) expireSeedreamOrders() {
+	if s.seedreamExpirySvc == nil {
+		return
+	}
+	s.seedreamExpirySvc.ExpireSeedreamOrders()
 }
 
 // cleanupAbandonedCarts는 7일 이상 방치된 장바구니 항목을 삭제합니다.
