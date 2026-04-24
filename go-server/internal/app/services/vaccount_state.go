@@ -136,8 +136,24 @@ func (s *VAccountStateService) ApplyDeposited(ctx context.Context, orderCode *st
 			return err
 		}
 
-		// TODO(Phase 3.1 / 4): Voucher RESERVED → SOLD, Ledger.RecordPayment, OrderEvent 기록.
-		// Phase 3 MVP 는 Order/Payment 전이만 다루고, Voucher/Ledger 는 연계 작업 완결 후 추가.
+		// RESERVED 바우처 → SOLD 전이. CreateOrder 시점에 OrderID 로 바인딩 + Status='RESERVED'
+		// 로 예약된 PIN 을 실제 판매 완료로 확정. SoldAt 은 입금 시각 기준.
+		// (이후 Fulfillment 단계가 DELIVERED 로 전이하며 유저에게 PIN 전달.)
+		vcResult := tx.Model(&domain.VoucherCode{}).
+			Where("OrderId = ? AND Status = 'RESERVED'", order.ID).
+			Updates(map[string]any{
+				"Status": "SOLD",
+				"SoldAt": &now,
+			})
+		if vcResult.Error != nil {
+			return fmt.Errorf("voucher RESERVED→SOLD 전이 실패: %w", vcResult.Error)
+		}
+		s.logger.Info("vaccount.deposited 처리 완료",
+			zap.String("orderCode", *orderCode),
+			zap.Int("orderId", order.ID),
+			zap.Int64("vouchersSold", vcResult.RowsAffected))
+
+		// TODO(Phase 4+): Ledger.RecordPayment, OrderEvent 기록.
 		return nil
 	})
 }
