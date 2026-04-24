@@ -36,6 +36,8 @@ func RegisterProtectedRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handle
 		payments := consumer.Group("/payments")
 		{
 			payments.POST("/initiate", middleware.EndpointRateLimit(10, time.Minute), h.VAccount.Initiate)
+			// Resume 은 동일 rate limit — 유저가 실패 시 반복 눌러 Seedream 에 부하를 주지 않도록.
+			payments.POST("/resume", middleware.EndpointRateLimit(10, time.Minute), h.VAccount.Resume)
 		}
 
 		// Orders

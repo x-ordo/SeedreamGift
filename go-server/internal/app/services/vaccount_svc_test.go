@@ -196,6 +196,79 @@ func TestVAccountService_Issue_RaceDetectedInTransaction(t *testing.T) {
 	assert.Equal(t, int64(1), count, "Payment 는 1건만 존재해야 함 (race 방어)")
 }
 
+func TestVAccountService_Resume_CancelsOldAndIssuesNew(t *testing.T) {
+	// Resume: 기존 PENDING Payment 가 있을 때 CANCELLED 처리하고 새 VA 발급.
+	db := setupIssueTestDB(t)
+	order := seedOrderForIssue(t, db, "PENDING")
+
+	// 기존 PENDING Payment 시드
+	oldPhase := "awaiting_bank_selection"
+	oldIdem := "gift:vaccount:ORD-TEST-1"
+	oldExpires := time.Now().Add(-1 * time.Minute)
+	oldPayment := &domain.Payment{
+		OrderID: order.ID, Method: "VIRTUAL_ACCOUNT_SEEDREAM",
+		Amount: order.TotalAmount, Status: "PENDING",
+		SeedreamPhase: &oldPhase, SeedreamIdempotencyKey: &oldIdem,
+		ExpiresAt: &oldExpires,
+	}
+	require.NoError(t, db.Create(oldPayment).Error)
+
+	stub := &seedreamClientStub{
+		issueFn: func(ctx context.Context, req seedream.VAccountIssueRequest, idem, trace string) (*seedream.VAccountIssueResponse, error) {
+			// 재시도 key 는 :retry: 를 포함해야 함
+			assert.Contains(t, idem, ":retry:")
+			return &seedream.VAccountIssueResponse{
+				ID: 99999, OrderNo: req.OrderNo, Amount: req.Amount,
+				Status: "PENDING", Phase: "awaiting_bank_selection",
+				TargetURL: "https://retry.kiwoompay/x",
+				FormData:  map[string]string{"TOKEN": "retry-tok"},
+				ReservedIndex1: req.ReservedIndex1,
+				ReservedIndex2: req.ReservedIndex2,
+				ReservedString: req.ReservedString,
+				DepositEndDateAt: time.Now().Add(30 * time.Minute).UTC(),
+			}, nil
+		},
+	}
+
+	svc := NewVAccountService(db, stub, zap.NewNop())
+	caller := CallerContext{UserID: 42, Role: "USER", TraceID: "trace-retry"}
+
+	result, err := svc.Resume(context.Background(), caller, order.ID, "P")
+	require.NoError(t, err)
+	assert.Equal(t, "https://retry.kiwoompay/x", result.TargetURL)
+	assert.Equal(t, int64(99999), result.SeedreamVAccountID)
+
+	// 기존 Payment 는 CANCELLED
+	var gotOld domain.Payment
+	require.NoError(t, db.First(&gotOld, oldPayment.ID).Error)
+	assert.Equal(t, "CANCELLED", gotOld.Status)
+	require.NotNil(t, gotOld.CancelledAt)
+	require.NotNil(t, gotOld.FailReason)
+
+	// 새 Payment 가 하나 더 PENDING 으로 존재
+	var pendingCount int64
+	require.NoError(t, db.Model(&domain.Payment{}).
+		Where("OrderId = ? AND Status = 'PENDING'", order.ID).Count(&pendingCount).Error)
+	assert.Equal(t, int64(1), pendingCount)
+}
+
+func TestVAccountService_Resume_RejectsTerminalOrder(t *testing.T) {
+	// Resume: 주문이 종료 상태면 재시도 거부.
+	db := setupIssueTestDB(t)
+	order := seedOrderForIssue(t, db, "CANCELLED")
+
+	stub := &seedreamClientStub{issueFn: func(context.Context, seedream.VAccountIssueRequest, string, string) (*seedream.VAccountIssueResponse, error) {
+		t.Fatal("종료 상태에서 Seedream 호출 금지")
+		return nil, nil
+	}}
+
+	svc := NewVAccountService(db, stub, zap.NewNop())
+	caller := CallerContext{UserID: 42, Role: "USER"}
+	_, err := svc.Resume(context.Background(), caller, order.ID, "P")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "재결제")
+}
+
 func TestVAccountService_Issue_ReservedRoundTripViolation(t *testing.T) {
 	db := setupIssueTestDB(t)
 	order := seedOrderForIssue(t, db, "PENDING")

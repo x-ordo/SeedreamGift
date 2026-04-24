@@ -48,6 +48,26 @@ func (h *VAccountHandler) Initiate(c *gin.Context) {
 	response.Success(c, res)
 }
 
+// Resume 은 이미 PENDING Payment 가 있는 주문에 대해 결제창을 다시 엽니다.
+// 기존 PENDING Payment 를 취소하고 새 VA 를 발급합니다 (TOKEN 1회용 특성).
+//
+// POST /api/v1/payments/resume
+func (h *VAccountHandler) Resume(c *gin.Context) {
+	var req InitiateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+
+	caller := callerContextFromGin(c)
+	res, err := h.service.Resume(c.Request.Context(), caller, req.OrderID, req.ClientType)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+	response.Success(c, res)
+}
+
 // callerContextFromGin 은 Gin context 에서 services.CallerContext 를 추출합니다.
 // JWT middleware 가 userId, userRole 을 세팅해 둠. partnerId 는 현재
 // 주입되지 않으므로 항상 nil — PARTNER 발급 경로는 VAccountService.Issue 가
