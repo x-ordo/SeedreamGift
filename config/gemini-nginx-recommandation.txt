@@ -1,0 +1,224 @@
+worker_processes auto;
+
+events {
+    worker_connections 2048;
+    multi_accept on;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    # 성능 최적화
+    sendfile      on;
+    tcp_nopush    on;
+    tcp_nodelay   on;
+    keepalive_timeout 70;
+
+    access_log logs/access.log;
+    error_log  logs/error.log;
+
+    # Gzip 압축 (프록시 응답 포함)
+    gzip on;
+    gzip_proxied any;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript image/svg+xml;
+    gzip_min_length 1024;
+    gzip_vary on;
+    gzip_comp_level 5;
+
+    # 프록시 버퍼
+    proxy_buffer_size 8k;
+    proxy_buffers 8 16k;
+    proxy_busy_buffers_size 32k;
+    client_max_body_size 15m; # Paysolus 파일 업로드 고려 여유 확보
+
+    # WebSocket
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      close;
+    }
+
+    # 스캐너 차단 Map
+    map $http_user_agent $is_scanner {
+        default 0;
+        ~*PetalBot 1;
+        ~*python-urllib 1;
+        ~*python-requests 1;
+        ~*sqlmap 1;
+        ~*dirbuster 1;
+        ~*masscan 1;
+        ~*zgrab 1;
+    }
+
+    # Rate Limit
+    limit_req_zone $binary_remote_addr zone=api_general:10m rate=30r/s;
+    limit_req_zone $binary_remote_addr zone=seedream_webhook:10m rate=30r/s;
+
+    # Upstream (Golang API 서버들)
+    upstream wowgift_api {
+        server 103.97.209.194:52201;
+        keepalive 32;
+    }
+    upstream seedream_api {
+        server 103.97.209.131:52201;
+        keepalive 32;
+    }
+
+    # ====================================================================
+    # [0] Catch-All (허용되지 않은 도메인 및 IP 직접 접근 차단)
+    # ====================================================================
+    server {
+        listen 80 default_server;
+        server_name _;
+        return 444; # 연결 즉시 종료
+    }
+
+    server {
+        listen 443 ssl default_server;
+        server_name _;
+        ssl_certificate     C:/nginx/ssl/seedreamgift.com/fullchain.pem; # Dummy로 사용
+        ssl_certificate_key C:/nginx/ssl/seedreamgift.com/privkey.pem;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        return 444;
+    }
+
+    # ====================================================================
+    # [1] WOWGIFT (C:\deploy-server\wow-gift)
+    # ====================================================================
+    server {
+        listen 80;
+        server_name wowgift.co.kr www.wowgift.co.kr;
+        location /.well-known/pki-validation/ { alias C:/nginx/html/.well-known/pki-validation/; }
+        location / { return 301 https://$host$request_uri; }
+    }
+
+    server {
+        listen 443 ssl;
+        http2 on;
+        server_name wowgift.co.kr www.wowgift.co.kr;
+
+        ssl_certificate     C:/nginx/ssl/wowgift.co.kr/fullchain.pem;
+        ssl_certificate_key C:/nginx/ssl/wowgift.co.kr/privkey.pem;
+        ssl_protocols TLSv1.2 TLSv1.3;
+
+        if ($is_scanner) { return 444; }
+
+        # ★ 격리 포인트: 해당 서버 블록에서만 유효한 root 설정
+        root C:/deploy-server/wow-gift/client;
+        index index.html;
+
+        # 정적 파일 캐시 처리
+        location = / {
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+            try_files /index.html =404;
+        }
+        location /assets/ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+
+        # API 프록시
+        location /api/ {
+            limit_req zone=api_general burst=20 nodelay;
+            proxy_pass http://wowgift_api;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+
+        # SPA Fallback
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+    }
+
+    # ====================================================================
+    # [2] SEEDREAM (C:\deploy-server\seedream-gift)
+    # ====================================================================
+    server {
+        listen 80;
+        server_name seedreamgift.com www.seedreamgift.com;
+        location /.well-known/pki-validation/ { alias C:/nginx/html/.well-known/pki-validation/; }
+        location / { return 301 https://$host$request_uri; }
+    }
+
+    server {
+        listen 443 ssl;
+        http2 on;
+        server_name seedreamgift.com www.seedreamgift.com;
+
+        ssl_certificate     C:/nginx/ssl/seedreamgift.com/fullchain.pem;
+        ssl_certificate_key C:/nginx/ssl/seedreamgift.com/privkey.pem;
+        ssl_protocols TLSv1.2 TLSv1.3;
+
+        if ($is_scanner) { return 444; }
+
+        # ★ 격리 포인트: wowgift와 완전히 분리된 전용 root
+        root C:/deploy-server/seedream-gift/client;
+        index index.html;
+
+        location = / {
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+            try_files /index.html =404;
+        }
+        location /assets/ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+
+        location /api/ {
+            limit_req zone=api_general burst=20 nodelay;
+            proxy_pass http://seedream_api;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+
+        # Webhook
+        location = /webhook/seedream {
+            limit_req zone=seedream_webhook burst=50 nodelay;
+            if ($request_method !~ ^(POST)$) { return 405; }
+            proxy_pass http://seedream_api;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        # SPA Fallback
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+    }
+
+    # ====================================================================
+    # [3] PAYSOLUS (Reverse Proxy to Node/Internal App)
+    # ====================================================================
+    server {
+        listen 80;
+        server_name paysolus.kr www.paysolus.kr;
+        location / { return 301 https://$host$request_uri; }
+    }
+
+    server {
+        listen 443 ssl;
+        http2 on;
+        server_name paysolus.kr www.paysolus.kr;
+
+        ssl_certificate     C:/nginx/ssl/paysolus.kr/fullchain.pem;
+        ssl_certificate_key C:/nginx/ssl/paysolus.kr/privkey.pem;
+        ssl_protocols TLSv1.2 TLSv1.3;
+
+        # 정적 파일 서빙 없이 전부 4000 포트로 포워딩
+        location / {
+            proxy_pass http://127.0.0.1:4000;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+    }
+}
