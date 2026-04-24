@@ -133,6 +133,9 @@ type Handlers struct {
 
 	// SeedreamExpirySvc (Phase 5) — depositEndDate 경과 VA 주문 EXPIRED 전이 (1분 cron)
 	SeedreamExpirySvc *services.SeedreamExpiryService
+
+	// SeedreamReconcileSvc (Phase 5) — Seedream 드리프트 스캔 (10분 cron, 관찰 전용)
+	SeedreamReconcileSvc *services.SeedreamReconcileService
 }
 
 // NewHandlers creates all service and handler instances with proper dependency injection.
@@ -324,6 +327,9 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	// Seedream VA 만료 처리 (Phase 5) — 1분 cron 진입점
 	seedreamExpirySvc := services.NewSeedreamExpiryService(db, logger.Log)
 
+	// Seedream 상태 동기화 (Phase 5) — 10분 cron, Seedream API 호출 포함
+	seedreamReconcileSvc := services.NewSeedreamReconcileService(db, seedreamClient, logger.Log)
+
 	// Fulfillment: 외부 API 발급 파이프라인
 	stubIssuer := issuance.NewStubIssuer()
 	seedreampayIssuer := issuance.NewSeedreampayIssuer(db, time.Now)
@@ -417,8 +423,9 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 		SeedreamWebhook:   handlers.NewSeedreamWebhookHandler(db, vaccountWebhookSvc, webhookPool, cfg.SeedreamWebhookSecret),
 		SeedreamCancel:    handlers.NewSeedreamCancelHandler(cancelSvc),
 		VAccount:          handlers.NewVAccountHandler(vaccountService),
-		SeedreamExpirySvc: seedreamExpirySvc,
-		WebhookPool:       webhookPool,
+		SeedreamExpirySvc:    seedreamExpirySvc,
+		SeedreamReconcileSvc: seedreamReconcileSvc,
+		WebhookPool:          webhookPool,
 	}
 
 	// Handlers 구조체 생성 후 setter injection

@@ -209,6 +209,136 @@ func (c *Client) GetVAccountByOrderNo(ctx context.Context, orderNo, traceID stri
 	}
 }
 
+// VAccountListQuery 는 ListVAccounts 쿼리 파라미터입니다.
+//
+// Seedream §6 GET /api/v1/vaccount 의 지원 필터 집합 (§6.7). 다른 필터는
+// 서버 미지원 — 내부 DB 에서 필터링해야 합니다.
+type VAccountListQuery struct {
+	From           time.Time // createdAt >= From (RFC3339). Zero 시 무필터.
+	To             time.Time // createdAt <= To. Zero 시 무필터.
+	ReservedIndex1 string    // 권장: "seedreamgift" 로 상품권 사이트 발급분만 격리
+	Status         string    // 선택: "PENDING" | "SUCCESS" | ...
+	Page           int       // 1-based. 0 이면 1.
+	PageSize       int       // 0 이면 100 default, max 100.
+}
+
+// ListVAccounts 는 GET /api/v1/vaccount 를 호출해 페이지 단위로 VAccountResult 를 반환합니다.
+//
+// 주된 용도:
+//   - Reconcile (Phase 5): since 이후 생성/갱신된 주문을 스캔해 웹훅 유실 감지.
+//   - Ops 감사: 특정 기간/상태 주문 확인.
+//
+// 단건 조회는 GetVAccountByOrderNo 사용 — 이 함수는 목록용.
+func (c *Client) ListVAccounts(ctx context.Context, q VAccountListQuery, traceID string) (*VAccountListPage, error) {
+	if traceID == "" {
+		traceID = uuid.NewString()
+	}
+	if q.Page == 0 {
+		q.Page = 1
+	}
+	if q.PageSize == 0 {
+		q.PageSize = 100
+	}
+
+	values := url.Values{}
+	if !q.From.IsZero() {
+		values.Set("from", q.From.UTC().Format(time.RFC3339))
+	}
+	if !q.To.IsZero() {
+		values.Set("to", q.To.UTC().Format(time.RFC3339))
+	}
+	if q.ReservedIndex1 != "" {
+		values.Set("reservedIndex1", q.ReservedIndex1)
+	}
+	if q.Status != "" {
+		values.Set("status", q.Status)
+	}
+	values.Set("page", strconv.Itoa(q.Page))
+	values.Set("pageSize", strconv.Itoa(q.PageSize))
+
+	reqURL := c.baseURL + "/api/v1/vaccount?" + values.Encode()
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("seedream: build list-vaccount request: %w", err)
+	}
+	httpReq.Header.Set("Accept", "application/json")
+	httpReq.Header.Set("X-API-Key", c.apiKey)
+	httpReq.Header.Set("X-Trace-Id", traceID)
+
+	start := time.Now()
+	resp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("seedream: http error (list-vaccount): %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("seedream: read list-vaccount response: %w", err)
+	}
+
+	if resp.StatusCode == http.StatusTooManyRequests {
+		retry := resp.Header.Get("Retry-After")
+		c.logger.Warn("seedream rate limited (list-vaccount)",
+			zap.String("retryAfter", retry),
+			zap.String("traceId", traceID))
+	}
+
+	var env Envelope[VAccountListPage]
+	if err := json.Unmarshal(respBody, &env); err != nil {
+		return nil, fmt.Errorf("seedream: parse list-vaccount envelope (status %d): %w", resp.StatusCode, err)
+	}
+
+	c.logger.Info("seedream list-vaccount",
+		zap.Int("page", q.Page),
+		zap.Int("pageSize", q.PageSize),
+		zap.Int("status", resp.StatusCode),
+		zap.Bool("success", env.Success),
+		zap.Int("items", len(env.Data.Items)),
+		zap.Int64("total", env.Data.Total),
+		zap.Bool("hasMore", env.Data.HasMore),
+		zap.String("errorCode", env.ErrorCode),
+		zap.String("traceId", firstNonEmpty(env.metaTraceID(), resp.Header.Get("X-Trace-Id"), traceID)),
+		zap.Int64("latencyMs", time.Since(start).Milliseconds()))
+
+	if !env.Success {
+		return nil, MapErrorCode(env.ErrorCode, env.Error, env.ErrorID, env.metaTraceID())
+	}
+	return &env.Data, nil
+}
+
+// WalkVAccountsSince 는 ListVAccounts 를 페이지네이션으로 순회하며 각 항목에 visit 를 호출합니다.
+// visit 가 에러를 반환하면 즉시 중단. HasMore=false 또는 페이지 상한(maxPages=50) 초과 시 종료.
+//
+// 페이지 상한 초과 시 에러 반환 — 호출자가 From 을 좁혀 다시 호출해야 합니다 (§6.6).
+func (c *Client) WalkVAccountsSince(
+	ctx context.Context,
+	q VAccountListQuery,
+	visit func(context.Context, VAccountResult) error,
+	traceID string,
+) error {
+	const maxPages = 50
+	if q.PageSize == 0 {
+		q.PageSize = 100
+	}
+	for page := 1; page <= maxPages; page++ {
+		q.Page = page
+		resp, err := c.ListVAccounts(ctx, q, traceID)
+		if err != nil {
+			return fmt.Errorf("walk page %d: %w", page, err)
+		}
+		for _, item := range resp.Items {
+			if err := visit(ctx, item); err != nil {
+				return fmt.Errorf("walk visit orderNo=%s: %w", item.OrderNo, err)
+			}
+		}
+		if !resp.HasMore {
+			return nil
+		}
+	}
+	return fmt.Errorf("walk exceeded %d pages — tighten 'from' filter", maxPages)
+}
+
 // metaTraceID 는 Envelope.Meta.TraceID 를 안전히 반환합니다 (Meta nil 방어).
 func (e Envelope[T]) metaTraceID() string {
 	if e.Meta == nil {
