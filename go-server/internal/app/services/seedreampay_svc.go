@@ -57,6 +57,7 @@ type SeedreampayService struct {
 	db       *gorm.DB
 	payments interfaces.IPaymentProvider
 	now      func() time.Time
+	eventSvc *OrderEventService // 선택 — 주입되지 않으면 이벤트 기록 생략
 }
 
 // NewSeedreampayService constructs a SeedreampayService. pp may be nil
@@ -66,6 +67,21 @@ func NewSeedreampayService(db *gorm.DB, pp interfaces.IPaymentProvider, now func
 		now = time.Now
 	}
 	return &SeedreampayService{db: db, payments: pp, now: now}
+}
+
+// SetOrderEventService 는 주문 timeline 기록 서비스를 주입합니다 (setter injection).
+// 미주입 상태로 두면 이벤트 기록만 건너뛰고 비즈니스 로직은 정상 동작.
+func (s *SeedreampayService) SetOrderEventService(svc *OrderEventService) {
+	s.eventSvc = svc
+}
+
+// recordEvent 는 eventSvc 가 주입됐을 때만 주문 이벤트를 기록합니다.
+// OrderEventService.Record 자체가 non-blocking 이라 여기서는 단순 위임.
+func (s *SeedreampayService) recordEvent(tx *gorm.DB, orderID int, eventType string, payload any) {
+	if s.eventSvc == nil || orderID == 0 {
+		return
+	}
+	s.eventSvc.Record(tx, orderID, eventType, nil, "SYSTEM", payload)
 }
 
 // getVoucherRow loads a full VoucherCode record by SerialNo. Returns
@@ -224,6 +240,16 @@ func (s *SeedreampayService) Redeem(ctx context.Context, in RedeemInput) (*Redee
 		}
 
 		result = &RedeemResult{SerialNo: in.SerialNo, AmountApplied: faceValue}
+
+		// Timeline 이벤트: 원 주문(vc.OrderID) 에 "바우처 사용" 을 기록.
+		// OrderID 가 없는 legacy 바우처는 기록 생략 (recordEvent 가 0 체크).
+		if vc.OrderID != nil {
+			s.recordEvent(tx, *vc.OrderID, "VOUCHER_REDEEMED", map[string]any{
+				"serialNo":      in.SerialNo,
+				"amountApplied": faceValue,
+				"usedAt":        now,
+			})
+		}
 		return nil
 	})
 	if err != nil {
@@ -292,6 +318,21 @@ func (s *SeedreampayService) Refund(ctx context.Context, in RefundInput) error {
 			if err := s.tryRefundPayment(ctx, tx, *vc.OrderID, in.Reason); err != nil {
 				return err
 			}
+		}
+
+		// Timeline 이벤트: 원 주문에 "바우처 환불" 을 기록.
+		// Payment reversal 성공 후에만 실행 (오류 시 transaction rollback 이 이벤트도 롤백).
+		if vc.OrderID != nil {
+			actorType := "USER"
+			if in.RequestedBy == ActorAdmin {
+				actorType = "ADMIN"
+			}
+			s.recordEvent(tx, *vc.OrderID, "VOUCHER_REFUNDED", map[string]any{
+				"serialNo":   in.SerialNo,
+				"reason":     in.Reason,
+				"actorType":  actorType,
+				"refundedAt": now,
+			})
 		}
 		return nil
 	})
