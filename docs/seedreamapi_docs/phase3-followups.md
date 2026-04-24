@@ -207,17 +207,25 @@ Phase 5-A/B 까지 모든 backend + frontend 가 현재 branch 에 통합됨:
 | 5-A | SeedreamExpiryService (1분 cron) + OrderService 가드 | `2a21374` |
 | 5-B | ListVAccounts + WalkVAccountsSince + ReconcileService (10분 cron, 관찰 전용) | `e81638e` |
 
-**배포 전 실행 필요**:
-1. `migrations/010_payment_seedream_daoutrx.sql` 실행 (Server C MSSQL)
-2. `SEEDREAM_WEBHOOK_SECRET` 환경변수 설정 (Server B, `go-server/.env`)
-3. `SEEDREAM_API_KEY` 환경변수 설정 (Server B, TEST 용 Ops 로부터 수령)
-4. SSL 인증서 배포 (Server A, AlphaSign 변환 4 파일 → fullchain.pem + privkey.pem)
-5. nginx reload (Server A, `/webhook/seedream` 103.97.209.194 whitelist)
-6. Server B 재기동 (NSSM `SeedreamGiftAPI` — cron 포함 부팅)
-7. Seedream Ops 에 `WebhookURL=https://seedreamgift.com/webhook/seedream` 등록 요청 (`onboarding.md §3.1` 템플릿)
-8. 키움 support@kiwoompay.co.kr 에 4개 통지 URL 등록 요청 (`onboarding.md §3.2` 템플릿)
-9. Cloudflare orange cloud 활성화
-10. Task 9 수동 smoke test (TEST 주문 1건 완주)
+**배포 전 실행 필요** (2026-04-24 업데이트):
+
+| # | 단계 | 상태 |
+|---|------|------|
+| 1 | `migrations/010~013` Server C MSSQL 순차 실행 | ⏳ 원격 작업 대기 |
+| 2 | `SEEDREAM_WEBHOOK_SECRET` 환경변수 — **TEST 용 `.env` 에 이미 세팅 완료** (`5e03...3e32`) | ✅ 로컬 준비 완료 |
+| 3 | `SEEDREAM_API_KEY` — TEST 용 `.env` 에 이미 세팅 (`623f...`) | ✅ 로컬 준비 완료 |
+| 4 | SSL 변환: AlphaSign 4파일 → `fullchain.pem` + `privkey.pem` | ✅ `deploy/ssl/` 완료 |
+| 5 | SSL 배포 (Server A `C:/nginx/ssl/seedreamgift.com/`) + nginx reload | ⏳ 원격 작업 대기 |
+| 6 | Server B 에 `.env` 배포 + `nssm restart SeedreamGiftAPI` | ⏳ 원격 작업 대기 |
+| 7 | Seedream Ops 에 TEST `WebhookURL` 등록 요청 | ✅ **2026-04-24 완료** |
+| 8 | 키움 support 에 4개 통지 URL 등록 요청 (`onboarding.md §3.2`) | ⏳ 발송 필요 |
+| 9 | Cloudflare orange cloud 활성화 | ⏳ 선택 사항 |
+| 10 | Task 9 수동 smoke test (`docs/seedreamapi_docs/deploy-runbook.md §2,3`) | ⏳ 5,6 완료 후 |
+
+**다음 단계 권장 순서**: 1 → 5 → 6 → smoke test → 8 → 10.
+
+**PROD 전환**: TEST 안정화 후 Seedream Ops 에 PROD 환경 별도 등록 요청 필요.
+현재 `.env.production` 의 `SEEDREAM_WEBHOOK_SECRET=""` 비어있음 — PROD secret 발급 후 채워야 함.
 
 **Phase 5 자동 복구 도입 기준**:
 - Reconcile 의 drift 로그를 2주 이상 관찰
