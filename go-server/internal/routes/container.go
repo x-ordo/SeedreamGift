@@ -352,6 +352,8 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 	orderService.SetOrderEventService(orderEventSvc)
 	paymentService.SetOrderEventService(orderEventSvc)
 	fulfillmentSvc.SetOrderEventService(orderEventSvc)
+	// Seedream 웹훅 수신 시 timeline 이벤트 기록 (Phase 4+ follow-up).
+	vaccountStateSvc.SetOrderEventService(orderEventSvc)
 
 	h := &Handlers{
 		DB:          db,

@@ -54,6 +54,113 @@ func seedPendingOrderWithPayment(t *testing.T, db *gorm.DB) (*domain.Order, *dom
 	return o, p
 }
 
+// setupStateTestDBWithEvents 는 OrderEvent 테이블까지 생성된 in-memory DB 를 반환합니다.
+// domain.OrderEvent.Payload 가 nvarchar(max) 라 GORM AutoMigrate 가 SQLite 에서 실패하므로
+// 수동 CREATE TABLE 로 dialect-safe 스키마를 제공.
+func setupStateTestDBWithEvents(t *testing.T) *gorm.DB {
+	db := setupStateTestDB(t)
+	require.NoError(t, db.Exec(`
+		CREATE TABLE IF NOT EXISTS "OrderEvents" (
+			"Id"        INTEGER PRIMARY KEY AUTOINCREMENT,
+			"OrderId"   INTEGER NOT NULL,
+			"EventType" TEXT NOT NULL,
+			"Payload"   TEXT,
+			"ActorId"   INTEGER,
+			"ActorType" TEXT,
+			"CreatedAt" DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+	`).Error)
+	return db
+}
+
+func countOrderEvents(t *testing.T, db *gorm.DB, orderID int, eventType string) int64 {
+	t.Helper()
+	var n int64
+	require.NoError(t, db.Table("OrderEvents").
+		Where(`"OrderId" = ? AND "EventType" = ?`, orderID, eventType).
+		Count(&n).Error)
+	return n
+}
+
+func TestApplyVAccountIssued_RecordsTimelineEvent(t *testing.T) {
+	db := setupStateTestDBWithEvents(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	svc.SetOrderEventService(NewOrderEventService(db))
+
+	require.NoError(t, svc.ApplyIssued(context.Background(), order.OrderCode, seedream.VAccountIssuedPayload{
+		OrderNo: *order.OrderCode, BankCode: "088", AccountNo: "110-x",
+		DepositEndDateAt: time.Now().Add(30 * time.Minute).UTC(),
+	}))
+
+	assert.Equal(t, int64(1), countOrderEvents(t, db, order.ID, "VACCOUNT_ISSUED"))
+}
+
+func TestApplyVAccountDeposited_RecordsTimelineEvent(t *testing.T) {
+	db := setupStateTestDBWithEvents(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "ISSUED")
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	svc.SetOrderEventService(NewOrderEventService(db))
+
+	require.NoError(t, svc.ApplyDeposited(context.Background(), order.OrderCode, seedream.VAccountDepositedPayload{
+		OrderNo: *order.OrderCode, Amount: 50000, DepositedAt: time.Now().UTC(),
+	}))
+
+	assert.Equal(t, int64(1), countOrderEvents(t, db, order.ID, "PAYMENT_CONFIRMED"))
+}
+
+func TestApplyPaymentCanceled_RecordsTimelineEvent(t *testing.T) {
+	db := setupStateTestDBWithEvents(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "ISSUED")
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	svc.SetOrderEventService(NewOrderEventService(db))
+
+	require.NoError(t, svc.ApplyPaymentCanceled(context.Background(), order.OrderCode, seedream.PaymentCanceledPayload{
+		OrderNo: *order.OrderCode, Reason: "merchant-cancel", CanceledAt: time.Now().UTC(),
+	}))
+
+	assert.Equal(t, int64(1), countOrderEvents(t, db, order.ID, "PAYMENT_CANCELED"))
+}
+
+func TestApplyVAccountCancelled_RecordsExternalEvent(t *testing.T) {
+	db := setupStateTestDBWithEvents(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+	db.Model(&domain.Order{}).Where("Id = ?", order.ID).Update("Status", "ISSUED")
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	svc.SetOrderEventService(NewOrderEventService(db))
+
+	require.NoError(t, svc.ApplyVAccountCancelled(context.Background(), order.OrderCode, seedream.VAccountCancelledPayload{
+		OrderNo: *order.OrderCode, DaouTrx: "TRX-99", Reason: "bank-timeout",
+		CancelledAt: time.Now().UTC(),
+	}))
+
+	assert.Equal(t, int64(1), countOrderEvents(t, db, order.ID, "PAYMENT_CANCELLED_EXTERNAL"))
+}
+
+func TestApplyStateService_NoEventSvc_NoFailure(t *testing.T) {
+	// eventSvc 미주입 — recordEvent 가 조용히 skip 하고 transition 만 정상 수행.
+	db := setupStateTestDB(t)
+	order, _ := seedPendingOrderWithPayment(t, db)
+
+	svc := NewVAccountStateService(db, zap.NewNop())
+	// SetOrderEventService 호출 안 함
+
+	require.NoError(t, svc.ApplyIssued(context.Background(), order.OrderCode, seedream.VAccountIssuedPayload{
+		OrderNo: *order.OrderCode, BankCode: "088", AccountNo: "110-x",
+		DepositEndDateAt: time.Now().Add(30 * time.Minute).UTC(),
+	}))
+
+	var got domain.Order
+	require.NoError(t, db.First(&got, order.ID).Error)
+	assert.Equal(t, "ISSUED", got.Status)
+}
+
 func TestApplyVAccountIssued(t *testing.T) {
 	db := setupStateTestDB(t)
 	order, _ := seedPendingOrderWithPayment(t, db)
