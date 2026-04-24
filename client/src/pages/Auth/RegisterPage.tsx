@@ -74,16 +74,44 @@ const RegisterPage: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   }, []);
 
-  /** 전화번호 입력 시 자동 하이픈 포맷팅 */
+  /** 전화번호 입력 시 자동 하이픈 포맷팅. setState 직후 커서 위치를 복원하여
+   *  중간 삽입/삭제 시에도 커서가 끝으로 튀지 않도록 보존. */
   const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+    const input = e.target;
+    const raw = input.value;
+    const prevSelStart = input.selectionStart ?? raw.length;
+    // 커서 앞까지의 digit 수 — 포맷 변경과 무관하게 불변. 이를 기준으로 새 위치 계산.
+    const digitsBeforeCursor = raw.slice(0, prevSelStart).replace(/\D/g, '').length;
+
+    const digits = raw.replace(/\D/g, '').slice(0, 11);
     let formatted = digits;
     if (digits.length > 7) {
       formatted = `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
     } else if (digits.length > 3) {
       formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
     }
+
+    // formatted 에서 digitsBeforeCursor 만큼의 digit 을 지난 지점을 찾음.
+    // hyphen 바로 앞에 위치하게 되면 hyphen 뒤로 옮겨 다음 입력이 자연스럽게 이어지도록.
+    let newCursor = 0;
+    let digitsSeen = 0;
+    while (newCursor < formatted.length && digitsSeen < digitsBeforeCursor) {
+      if (/\d/.test(formatted[newCursor])) digitsSeen += 1;
+      newCursor += 1;
+    }
+    if (newCursor < formatted.length && formatted[newCursor] === '-') {
+      newCursor += 1;
+    }
+
     setFormData(prev => ({ ...prev, phone: formatted }));
+
+    // setState 후 DOM 이 새 value 로 업데이트된 뒤 커서 위치 복원.
+    // requestAnimationFrame 으로 React 의 flushSync 이후 실행 보장.
+    requestAnimationFrame(() => {
+      if (document.activeElement === input) {
+        input.setSelectionRange(newCursor, newCursor);
+      }
+    });
   }, []);
 
   const openLegalModal = useCallback((type: 'terms' | 'privacy') => {
@@ -108,10 +136,14 @@ const RegisterPage: React.FC = () => {
 
   /** PASS 본인인증 완료 콜백 */
   const handlePassVerified = useCallback((data: KycVerifiedData) => {
+    // 현재 Coocon 팝업 플로우는 닫힘 감지만 수행하고 실제 name/phone 을 돌려받지
+    // 못해 KycVerification 이 공백 객체를 전달함 (KycVerification.tsx:94 참조).
+    // 유저가 이미 입력한 값을 공백으로 덮어쓰지 않도록 조건부 merge.
+    // 향후 Coocon 에서 실제 결과를 받게 되면 truthy 값이므로 자연스럽게 덮어씀.
     setFormData(prev => ({
       ...prev,
-      name: data.name,
-      phone: data.phone,
+      ...(data.name ? { name: data.name } : {}),
+      ...(data.phone ? { phone: data.phone } : {}),
     }));
     setIsPassVerified(true);
   }, []);
