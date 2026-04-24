@@ -3,10 +3,12 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"seedream-gift-server/internal/domain"
 	"seedream-gift-server/internal/infra/seedream"
+	"seedream-gift-server/pkg/telegram"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -100,6 +102,19 @@ func (s *SeedreamReconcileService) Reconcile(ctx context.Context) error {
 			zap.String("seedreamPhase", item.Phase),
 			zap.Int64("seedreamAmount", item.Amount),
 			zap.String("kind", string(kind)))
+
+		// AMOUNT_MISMATCH 는 돈 관련 이슈이므로 즉각적 Ops 에스컬레이션.
+		// 다른 drift 는 대부분 웹훅 지연 흡수로 자연 해결되지만 AMOUNT_MISMATCH 는
+		// 유저가 잘못된 금액을 입금한 상태라 수동 처리 필요.
+		if kind == DriftAmountMismatch {
+			msg := fmt.Sprintf(
+				"⚠️ <b>Seedream AMOUNT_MISMATCH 감지</b>\n\n"+
+					"주문번호: <code>%s</code>\n"+
+					"Seedream amount: %d\n"+
+					"수동 처리 필요 — /admin 에서 주문 상세 확인 후 환불 또는 차액 처리 결정.",
+				item.OrderNo, item.Amount)
+			go telegram.SendAlert(telegram.GetGlobalToken(), telegram.GetGlobalChatID(), msg)
+		}
 		return nil
 	}, "")
 
