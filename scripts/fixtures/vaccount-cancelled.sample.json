@@ -1,0 +1,8 @@
+{
+  "eventId": "evt_test_cancelled_00000001",
+  "callerId": "seedreamgift-test",
+  "orderNo": "ORD-TEST-SMOKE-0001",
+  "daouTrx": "TRX-SMOKE-12345",
+  "reason": "외부 자동 취소 — 은행/키움 timeout 가정",
+  "cancelledAt": "2026-04-24T13:40:00Z"
+}

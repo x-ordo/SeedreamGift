@@ -57,7 +57,7 @@ WHERE object_id = OBJECT_ID('dbo.Orders')
 
 ### 1.2. Server A (103.97.209.205, nginx/frontend) — SSL 배포 + nginx reload
 
-**deploy/ssl/** 두 파일을 Server A 로 복사:
+#### 1.2.1. SSL 인증서 복사 (2 파일)
 
 ```powershell
 # 로컬 (SeedreamGift repo root) 에서
@@ -65,18 +65,67 @@ scp deploy/ssl/fullchain.pem Administrator@103.97.209.205:C:/nginx/ssl/seedreamg
 scp deploy/ssl/privkey.pem   Administrator@103.97.209.205:C:/nginx/ssl/seedreamgift.com/
 ```
 
-(또는 zip → RDP → 해당 폴더 배치)
+SSL 상태: leaf (`CN=www.seedreamgift.com`, SAN `seedreamgift.com` + `www.seedreamgift.com`)
++ intermediate 체인 포함, RSA 2048, GlobalSign GCC R6 AlphaSSL CA 2025 발급,
+NotAfter 2026-11-08 (~197일 유효).
 
-**nginx 설정 배포**:
+#### 1.2.2. nginx 설정 배포 — 백업 → diff → swap (덮어쓰기 금지)
+
+⚠️ `config/nginx/nginx205.conf` 는 **Server A 실제 파일의 snapshot + seedreamgift.com
+추가** 형태이므로 IaC drift 위험이 있습니다. 직접 `nginx.conf` 로 덮어쓰지 말고
+아래 3단계로 진행:
+
+**Step 1 · Server A 에서 현재 파일 백업**
+
 ```powershell
-scp config/nginx/nginx205.conf Administrator@103.97.209.205:C:/nginx/conf/nginx.conf
+cd C:\nginx\conf
+copy nginx.conf nginx.conf.backup-2026-04-24
 ```
 
-**Server A 에서**:
+**Step 2 · 로컬 → 서버 임시 경로로 복사 (`.new` 접미)**
+
 ```powershell
+# 로컬
+scp D:\dev\SeedreamGift\config\nginx\nginx205.conf `
+    Administrator@103.97.209.205:C:/nginx/conf/nginx.conf.new
+```
+
+**Step 3 · diff 확인 → swap**
+
+```powershell
+# Server A 에서
+cd C:\nginx\conf
+fc nginx.conf nginx.conf.new     # Windows diff — 차이 눈으로 검토
+```
+
+**예상되는 diff (OK)**:
+- seedreamgift.com HTTP + HTTPS server block 신규 추가
+- `/webhook/seedream` location (IP whitelist `103.97.209.194`)
+- Seedream 전용 upstream 또는 rate limit zone
+- Cloudflare real-IP 복원 블록 (`set_real_ip_from`)
+
+**차단 사유가 되는 diff (있으면 중단 + 수동 병합)**:
+- 🔴 wowgift.co.kr 또는 paysolus.kr server block 내부 변경
+- 🔴 전역 설정 (worker_processes, http timeout, 로그 경로 등)
+- 🔴 기존 upstream 정의 제거
+
+**Step 4 · 검증 후 교체**
+
+```powershell
+# Server A 에서 — diff 문제 없을 경우
+move nginx.conf nginx.conf.old-2026-04-24
+move nginx.conf.new nginx.conf
 cd C:\nginx
-.\nginx.exe -t                     # 구문 검증
+.\nginx.exe -t                     # 구문 검증 (test is successful 필수)
 .\nginx.exe -s reload              # 무중단 재시작
+```
+
+`-t` 에서 에러 발생 시 **절대 reload 하지 말고** 바로 복원:
+
+```powershell
+cd C:\nginx\conf
+move nginx.conf nginx.conf.broken
+move nginx.conf.old-2026-04-24 nginx.conf
 ```
 
 ### 1.3. Server B (103.97.209.194, Go API) — env 배포 + 서비스 재기동

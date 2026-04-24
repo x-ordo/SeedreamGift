@@ -1,0 +1,7 @@
+{
+  "eventId": "evt_test_deposited_00000001",
+  "callerId": "seedreamgift-test",
+  "orderNo": "ORD-TEST-SMOKE-0001",
+  "amount": 50000,
+  "depositedAt": "2026-04-24T13:30:00Z"
+}

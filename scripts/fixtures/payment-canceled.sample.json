@@ -1,0 +1,7 @@
+{
+  "eventId": "evt_test_canceled_00000001",
+  "callerId": "seedreamgift-test",
+  "orderNo": "ORD-TEST-SMOKE-0001",
+  "reason": "smoke test — 가맹점 요청 입금 전 취소",
+  "canceledAt": "2026-04-24T13:35:00Z"
+}

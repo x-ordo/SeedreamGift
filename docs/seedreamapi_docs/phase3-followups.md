@@ -207,25 +207,32 @@ Phase 5-A/B 까지 모든 backend + frontend 가 현재 branch 에 통합됨:
 | 5-A | SeedreamExpiryService (1분 cron) + OrderService 가드 | `2a21374` |
 | 5-B | ListVAccounts + WalkVAccountsSince + ReconcileService (10분 cron, 관찰 전용) | `e81638e` |
 
-**배포 전 실행 필요** (2026-04-24 업데이트):
+**배포 전 실행 필요** (2026-04-24 21:45 갱신):
 
 | # | 단계 | 상태 |
 |---|------|------|
-| 1 | `migrations/010~013` Server C MSSQL 순차 실행 | ⏳ 원격 작업 대기 |
-| 2 | `SEEDREAM_WEBHOOK_SECRET` 환경변수 — **TEST 용 `.env` 에 이미 세팅 완료** (`5e03...3e32`) | ✅ 로컬 준비 완료 |
-| 3 | `SEEDREAM_API_KEY` — TEST 용 `.env` 에 이미 세팅 (`623f...`) | ✅ 로컬 준비 완료 |
+| 1 | `migrations/008~013` Server C MSSQL 순차 실행 | ✅ **완료** (cmd/migrate/verify: 8 pass / 0 fail) |
+| 2 | `SEEDREAM_WEBHOOK_SECRET=853a...9015` — `.env` + `.env.production` 모두 세팅 | ✅ **완료** |
+| 3 | `SEEDREAM_API_KEY` prod `0e30...85f7` / test `623f...fa71` — 환경별 분리 | ✅ **완료** |
 | 4 | SSL 변환: AlphaSign 4파일 → `fullchain.pem` + `privkey.pem` | ✅ `deploy/ssl/` 완료 |
-| 5 | SSL 배포 (Server A `C:/nginx/ssl/seedreamgift.com/`) + nginx reload | ⏳ 원격 작업 대기 |
-| 6 | Server B 에 `.env` 배포 + `nssm restart SeedreamGiftAPI` | ⏳ 원격 작업 대기 |
-| 7 | Seedream Ops 에 TEST `WebhookURL` 등록 요청 | ✅ **2026-04-24 완료** |
-| 8 | 키움 support 에 4개 통지 URL 등록 요청 (`onboarding.md §3.2`) | ⏳ 발송 필요 |
-| 9 | Cloudflare orange cloud 활성화 | ⏳ 선택 사항 |
-| 10 | Task 9 수동 smoke test (`docs/seedreamapi_docs/deploy-runbook.md §2,3`) | ⏳ 5,6 완료 후 |
+| 5 | **Wails 빌드 + ZIP 패키징** (autoIncrement 버그 fix 포함) | ✅ `deploy/api-20260424-214245.zip` (14.5 MB) |
+| 6 | SSL 배포 (Server A `C:/nginx/ssl/seedreamgift.com/`) + nginx 안전 절차 reload | ⏳ 원격 작업 대기 (runbook §1.2 참조) |
+| 7 | Server B 에 새 ZIP 배포 + `nssm restart SeedreamGiftAPI` | ⏳ 원격 작업 대기 |
+| 8 | Seedream Ops 에 `WebhookURL` 등록 요청 | ✅ **2026-04-24 완료** |
+| 9 | 키움 support 에 4개 통지 URL 등록 요청 (`onboarding.md §3.2`) | ⏳ 발송 필요 |
+| 10 | Cloudflare orange cloud 활성화 | ⏳ 선택 사항 |
+| 11 | Webhook smoke test — 서명된 POST 로 200 응답 확인 | ⏳ 7 완료 후 (`scripts/seedream-webhook-sign.mjs` 준비) |
+| 12 | Task 12 실제 주문 E2E (runbook §3) | ⏳ smoke 성공 후 |
 
-**다음 단계 권장 순서**: 1 → 5 → 6 → smoke test → 8 → 10.
+**다음 단계 권장 순서**: 6 → 7 → 11 → 9 → 12.
 
-**PROD 전환**: TEST 안정화 후 Seedream Ops 에 PROD 환경 별도 등록 요청 필요.
-현재 `.env.production` 의 `SEEDREAM_WEBHOOK_SECRET=""` 비어있음 — PROD secret 발급 후 채워야 함.
+**이번 세션 중 발견/해결**:
+- DATABASE_URL URL format 파싱 버그 (세미콜론 vs URL query) — `.env.production` 수정 완료
+- WebhookReceipt.DeliveryID autoIncrement GORM 태그 누락 → MSSQL NOT NULL 위반 — 수정 완료 (`8d4e378`)
+- autoIncrement 전수 점검 — 다른 엔티티는 모두 IDENTITY/문자열 PK/싱글턴으로 안전
+
+**PROD 환경**: Seedream Ops 가 test/prod 공통 secret 발급 — `.env.production` `853a...` 로 세팅됨.
+API 키와 CallerID 는 환경별 분리 (prod: `seedreamgift-prod`, test: `seedreamgift-test`).
 
 **Phase 5 자동 복구 도입 기준**:
 - Reconcile 의 drift 로그를 2주 이상 관찰
