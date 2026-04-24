@@ -58,11 +58,20 @@ const PendingPaymentCard: React.FC<Props> = ({ orderId }) => {
   const resumeMutation = useResumePayment();
 
   // 1초마다 re-render 해서 카운트다운 갱신.
+  // 카운트다운이 유의미한 경우 (expiresAt 존재 + AWAITING_* 상태) 에만 interval 가동.
+  // PAID/EXPIRED/CANCELLED 로 전이되거나 expiresAt 없는 주문(CASH 등) 에서는
+  // deps 변경으로 cleanup → CPU 낭비 방지. 여러 PENDING 주문이 동시 렌더될 때 중요.
+  const expiresAt = data?.expiresAt;
+  const uiStatus = data?.uiStatus;
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
+    if (!expiresAt) return undefined;
+    if (uiStatus !== 'AWAITING_BANK_SELECTION' && uiStatus !== 'AWAITING_DEPOSIT') {
+      return undefined;
+    }
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [expiresAt, uiStatus]);
 
   if (isLoading) {
     return <div className={styles.loadingText}>결제 정보 불러오는 중...</div>;
