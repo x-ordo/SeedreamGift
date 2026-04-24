@@ -1,27 +1,34 @@
 ---
 title: Seedream Payment Phase 3 — Follow-up Items
 date: 2026-04-23
-status: tracking
-phase: 3 (merged, follow-ups pending)
+updated: 2026-04-24
+status: tracking (Phase 4/5 merged on current branch — many items closed)
+phase: 3 (merged) + 4 (merged, `feat/seedreampay-voucher-p1-schema`) + 5 (merged, same branch)
 related:
   - docs/superpowers/plans/2026-04-22-seedream-payment-phase-3-webhook-state-machine.md
+  - docs/superpowers/plans/2026-04-23-seedream-payment-phase-4-cancel-refund.md
   - docs/seedreamapi_docs/api-modifications.md
 ---
 
 # Phase 3 Follow-up Items
 
-Phase 3(Seedream 웹훅 수신) 최종 통합 리뷰에서 식별된 non-blocker 개선 항목. 각 항목은 Phase 4 착수 시 또는 운영 안정화 기간 동안 처리.
+Phase 3(Seedream 웹훅 수신) 최종 통합 리뷰에서 식별된 non-blocker 개선 항목. Phase 4 / Phase 5 구현 과정에서 아래와 같이 상당수가 처리됨.
 
-**처리 완료된 blocker** (이번 세션 `f19426c` 커밋에 포함):
+**처리 완료된 blocker** (`f19426c` 커밋):
 - ✅ C-1: `SEEDREAM_WEBHOOK_SECRET` 부팅 assertion
 - ✅ C-2: `/webhook/seedream` 경로 middleware 4xx bypass
 - ✅ I-1: AuditMiddleware `accountNo`/`receiverName`/`depositorName` PII mask
+
+**Phase 4/5 중 처리된 I급 항목**:
+- ✅ I-2: Sync fallback context — `context.WithTimeout(Background(), 8s)` 로 수정 (`ebaf51c`)
+- ✅ I-3: ApplyIssued terminal state WARN — 테스트 `TestApplyVAccountIssued_TerminalState_Warns` 포함 (`0b0a4c3`)
+- ✅ I-4 (CLOSED): non-issue — Phase 3/4/5 가 단일 branch 에서 통합 머지 예정이므로 Phase 3 단독 배포 기간이 존재하지 않음. Phase 4 배포 시 ProcessedAt 이 이미 Phase 4 핸들러에서 세팅되는 구조. 원래 우려된 "Phase 3 단독 가동 중 도달한 cancel 이벤트의 replay 불가" 시나리오는 발생하지 않음.
 
 ---
 
 ## Important (I급) — Phase 4 초입 처리 권장
 
-### I-2. Sync fallback이 gin request context 사용
+### ✅ I-2. Sync fallback이 gin request context 사용 — 처리됨 (`ebaf51c`)
 
 **파일**: `go-server/internal/api/handlers/seedream_webhook_handler.go:113`
 
@@ -40,7 +47,7 @@ if err := h.webhookSvc.Handle(syncCtx, deliveryID, event, raw); err != nil {
 
 ---
 
-### I-3. `ApplyIssued`가 CANCELLED/EXPIRED 를 INFO 무음 처리
+### ✅ I-3. `ApplyIssued`가 CANCELLED/EXPIRED 를 INFO 무음 처리 — 처리됨 (`0b0a4c3`)
 
 **파일**: `go-server/internal/app/services/vaccount_state.go:47-51`
 
@@ -65,7 +72,7 @@ default: // CANCELLED, EXPIRED, AMOUNT_MISMATCH
 
 ---
 
-### I-4. Phase 4 이벤트가 Phase 3 에서 ProcessedAt 세팅
+### ✅ I-4. (CLOSED — non-issue) Phase 4 이벤트가 Phase 3 에서 ProcessedAt 세팅
 
 **파일**: `go-server/internal/app/services/vaccount_webhook_svc.go:57-65`
 
@@ -174,13 +181,45 @@ Payment 가 없을 때 `WHERE OrderId = ? AND Status = 'PENDING'` 이 0 rows 영
 
 ---
 
-## 참고: 우선순위 매트릭스
+## 참고: 우선순위 매트릭스 (2026-04-24 업데이트)
 
-| 항목 | 긴급도 | 작업량 | 트리거 |
-|------|-------|-------|-------|
-| I-2 | 중 | 10분 | Phase 4 착수 |
-| I-3 | 중 | 15분 | Phase 4 착수 |
-| I-4 | 상 | 30~60분 | Phase 4 설계 |
-| I-5 | 하 | 2~4시간 | MSSQL 부하 관찰 후 |
-| M-1~M-7 | 하 | 각 10~30분 | 지속적 개선 |
-| Task 9 | 상 | 10분 | 온보딩 완료 후 |
+| 항목 | 상태 | 처리 커밋 / 사유 |
+|------|------|-------------------|
+| I-2 | ✅ 완료 | `ebaf51c` — `context.WithTimeout(Background(), 8s)` |
+| I-3 | ✅ 완료 | `0b0a4c3` — WARN 분기 + `TestApplyVAccountIssued_TerminalState_Warns` |
+| I-4 | ✅ closed (non-issue) | 현재 branch 에 Phase 3/4/5 통합 머지 예정 — Phase 3 단독 배포 시나리오 없음 |
+| I-5 | ⏳ open | MSSQL 부하 관찰 후. 현재 단일 webhook 소스라 동시성 이슈 낮음 |
+| M-1~M-7 | ⏳ open | 지속적 개선. Phase 5 MVP 가동 후 운영 지표 보고 우선순위 재평가 |
+| Task 9 (수동 E2E) | ⏳ blocked | 인프라 온보딩 (SSL 205 배포, nginx reload, 131 firewall, 키움 4 URL 등록) 완료 후 |
+
+---
+
+## Phase 5 완료 후 Seedream 통합 현황 (2026-04-24)
+
+Phase 5-A/B 까지 모든 backend + frontend 가 현재 branch 에 통합됨:
+
+| Phase | 구현 | 주요 커밋 |
+|-------|-----|-----------|
+| 2 backend | VAccountService.Issue + /payments/initiate | `9dc1a6a`, `d0ce845` |
+| 2 frontend | useInitiatePayment + /checkout/redirect + VA 분기 | `a722567` |
+| 3 | 웹훅 수신 + 상태 머신 + 워커 풀 | `3d7c290`~`f19426c` |
+| 4 | CancelService + /payment/seedream/cancel + 4 웹훅 payload | `5ae0088`~`df203fb` |
+| 5-A | SeedreamExpiryService (1분 cron) + OrderService 가드 | `2a21374` |
+| 5-B | ListVAccounts + WalkVAccountsSince + ReconcileService (10분 cron, 관찰 전용) | `e81638e` |
+
+**배포 전 실행 필요**:
+1. `migrations/010_payment_seedream_daoutrx.sql` 실행 (Server C MSSQL)
+2. `SEEDREAM_WEBHOOK_SECRET` 환경변수 설정 (Server B, `go-server/.env`)
+3. `SEEDREAM_API_KEY` 환경변수 설정 (Server B, TEST 용 Ops 로부터 수령)
+4. SSL 인증서 배포 (Server A, AlphaSign 변환 4 파일 → fullchain.pem + privkey.pem)
+5. nginx reload (Server A, `/webhook/seedream` 103.97.209.194 whitelist)
+6. Server B 재기동 (NSSM `SeedreamGiftAPI` — cron 포함 부팅)
+7. Seedream Ops 에 `WebhookURL=https://seedreamgift.com/webhook/seedream` 등록 요청 (`onboarding.md §3.1` 템플릿)
+8. 키움 support@kiwoompay.co.kr 에 4개 통지 URL 등록 요청 (`onboarding.md §3.2` 템플릿)
+9. Cloudflare orange cloud 활성화
+10. Task 9 수동 smoke test (TEST 주문 1건 완주)
+
+**Phase 5 자동 복구 도입 기준**:
+- Reconcile 의 drift 로그를 2주 이상 관찰
+- 오탐/오판 패턴이 < 1% 일 때 `DriftMissingDepositWebhook` 만 자동 apply 로 시작
+- 다른 drift 종류는 수동 처리 유지
