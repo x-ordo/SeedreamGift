@@ -8,9 +8,12 @@ import "time"
 //
 // 참조: Seedream 통합 가이드 §8.5 (멱등 수신)
 type WebhookReceipt struct {
-	// DeliveryID 는 Seedream WebhookDeliveries.Id (int64 autoIncrement BIGINT).
-	// X-Seedream-Delivery-Id 헤더로 내려옴.
-	DeliveryID int64 `gorm:"primaryKey;column:DeliveryId" json:"deliveryId"`
+	// DeliveryID 는 Seedream WebhookDeliveries.Id (int64 BIGINT).
+	// X-Seedream-Delivery-Id 헤더로 내려옴 — 외부 발급 ID 이므로 autoIncrement 아님.
+	// GORM 기본 primaryKey+int64 는 autoIncrement 로 해석해 INSERT SQL 에서 컬럼을
+	// 누락시키는데, MSSQL 의 DeliveryId 가 NOT NULL 로 정의돼 있어 이를 막으려면
+	// autoIncrement:false 를 명시해야 함 (2026-04-24 production smoke 중 발견).
+	DeliveryID int64 `gorm:"primaryKey;autoIncrement:false;column:DeliveryId" json:"deliveryId"`
 	// Event 는 X-Seedream-Event 헤더값. 예: "vaccount.deposited"
 	Event string `gorm:"column:Event;size:50;not null" json:"event"`
 	// EventID 는 payload.eventId (uuid). DeliveryID 와 별개이며 payload-level 중복 감지 보조용.
