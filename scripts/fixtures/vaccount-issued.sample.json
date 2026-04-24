@@ -1,0 +1,11 @@
+{
+  "eventId": "evt_test_00000001",
+  "callerId": "seedreamgift-test",
+  "orderNo": "ORD-TEST-SMOKE-0001",
+  "bankCode": "088",
+  "accountNo": "110-000-0000000",
+  "receiverName": "씨드림기프트",
+  "depositEndDate": "20260430235959",
+  "depositEndDateAt": "2026-04-30T14:59:59Z",
+  "issuedAt": "2026-04-24T00:00:00Z"
+}
