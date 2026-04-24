@@ -16,8 +16,9 @@ import (
 // VAccountStateService 는 Seedream 웹훅 이벤트에 따라 Order/Payment 상태를 전이시킵니다.
 // 설계 §6.2 의 전이 표를 참조하여 각 Apply* 함수로 분리.
 type VAccountStateService struct {
-	db     *gorm.DB
-	logger *zap.Logger
+	db       *gorm.DB
+	logger   *zap.Logger
+	eventSvc *OrderEventService // 선택적 (setter injection) — 주입되지 않으면 이벤트 기록 생략
 }
 
 func NewVAccountStateService(db *gorm.DB, logger *zap.Logger) *VAccountStateService {
@@ -25,6 +26,23 @@ func NewVAccountStateService(db *gorm.DB, logger *zap.Logger) *VAccountStateServ
 		logger = zap.NewNop()
 	}
 	return &VAccountStateService{db: db, logger: logger}
+}
+
+// SetOrderEventService 는 OrderEventService 를 주입합니다 (setter injection).
+// 웹훅 수신에 따른 Order 상태 전이를 감사/타임라인 용으로 기록합니다.
+// 미주입 상태로 두면 이벤트 기록만 건너뛰고 상태 전이는 정상 동작.
+func (s *VAccountStateService) SetOrderEventService(svc *OrderEventService) {
+	s.eventSvc = svc
+}
+
+// recordEvent 는 eventSvc 가 주입됐을 때만 이벤트를 기록합니다.
+// OrderEventService.Record 가 자체 에러 처리 (non-blocking 로그) 를 하므로
+// 여기서는 단순히 호출만 위임. 실제 상태 전이가 성공한 후에만 호출하도록 주의.
+func (s *VAccountStateService) recordEvent(tx *gorm.DB, orderID int, eventType string, payload any) {
+	if s.eventSvc == nil {
+		return
+	}
+	s.eventSvc.Record(tx, orderID, eventType, nil, "SYSTEM", payload)
 }
 
 // ApplyIssued 는 vaccount.issued 이벤트를 처리합니다.
@@ -81,6 +99,13 @@ func (s *VAccountStateService) ApplyIssued(ctx context.Context, orderCode *strin
 			}).Error; err != nil {
 			return err
 		}
+
+		// Timeline event: ISSUED 전이 (AccountNumber/EventId 는 민감하므로 payload 에서 제외).
+		s.recordEvent(tx, order.ID, "VACCOUNT_ISSUED", map[string]any{
+			"orderCode":        *orderCode,
+			"bankCode":         payload.BankCode,
+			"depositEndDateAt": payload.DepositEndDateAt,
+		})
 		return nil
 	})
 }
@@ -153,7 +178,15 @@ func (s *VAccountStateService) ApplyDeposited(ctx context.Context, orderCode *st
 			zap.Int("orderId", order.ID),
 			zap.Int64("vouchersSold", vcResult.RowsAffected))
 
-		// TODO(Phase 4+): Ledger.RecordPayment, OrderEvent 기록.
+		// Timeline event: PAID 전이 + SOLD 바우처 개수 함께 기록.
+		s.recordEvent(tx, order.ID, "PAYMENT_CONFIRMED", map[string]any{
+			"orderCode":    *orderCode,
+			"amount":       payload.Amount,
+			"depositedAt":  payload.DepositedAt,
+			"vouchersSold": vcResult.RowsAffected,
+		})
+
+		// TODO(Phase 4+): Ledger.RecordPayment.
 		return nil
 	})
 }
@@ -203,6 +236,14 @@ func (s *VAccountStateService) ApplyPaymentCanceled(ctx context.Context, orderCo
 			}).Error; err != nil {
 			return err
 		}
+
+		// Timeline event: 가맹점 요청 입금 전 취소.
+		s.recordEvent(tx, order.ID, "PAYMENT_CANCELED", map[string]any{
+			"orderCode":  *orderCode,
+			"reason":     payload.Reason,
+			"canceledAt": payload.CanceledAt,
+			"source":     "merchant", // L 1 = 가맹점 요청
+		})
 		return nil
 	})
 }
@@ -255,6 +296,13 @@ func (s *VAccountStateService) ApplyVAccountDepositCanceled(ctx context.Context,
 			}).Error; err != nil {
 			return err
 		}
+
+		// Timeline event: 입금 후 환불 요청 접수 (실제 입금은 deposit_cancel.deposited 에서).
+		s.recordEvent(tx, order.ID, "REFUND_REQUESTED", map[string]any{
+			"orderCode":  *orderCode,
+			"reason":     payload.Reason,
+			"canceledAt": payload.CanceledAt,
+		})
 		return nil
 	})
 }
@@ -310,6 +358,15 @@ func (s *VAccountStateService) ApplyVAccountCancelled(ctx context.Context, order
 			}).Error; err != nil {
 			return err
 		}
+
+		// Timeline event: 외부 자동 취소 — DaouTrx 감사 추적.
+		s.recordEvent(tx, order.ID, "PAYMENT_CANCELLED_EXTERNAL", map[string]any{
+			"orderCode":   *orderCode,
+			"daouTrx":     payload.DaouTrx,
+			"reason":      payload.Reason,
+			"cancelledAt": payload.CancelledAt,
+			"source":      "external", // L 2 = 키움/은행 자동 취소
+		})
 		return nil
 	})
 }
@@ -365,6 +422,14 @@ func (s *VAccountStateService) ApplyDepositCancelDeposited(ctx context.Context, 
 			}).Error; err != nil {
 			return err
 		}
+
+		// Timeline event: 환불 VA 에 실제 입금 확인 — 금액 감사 기록.
+		s.recordEvent(tx, order.ID, "REFUND_DEPOSIT_CONFIRMED", map[string]any{
+			"orderCode":     *orderCode,
+			"refundDaouTrx": payload.RefundDaouTrx,
+			"amount":        payload.Amount,
+			"cancelDate":    payload.CancelDate,
+		})
 		return nil
 	})
 }
