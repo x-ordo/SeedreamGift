@@ -10,6 +10,7 @@ import { ORDER_STATUS_COLOR_MAP, ORDER_STATUS_OPTIONS, ADMIN_PAGINATION } from '
 import AdminDetailModal from '../components/AdminDetailModal';
 import PaymentTimeline, { type PaymentItem } from '../components/PaymentTimeline';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { PaymentCancelModal } from '../components/PaymentCancelModal';
 import { exportToExcel, exportBankReport } from '../utils/exportExcel';
 import type { PinOption } from '../utils/exportExcel';
 import { useAdminList, useCheckboxSelect, useDebouncedSearch } from '../hooks';
@@ -31,6 +32,8 @@ interface Order {
   user?: { id: number; name: string; email: string; phone?: string };
   totalAmount: number;
   status: string;
+  /** CASH | VIRTUAL_ACCOUNT | DEDICATED_ACCOUNT | OPEN_BANKING. VIRTUAL_ACCOUNT 일 때만 Seedream 취소/환불 경로 적용 */
+  paymentMethod?: string;
   createdAt: string;
   updatedAt?: string;
   items?: OrderItem[];
@@ -77,6 +80,9 @@ const OrdersTab = () => {
   const [confirmModal, setConfirmModal] = useState<StatusChangeState>({
     open: false, orderId: 0, currentStatus: '', newStatus: ''
   });
+  // VA 입금 전 취소 모달 상태
+  const [paymentCancelTarget, setPaymentCancelTarget] = useState<{ orderId: number; orderCode: string } | null>(null);
+  const [paymentCancelSubmitting, setPaymentCancelSubmitting] = useState(false);
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const { events: timelineEvents, loading: timelineLoading, error: timelineError } =
@@ -309,21 +315,38 @@ const OrdersTab = () => {
     },
     {
       key: 'actions', header: '작업', align: 'right',
-      render: (o) => (
-        <select
-          className="admin-status-select"
-          value={o.status}
-          onChange={e => {
-            openStatusConfirm(o, e.target.value);
-            e.target.value = o.status;
-          }}
-          aria-label={`주문 #${o.id} 상태 변경`}
-        >
-          {ORDER_STATUS_OPTIONS.map(opt => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-      )
+      render: (o) => {
+        const isVA = o.paymentMethod === 'VIRTUAL_ACCOUNT';
+        const cancellable = isVA && (o.status === 'PENDING' || o.status === 'ISSUED') && !!o.orderCode;
+        return (
+          <div style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+            {cancellable && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setPaymentCancelTarget({ orderId: o.id, orderCode: o.orderCode! })}
+                aria-label={`주문 #${o.id} 결제 취소`}
+                style={{ color: 'var(--color-error, #f04452)' }}
+              >
+                결제 취소
+              </Button>
+            )}
+            <select
+              className="admin-status-select"
+              value={o.status}
+              onChange={e => {
+                openStatusConfirm(o, e.target.value);
+                e.target.value = o.status;
+              }}
+              aria-label={`주문 #${o.id} 상태 변경`}
+            >
+              {ORDER_STATUS_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        );
+      }
     }
   ];
 
@@ -481,6 +504,31 @@ const OrdersTab = () => {
           (으)로 변경하시겠습니까?
         </p>
       </ConfirmModal>
+
+      {/* VA 입금 전 결제 취소 모달 */}
+      <PaymentCancelModal
+        isOpen={paymentCancelTarget !== null}
+        onClose={() => setPaymentCancelTarget(null)}
+        orderCode={paymentCancelTarget?.orderCode ?? ''}
+        isSubmitting={paymentCancelSubmitting}
+        onConfirm={async (cancelReason) => {
+          if (!paymentCancelTarget) return;
+          setPaymentCancelSubmitting(true);
+          try {
+            await adminApi.cancelOrderPayment(paymentCancelTarget.orderId, { cancelReason });
+            showToast({ message: '결제 취소가 접수되었습니다. 잠시 후 상태가 갱신됩니다.', type: 'success' });
+            setPaymentCancelTarget(null);
+            reload();
+          } catch (err) {
+            const msg = (err as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error
+              ?? (err as Error)?.message
+              ?? '결제 취소에 실패했습니다';
+            showToast({ message: msg, type: 'error' });
+          } finally {
+            setPaymentCancelSubmitting(false);
+          }
+        }}
+      />
 
       {/* Batch Action Bar */}
       {selectedIds.size > 0 && (

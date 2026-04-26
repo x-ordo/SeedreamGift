@@ -128,3 +128,52 @@ func (h *AdminRefundHandler) SeedreamRefund(c *gin.Context) {
 	}
 	response.Success(c, gin.H{"message": "Seedream 환불이 완료되었습니다"})
 }
+
+// CancelVAccountPaymentRequest 는 관리자 입금 전 VA 발급 취소 요청 바디입니다.
+type CancelVAccountPaymentRequest struct {
+	CancelReason string `json:"cancelReason" binding:"required,min=5,max=50"`
+}
+
+// CancelVAccountPayment godoc
+// @Summary VA 주문 입금 전 결제 취소 (관리자)
+// @Description PENDING/ISSUED 상태의 VA 주문에 대해 Seedream CancelIssued API 로 취소합니다. owner check 는 admin 권한으로 우회됩니다. 성공 시 webhook 경로로 Order.Status 가 CANCELLED 로 전이됩니다.
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Order ID"
+// @Param body body CancelVAccountPaymentRequest true "취소 사유 (5~50자)"
+// @Success 200 {object} APIResponse
+// @Failure 400 {object} APIResponse
+// @Failure 404 {object} APIResponse
+// @Failure 500 {object} APIResponse
+// @Router /admin/orders/{id}/cancel-payment [post]
+func (h *AdminRefundHandler) CancelVAccountPayment(c *gin.Context) {
+	id, ok := parseIDParam(c, "id")
+	if !ok {
+		return
+	}
+	var req CancelVAccountPaymentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "잘못된 요청입니다: "+err.Error())
+		return
+	}
+	adminID := c.GetInt("userId")
+	if err := h.service.CancelVAccountIssued(c.Request.Context(), adminID, services.AdminCancelVAccountInput{
+		OrderID:      id,
+		CancelReason: req.CancelReason,
+	}); err != nil {
+		logger.Log.Error("admin cancel vaccount issued failed",
+			zap.Int("orderId", id),
+			zap.Int("adminId", adminID),
+			zap.Error(err),
+		)
+		if appErr, ok := apperror.As(err); ok {
+			response.Error(c, appErr.HTTPStatus(), appErr.Message)
+			return
+		}
+		response.InternalServerError(c, "결제 취소 호출 실패: "+err.Error())
+		return
+	}
+	response.Success(c, gin.H{"message": "결제 취소가 접수되었습니다"})
+}

@@ -29,6 +29,10 @@ interface Stats {
   lowStockProducts?: Array<{ productName: string; available: number; threshold: number }>;
   // Aging trade-ins (count by bucket)
   agingTradeIns?: { over24h: number; over48h: number; over72h: number };
+  // VA 결제 모니터링 (백엔드 admin_stats_svc.go 추가)
+  vaIssuedCount?: number;         // 입금 대기 — 가상계좌 발급되어 사용자 입금 기다리는 주문
+  vaExpiringSoonCount?: number;   // 만료 임박 (30분 이내)
+  refundInProgressCount?: number; // 환불 진행 중 (REFUNDED 상태)
 }
 
 interface GiftStats {
@@ -403,6 +407,44 @@ const DashboardTab = () => {
         <StatCard icon={Banknote}    label="매입 대기"   value={stats?.pendingTradeInCount || 0} suffix="건" variant="danger"  urgent={urgentTradeIn} onClick={() => setActiveTab('tradeins')} />
         <StatCard icon={Ticket}      label="전체 바우처" value={stats?.voucherCount || 0}       suffix="개"  variant="purple"  onClick={() => setActiveTab('vouchers')} />
         <StatCard icon={Gift}        label="전체 선물"   value={giftStats?.totalGifts || stats?.giftCount || 0} suffix="건" variant="pink" onClick={() => setActiveTab('gifts')} />
+      </div>
+
+      {/* VA 결제 모니터링 — 입금 대기 / 만료 임박 / 환불 진행 */}
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="flex items-center gap-2 border-b bg-slate-50 px-5 py-3">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100">
+            <Activity size={14} className="text-slate-600" aria-hidden="true" />
+          </div>
+          <h3 className="text-base font-bold text-slate-900">가상계좌 결제 모니터링</h3>
+        </div>
+        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-3">
+          <StatCard
+            icon={Clock}
+            label="입금 대기"
+            value={stats?.vaIssuedCount || 0}
+            suffix="건"
+            variant="warning"
+            urgent={(stats?.vaExpiringSoonCount || 0) > 0}
+            onClick={() => setActiveTab('orders')}
+          />
+          <StatCard
+            icon={AlertTriangle}
+            label="만료 임박 (30분 이내)"
+            value={stats?.vaExpiringSoonCount || 0}
+            suffix="건"
+            variant="danger"
+            urgent={(stats?.vaExpiringSoonCount || 0) > 0}
+            onClick={() => setActiveTab('orders')}
+          />
+          <StatCard
+            icon={DollarSign}
+            label="환불 진행 중"
+            value={stats?.refundInProgressCount || 0}
+            suffix="건"
+            variant="info"
+            onClick={() => setActiveTab('refunds')}
+          />
+        </div>
       </div>
 
       {/* 재고 부족 알림 (API) */}

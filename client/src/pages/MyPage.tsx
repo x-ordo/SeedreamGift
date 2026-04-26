@@ -14,6 +14,8 @@ import { WithdrawModal } from '../components/mypage/WithdrawModal';
 import { ExportOptionsModal } from '../components/mypage/ExportOptionsModal';
 import PendingPaymentCard from '../components/mypage/PendingPaymentCard';
 import OrderTimeline from '../components/mypage/OrderTimeline';
+import { CancelOrderModal } from '../components/mypage/CancelOrderModal';
+import { RefundOrderModal } from '../components/mypage/RefundOrderModal';
 import { MYPAGE_TAB_CONFIG, getMyPageTabsForRole, MyPageTab, type Order, type TradeIn, type MyGift, type MyGiftVoucher, type BankAccount, type NotificationSettings } from '../types';
 import type { AuthUser } from '../api/manual';
 import type { CashReceipt } from '../types/mypage';
@@ -91,21 +93,48 @@ MyPageSidebar.displayName = 'MyPageSidebar';
  * 주문 내역 탭 뷰 컴포넌트입니다.
  * 구매한 상품권 목록, 결제 상태, 필터 탭, PIN 번호 확인 기능을 제공합니다.
  */
-const OrderHistory = memo(({ orders, loading, onCancel, onCopy, onNavigate }: { orders: Order[], loading: boolean, onCancel: (id: number) => void, onCopy: (text: string) => void, onNavigate: (path: string) => void }) => {
+const OrderHistory = memo(({
+  orders,
+  loading,
+  onCancel,
+  onVACancel,
+  onVARefund,
+  onCopy,
+  onNavigate,
+}: {
+  orders: Order[],
+  loading: boolean,
+  onCancel: (id: number) => void,
+  /** VA 결제 입금 전 취소 (orderCode 필요) */
+  onVACancel: (orderCode: string) => void,
+  /** VA 결제 입금 후 환불 (orderCode 필요) */
+  onVARefund: (orderCode: string) => void,
+  onCopy: (text: string) => void,
+  onNavigate: (path: string) => void,
+}) => {
   const [statusFilter, setStatusFilter] = useState('all');
+
+  // 상태 그룹화:
+  //  - PENDING 필터 = 결제 진행 중 (PENDING, ISSUED)
+  //  - CANCELLED 필터 = 취소/환불 (CANCELLED, REFUNDED, REFUND_PAID, EXPIRED)
+  const isPendingGroup = (s: string) => s === 'PENDING' || s === 'ISSUED';
+  const isCancelledGroup = (s: string) =>
+    s === 'CANCELLED' || s === 'REFUNDED' || s === 'REFUND_PAID' || s === 'EXPIRED';
 
   const filteredOrders = statusFilter === 'all'
     ? orders
-    : statusFilter === 'CANCELLED'
-      ? orders.filter(o => o.status === 'CANCELLED' || o.status === 'REFUNDED')
-      : orders.filter(o => o.status === statusFilter);
+    : statusFilter === 'PENDING'
+      ? orders.filter(o => isPendingGroup(o.status))
+      : statusFilter === 'CANCELLED'
+        ? orders.filter(o => isCancelledGroup(o.status))
+        : orders.filter(o => o.status === statusFilter);
 
   const statusCounts = {
     all: orders.length,
-    PENDING: orders.filter(o => o.status === 'PENDING').length,
+    PENDING: orders.filter(o => isPendingGroup(o.status)).length,
     PAID: orders.filter(o => o.status === 'PAID').length,
     DELIVERED: orders.filter(o => o.status === 'DELIVERED').length,
-    CANCELLED: orders.filter(o => o.status === 'CANCELLED' || o.status === 'REFUNDED').length,
+    CANCELLED: orders.filter(o => isCancelledGroup(o.status)).length,
   };
 
   return (
@@ -171,12 +200,34 @@ const OrderHistory = memo(({ orders, loading, onCancel, onCopy, onNavigate }: { 
                   <div className="mypage-order-price">
                     {formatPrice(Number(order.totalAmount))}
                   </div>
-                  <div className="flex items-center gap-2">
-                    {order.status === 'PENDING' && (
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                    {/* PENDING + CASH 결제: 일반 주문 취소 (DB 만 변경) */}
+                    {order.status === 'PENDING' && order.paymentMethod !== 'VIRTUAL_ACCOUNT' && (
                       <button type="button" onClick={() => onCancel(order.id)} className="text-xs font-semibold text-error/70 hover:text-error transition-colors">
                         주문 취소
                       </button>
                     )}
+                    {/* PENDING/ISSUED + VA 결제: 키움페이 발급 취소 (Seedream cancel API) */}
+                    {(order.status === 'PENDING' || order.status === 'ISSUED') && order.paymentMethod === 'VIRTUAL_ACCOUNT' && order.orderCode && (
+                      <button
+                        type="button"
+                        onClick={() => onVACancel(order.orderCode!)}
+                        className="text-xs font-semibold text-error/70 hover:text-error transition-colors"
+                      >
+                        결제 취소
+                      </button>
+                    )}
+                    {/* PAID/DELIVERED + VA 결제: 환불 요청 (입금 후 취소) */}
+                    {(order.status === 'PAID' || order.status === 'DELIVERED') && order.paymentMethod === 'VIRTUAL_ACCOUNT' && order.orderCode && (
+                      <button
+                        type="button"
+                        onClick={() => onVARefund(order.orderCode!)}
+                        className="text-xs font-semibold text-error/70 hover:text-error transition-colors"
+                      >
+                        환불 요청
+                      </button>
+                    )}
+                    {/* 재주문 (PAID/DELIVERED 공통) */}
                     {(order.status === 'PAID' || order.status === 'DELIVERED') && order.orderItems && order.orderItems.length > 0 && order.orderItems[0].product?.brandCode && (
                       <button
                         type="button"
@@ -900,6 +951,15 @@ const MyPage: React.FC = () => {
     setCancelTarget,
     claimingGiftId,
     cancelOrderMutation,
+    seedreamCancelMutation,
+    vaCancelTarget,
+    vaRefundTarget,
+    handleVACancelOpen,
+    handleVACancelClose,
+    handleVACancelConfirm,
+    handleVARefundOpen,
+    handleVARefundClose,
+    handleVARefundConfirm,
     handleTabChange,
     copyToClipboard,
     handleCancelOrder,
@@ -1001,7 +1061,15 @@ const MyPage: React.FC = () => {
 
             <div className="support-hub-page__tab-content" key={activeTab}>
               {activeTab === 'orders' && (
-                <OrderHistory orders={orders} loading={loading} onCancel={handleCancelOrder} onCopy={copyToClipboard} onNavigate={navigate} />
+                <OrderHistory
+                  orders={orders}
+                  loading={loading}
+                  onCancel={handleCancelOrder}
+                  onVACancel={handleVACancelOpen}
+                  onVARefund={handleVARefundOpen}
+                  onCopy={copyToClipboard}
+                  onNavigate={navigate}
+                />
               )}
               {activeTab === 'gifts' && (
                 <GiftBox gifts={gifts} loading={loading} claimingGiftId={claimingGiftId} onClaim={handleClaimGift} onCopy={copyToClipboard} />
@@ -1229,6 +1297,25 @@ const MyPage: React.FC = () => {
           <p className="text-xs text-base-content/50">취소된 주문은 복구할 수 없습니다.</p>
         </div>
       </Modal>
+
+      {/* VA 결제 취소 모달 (입금 전, ISSUED) */}
+      <CancelOrderModal
+        isOpen={vaCancelTarget !== null}
+        onClose={handleVACancelClose}
+        onConfirm={handleVACancelConfirm}
+        orderCode={vaCancelTarget ?? ''}
+        isSubmitting={seedreamCancelMutation.isPending}
+      />
+
+      {/* VA 결제 환불 모달 (입금 후, PAID/DELIVERED) */}
+      <RefundOrderModal
+        isOpen={vaRefundTarget !== null}
+        onClose={handleVARefundClose}
+        onConfirm={handleVARefundConfirm}
+        orderCode={vaRefundTarget ?? ''}
+        defaultBankCode={bankAccount?.bankCode ?? undefined}
+        isSubmitting={seedreamCancelMutation.isPending}
+      />
     </div>
   );
 };

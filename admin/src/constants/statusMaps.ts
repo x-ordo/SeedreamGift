@@ -31,6 +31,18 @@ export const ORDER_STATUS_MAP: Record<string, StatusConfig> = {
     color: 'yellow',
     description: '결제가 진행 중입니다.',
   },
+  'ISSUED': {
+    label: '입금 대기',
+    class: 'bg-warning-light text-warning',
+    color: 'yellow',
+    description: '가상계좌가 발급되었습니다. 사용자 입금 대기 중.',
+  },
+  'EXPIRED': {
+    label: '입금 기한 만료',
+    class: 'bg-light text-muted',
+    color: 'elephant',
+    description: '입금 마감 시각이 지나 자동 만료됨.',
+  },
   'PAID': {
     label: '결제 완료',
     class: 'bg-primary-light text-primary',
@@ -56,10 +68,16 @@ export const ORDER_STATUS_MAP: Record<string, StatusConfig> = {
     description: '거래가 완료되었습니다.',
   },
   'REFUNDED': {
-    label: '환불됨',
+    label: '환불 진행 중',
+    class: 'bg-warning-light text-warning',
+    color: 'yellow',
+    description: '환불이 접수되어 키움 환불 처리 중.',
+  },
+  'REFUND_PAID': {
+    label: '환불 완료',
     class: 'bg-light text-muted',
-    color: 'red',
-    description: '환불 처리되었습니다.',
+    color: 'elephant',
+    description: '환불 금액이 사용자 계좌로 입금 완료됨.',
   },
   'FRAUD_HOLD': {
     label: '사기의심 보류',

@@ -70,6 +70,7 @@ func RegisterAdminRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handlers) 
 		admin.PATCH("/orders/batch-status", h.AdminOrder.BatchUpdateStatus)
 		admin.POST("/orders/:id/auto-deliver", h.AdminOrder.AutoDeliver)
 		admin.PATCH("/orders/:id/note", h.AdminOrder.UpdateNote)
+		admin.POST("/orders/:id/cancel-payment", h.AdminRefund.CancelVAccountPayment) // VA 입금 전 취소 (admin)
 
 		// Payments (결제현황 조회 — 읽기 전용)
 		admin.GET("/payments", h.AdminPayment.ListPayments)

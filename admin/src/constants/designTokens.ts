@@ -33,6 +33,8 @@ export const COLORS = {
   successLight: 'rgba(46, 204, 113, 0.15)',
   error: '#E74C3C',
   errorLight: 'rgba(231, 76, 60, 0.15)',
+  errorBg: '#FEF2F2',
+  errorBorder: '#FECACA',
   warning: '#FF9500',
   warningLight: 'rgba(255, 149, 0, 0.15)',
   info: '#17A2B8',

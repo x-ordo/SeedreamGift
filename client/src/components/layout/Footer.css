@@ -171,6 +171,17 @@
   color: var(--color-grey-300);
 }
 
+.footer-parent-link {
+  color: var(--color-grey-400);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-parent-link:hover {
+  color: var(--color-grey-700);
+  text-decoration: underline;
+}
+
 /* =====================================================
    태블릿 (768px 이하)
    ===================================================== */

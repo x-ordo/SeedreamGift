@@ -6,7 +6,7 @@ import { Button, Badge, Modal, TextField } from '../../../design-system';
 import { AdminTable, Column } from '../../../components/admin';
 import { maskEmail } from '../../../utils';
 import { formatDateTime } from '../../../utils/dateUtils';
-import { COLORS, SPACING } from '../../../constants/designTokens';
+import { COLORS, SPACING, RADIUS } from '../../../constants/designTokens';
 import { ROLES, ADMIN_PAGINATION, KYC_STATUS_OPTIONS } from '../constants';
 import AdminDetailModal from '../components/AdminDetailModal';
 import { ConfirmModal } from '../components/ConfirmModal';
@@ -497,7 +497,7 @@ const UsersTab = () => {
             </>
           )}
           {isUserLocked(u) ? (
-            <Button variant="secondary" size="sm" style={{ color: '#d97706' }} onClick={() => handleUnlockUser(u.id)}>
+            <Button variant="secondary" size="sm" style={{ color: COLORS.warning }} onClick={() => handleUnlockUser(u.id)}>
               잠금해제
             </Button>
           ) : (
@@ -1021,7 +1021,7 @@ const UsersTab = () => {
 
               {/* Reset WebAuthn confirm */}
               {resetWebAuthnConfirm && (
-                <div style={{ padding: SPACING[3], background: '#fef2f2', borderRadius: 'var(--radius-sm, 8px)', border: '1px solid #fecaca' }}>
+                <div style={{ padding: SPACING[3], background: COLORS.errorBg, borderRadius: RADIUS.sm, border: `1px solid ${COLORS.errorBorder}` }}>
                   <p style={{ fontSize: '13px', color: COLORS.error, marginBottom: SPACING[2] }}>
                     모든 패스키({userWebAuthn?.credentials.length}개)를 삭제합니다. 계속하시겠습니까?
                   </p>
@@ -1034,7 +1034,7 @@ const UsersTab = () => {
 
               {/* Disable MFA confirm */}
               {disableMfaConfirm && (
-                <div style={{ padding: SPACING[3], background: '#fef2f2', borderRadius: 'var(--radius-sm, 8px)', border: '1px solid #fecaca' }}>
+                <div style={{ padding: SPACING[3], background: COLORS.errorBg, borderRadius: RADIUS.sm, border: `1px solid ${COLORS.errorBorder}` }}>
                   <p style={{ fontSize: '13px', color: COLORS.error, marginBottom: SPACING[2] }}>
                     사용자의 OTP를 강제 비활성화합니다. 계속하시겠습니까?
                   </p>

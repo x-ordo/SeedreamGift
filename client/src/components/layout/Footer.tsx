@@ -77,6 +77,15 @@ export const Footer: React.FC = memo(() => {
             </div>
             <p className="footer-copyright">
               &copy; {new Date().getFullYear()} {siteConfig.company.nameShort}
+              <span className="footer-sep" aria-hidden="true" />
+              <a
+                href="https://dnwgroup.biz"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-parent-link"
+              >
+                회사 홈페이지
+              </a>
             </p>
           </div>
         </div>

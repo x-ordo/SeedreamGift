@@ -108,6 +108,22 @@ func (s *AdminUserService) UpdateUser(id int, updates map[string]any) error {
 }
 
 func (s *AdminUserService) DeleteUser(id int) error {
+	// 마지막 관리자 보호: 삭제 대상이 ADMIN이고, 활성 ADMIN이 1명뿐이면 거부.
+	// 시스템에서 ADMIN이 한 명도 남지 않으면 관리 콘솔 접근이 영구 차단되므로 lockout을 사전 차단합니다.
+	var target domain.User
+	if err := s.db.Select("Id", "Role").First(&target, id).Error; err != nil {
+		return apperror.NotFoundf("user %d not found", id)
+	}
+	if target.Role == "ADMIN" {
+		var adminCount int64
+		s.db.Model(&domain.User{}).
+			Where("Role = ? AND IsDeleted = 0 AND DeletedAt IS NULL", "ADMIN").
+			Count(&adminCount)
+		if adminCount <= 1 {
+			return apperror.Forbidden("최소 1명의 관리자가 필요합니다")
+		}
+	}
+
 	var pendingOrders int64
 	s.db.Model(&domain.Order{}).Where("UserId = ? AND Status IN ?", id, []string{"PENDING", "PAID"}).Count(&pendingOrders)
 	if pendingOrders > 0 {
@@ -174,7 +190,14 @@ func (s *AdminUserService) ResetUserPassword(id int, plainPassword string) error
 	if err != nil {
 		return err
 	}
-	return s.db.Model(&domain.User{}).Where("Id = ?", id).Update("Password", hashedPassword).Error
+	// 비밀번호 변경과 동시에 기존 RefreshToken을 모두 폐기합니다.
+	// 두 작업을 한 트랜잭션으로 묶어 "새 비번 적용 + 기존 세션 강제 로그아웃"이 원자적으로 일어나도록 보장합니다.
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("UserId = ?", id).Delete(&domain.RefreshToken{}).Error; err != nil {
+			return err
+		}
+		return tx.Model(&domain.User{}).Where("Id = ?", id).Update("Password", hashedPassword).Error
+	})
 }
 
 // LockUser는 지정된 시간까지 사용자 계정을 잠급니다.

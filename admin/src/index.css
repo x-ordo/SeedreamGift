@@ -74,6 +74,8 @@
   --color-grey-900: #191f28;
   --color-success: #03b26c;
   --color-error: #f04452;
+  --color-error-bg: #fef2f2;
+  --color-error-border: #fecaca;
   --color-warning: #fe9800;
   --color-surface-default: #ffffff;
   --color-bg-primary: #ffffff;

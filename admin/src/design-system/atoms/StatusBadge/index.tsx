@@ -10,9 +10,15 @@ type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'neutral';
 /** 주문 상태 매핑 */
 const ORDER_STATUS_MAP: Record<string, { label: string; variant: BadgeVariant }> = {
   'PENDING': { label: '결제 대기', variant: 'warning' },
+  'ISSUED': { label: '입금 대기', variant: 'warning' },
+  'EXPIRED': { label: '입금 기한 만료', variant: 'neutral' },
   'PAID': { label: '결제 완료', variant: 'info' },
   'DELIVERED': { label: '발급 완료', variant: 'success' },
+  'COMPLETED': { label: '완료', variant: 'success' },
   'CANCELLED': { label: '취소됨', variant: 'neutral' },
+  'REFUNDED': { label: '환불 진행 중', variant: 'warning' },
+  'REFUND_PAID': { label: '환불 완료', variant: 'neutral' },
+  'FRAUD_HOLD': { label: '사기의심 보류', variant: 'error' },
 };
 
 /** 매입 상태 매핑 */

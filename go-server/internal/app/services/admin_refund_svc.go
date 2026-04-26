@@ -43,6 +43,68 @@ type AdminSeedreamRefundInput struct {
 	CancelReason string // 5~50 rune
 }
 
+// AdminCancelVAccountInput 은 관리자 입금 전 VA 발급 취소 입력입니다.
+// OrderID 기반으로 Order 를 조회한 뒤, owner 의 UserID 를 cancelSvc 에 그대로 전달해
+// loadOrderAndPayment 의 owner check 를 자연스럽게 통과시킵니다.
+type AdminCancelVAccountInput struct {
+	OrderID      int
+	CancelReason string // 5~50 rune
+}
+
+// CancelVAccountIssued 는 관리자가 사용자 대신 입금 전 VA 발급을 취소합니다.
+// 취소 가능한 상태는 PENDING / ISSUED 만이며, 그 외에는 명시적 거절.
+//
+// 동작 순서:
+//  1. Order 조회 + 상태/결제수단 검증.
+//  2. cancelSvc.CancelIssued 동기 호출 (실제 owner UserID 전달 — admin 우회).
+//  3. AdminNote 기록 (감사 로그).
+//  4. 실제 상태 전이는 vaccount.payment_canceled webhook 수신 후 ApplyPaymentCanceled 가 처리.
+func (s *AdminRefundService) CancelVAccountIssued(
+	ctx context.Context, adminID int, in AdminCancelVAccountInput,
+) error {
+	if s.cancelSvc == nil {
+		return apperror.Internal("CancelService 미주입 — CancelVAccountIssued 사용 불가", nil)
+	}
+
+	var order domain.Order
+	if err := s.db.WithContext(ctx).First(&order, in.OrderID).Error; err != nil {
+		return apperror.NotFoundf("order %d not found", in.OrderID)
+	}
+	if order.OrderCode == nil || *order.OrderCode == "" {
+		return apperror.Validation("주문에 OrderCode 가 없어 취소 불가")
+	}
+	if order.Status != "PENDING" && order.Status != "ISSUED" {
+		return apperror.Validationf("현재 상태(%s)에서는 입금 전 취소를 할 수 없습니다", order.Status)
+	}
+	pm := ""
+	if order.PaymentMethod != nil {
+		pm = *order.PaymentMethod
+	}
+	if !strings.HasPrefix(pm, "VIRTUAL_ACCOUNT") {
+		return apperror.Validationf("VA 주문이 아닙니다 (PaymentMethod=%q) — 일반 주문 취소 사용", pm)
+	}
+
+	// CancelService 호출 — 실제 주문 owner 의 UserID 를 그대로 전달해 owner check 통과.
+	_, cancelErr := s.cancelSvc.CancelIssued(ctx, SeedreamCancelInput{
+		OrderCode:    *order.OrderCode,
+		CancelReason: in.CancelReason,
+		UserID:       order.UserID,
+	})
+	if cancelErr != nil {
+		return fmt.Errorf("seedream cancel issued (admin): %w", cancelErr)
+	}
+
+	// AdminNote 기록 — 누가 어떤 사유로 취소했는지 감사용.
+	// 상태 전이는 webhook 경로(ApplyPaymentCanceled) 가 PENDING|ISSUED → CANCELLED 로 수행.
+	if err := s.db.WithContext(ctx).Model(&domain.Order{}).Where("Id = ?", in.OrderID).Update(
+		"AdminNote", fmt.Sprintf("ADMIN_VA_CANCEL by adminId=%d: %s", adminID, in.CancelReason),
+	).Error; err != nil {
+		// 부수 작업 실패는 주 흐름을 깨뜨리지 않음 (이미 Seedream 측 취소는 성공)
+		return nil
+	}
+	return nil
+}
+
 // SeedreamRefund 는 환불 row 가 가리키는 VA 주문에 대해 Seedream RefundDeposited 를 호출하고,
 // 성공 시 ApproveRefund 와 동등한 후처리(상태 전이/원장 기록/현금영수증 취소)를 수행합니다.
 //

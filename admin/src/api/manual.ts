@@ -703,6 +703,13 @@ export const adminApi = {
     return response.data;
   },
 
+  // VA 주문 입금 전 결제 취소 — Seedream CancelIssued (admin owner check 우회)
+  // PENDING/ISSUED 상태에서만 호출 가능. cancelReason 5~50 rune 검증.
+  cancelOrderPayment: async (orderId: number, body: { cancelReason: string }) => {
+    const response = await axiosInstance.post(`/admin/orders/${orderId}/cancel-payment`, body);
+    return response.data;
+  },
+
   // =====================
   // Gifts Management
   // =====================

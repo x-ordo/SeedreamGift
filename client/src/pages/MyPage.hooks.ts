@@ -4,6 +4,7 @@ import { isAxiosError } from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useMyOrders, useMyGifts, useMyTradeIns, useMyCashReceipts, useCancelOrder } from '../hooks';
+import { useSeedreamCancel } from '../hooks/mutations/useSeedreamCancel';
 import { giftApi, ordersExportApi } from '../api/manual';
 import { exportUserTransactionReport, exportBankSubmissionReport } from './Admin/utils/exportExcel';
 import type { UserTransactionRow, UserTransactionSummary, TradeInPayoutRow, TradeInPayoutSummary } from './Admin/utils/exportExcel';
@@ -43,6 +44,7 @@ export const useMyPage = () => {
   const { data: tradeIns = [], isLoading: tradeInsLoading } = useMyTradeIns(activeTab === 'tradeins');
   const { data: cashReceipts = [], isLoading: receiptsLoading, refetch: refetchReceipts } = useMyCashReceipts(activeTab === 'receipts');
   const cancelOrderMutation = useCancelOrder();
+  const seedreamCancelMutation = useSeedreamCancel();
 
   const loading = activeTab === 'orders' ? ordersLoading
     : activeTab === 'gifts' ? giftsLoading
@@ -150,6 +152,79 @@ export const useMyPage = () => {
       },
     });
   }, [cancelTarget, cancelOrderMutation, showToast]);
+
+  /**
+   * 가상계좌 결제 취소 (입금 전, ISSUED 상태) — orderCode 기반
+   * Seedream POST /payment/seedream/cancel + payMethod=VACCOUNT-ISSUECAN
+   */
+  const [vaCancelTarget, setVaCancelTarget] = useState<string | null>(null);
+  const handleVACancelOpen = useCallback((orderCode: string) => {
+    setVaCancelTarget(orderCode);
+  }, []);
+  const handleVACancelClose = useCallback(() => {
+    setVaCancelTarget(null);
+  }, []);
+  const handleVACancelConfirm = useCallback((reason: string) => {
+    if (!vaCancelTarget) return;
+    seedreamCancelMutation.mutate(
+      { orderCode: vaCancelTarget, payMethod: 'VACCOUNT-ISSUECAN', cancelReason: reason },
+      {
+        onSuccess: (res) => {
+          showToast({
+            message: res.alreadyDone
+              ? '이미 취소 완료된 건입니다'
+              : '결제 취소가 접수되었습니다. 잠시 후 상태가 갱신됩니다',
+            type: 'success',
+          });
+          setVaCancelTarget(null);
+        },
+        onError: (err) => {
+          showToast({ message: getErrorMessage(err) || '결제 취소에 실패했습니다', type: 'error' });
+        },
+      }
+    );
+  }, [vaCancelTarget, seedreamCancelMutation, showToast]);
+
+  /**
+   * 가상계좌 결제 환불 (입금 후, PAID/DELIVERED 상태) — orderCode + 환불 계좌
+   * Seedream POST /payment/seedream/cancel + payMethod=BANK
+   */
+  const [vaRefundTarget, setVaRefundTarget] = useState<string | null>(null);
+  const handleVARefundOpen = useCallback((orderCode: string) => {
+    setVaRefundTarget(orderCode);
+  }, []);
+  const handleVARefundClose = useCallback(() => {
+    setVaRefundTarget(null);
+  }, []);
+  const handleVARefundConfirm = useCallback(
+    (params: { cancelReason: string; bankCode: string; accountNo: string }) => {
+      if (!vaRefundTarget) return;
+      seedreamCancelMutation.mutate(
+        {
+          orderCode: vaRefundTarget,
+          payMethod: 'BANK',
+          cancelReason: params.cancelReason,
+          bankCode: params.bankCode,
+          accountNo: params.accountNo,
+        },
+        {
+          onSuccess: (res) => {
+            showToast({
+              message: res.alreadyDone
+                ? '이미 환불 처리된 건입니다'
+                : '환불 요청이 접수되었습니다. 영업일 1~2일 내 입금됩니다',
+              type: 'success',
+            });
+            setVaRefundTarget(null);
+          },
+          onError: (err) => {
+            showToast({ message: getErrorMessage(err) || '환불 요청에 실패했습니다', type: 'error' });
+          },
+        }
+      );
+    },
+    [vaRefundTarget, seedreamCancelMutation, showToast]
+  );
 
   /**
    * 선물 수령 (SENT 상태만)
@@ -518,6 +593,15 @@ export const useMyPage = () => {
     setCancelTarget,
     claimingGiftId,
     cancelOrderMutation,
+    seedreamCancelMutation,
+    vaCancelTarget,
+    vaRefundTarget,
+    handleVACancelOpen,
+    handleVACancelClose,
+    handleVACancelConfirm,
+    handleVARefundOpen,
+    handleVARefundClose,
+    handleVARefundConfirm,
     handleTabChange,
     copyToClipboard,
     handleCancelOrder,

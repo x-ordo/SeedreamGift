@@ -40,6 +40,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
+  /* 모바일에서 brand 텍스트 + page title 이 함께 들어가도 overflow 없이 shrink */
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 /* Mobile page title — visible only below 768px */
@@ -84,7 +87,9 @@
   align-items: center;
   gap: var(--space-2);
   text-decoration: none;
-  flex-shrink: 0;
+  /* 좁은 viewport 에서 brand text 가 잘려도 page title 이 보이도록 shrink 허용 */
+  min-width: 0;
+  flex: 0 1 auto;
   transition: transform var(--transition-normal) var(--transition-bounce);
 }
 

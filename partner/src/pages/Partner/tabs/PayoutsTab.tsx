@@ -160,6 +160,21 @@ const PayoutsTab: React.FC = () => {
         </div>
       </div>
 
+      {/* 환불 안내 — 환불 발생 시 정산금 차감 정책 */}
+      <div style={{
+        padding: '12px 16px',
+        background: 'var(--color-blue-50, #e8f3ff)',
+        border: '1px solid var(--color-blue-100, #c9e2ff)',
+        borderRadius: '8px',
+        fontSize: '12px',
+        color: 'var(--color-grey-700)',
+        lineHeight: 1.5,
+        marginBottom: '12px',
+      }}>
+        <strong>환불 정산 안내:</strong> 입금 완료 후 환불(REFUND) 발생 시 해당 건의 매출/수수료/정산액이 자동으로 차감 반영됩니다.
+        환불 상세는 관리자 측 환불 내역에서 확인 가능합니다.
+      </div>
+
       {/* Settlement Table */}
       <div className="partner-table-card">
         <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>

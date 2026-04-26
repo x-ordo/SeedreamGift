@@ -10,6 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useAuthStore, MFARequiredError } from '../store/useAuthStore';
 import { isWebAuthnSupported, startWebAuthnAuthentication } from '../utils/webauthn';
 import { webauthnApi } from '../api';
+import { COLORS } from '../constants/designTokens';
 
 const MAIN_SITE = import.meta.env.VITE_MAIN_URL || 'https://seedreamgift.com';
 
@@ -128,9 +129,9 @@ const AdminLoginPage: React.FC = () => {
 
         {error && (
           <div role="alert" style={{
-            padding: '12px 16px', backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca', borderRadius: '8px',
-            color: '#dc2626', fontSize: '14px', marginBottom: '16px',
+            padding: '12px 16px', backgroundColor: COLORS.errorBg,
+            border: `1px solid ${COLORS.errorBorder}`, borderRadius: '8px',
+            color: COLORS.error, fontSize: '14px', marginBottom: '16px',
           }}>
             {error}
           </div>

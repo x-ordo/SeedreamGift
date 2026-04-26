@@ -962,7 +962,7 @@ const PartnersTab = () => {
             <AdminDetailModal.Section title="액션">
               <div style={{ display: 'flex', gap: SPACING[2], flexWrap: 'wrap' }}>
                 {isUserLocked(detailModal.partner as any) ? (
-                  <Button variant="secondary" size="sm" style={{ color: '#d97706' }} onClick={() => handleLockUnlock(detailModal.partner!.id, true)}>
+                  <Button variant="secondary" size="sm" style={{ color: COLORS.warning }} onClick={() => handleLockUnlock(detailModal.partner!.id, true)}>
                     잠금 해제
                   </Button>
                 ) : (

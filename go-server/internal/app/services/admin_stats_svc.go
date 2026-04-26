@@ -38,6 +38,7 @@ func (s *AdminStatsService) GetStats() (map[string]any, error) {
 	}
 
 	var userCount, productCount, orderCount, tradeInCount, pendingKycCount, pendingTradeInCount, voucherCount, pendingOrderCount int64
+	var vaIssuedCount, vaExpiringSoonCount, refundInProgressCount int64
 	s.db.Model(&domain.User{}).Where("DeletedAt IS NULL").Count(&userCount)
 	s.db.Model(&domain.Product{}).Count(&productCount)
 	s.db.Model(&domain.Order{}).Count(&orderCount)
@@ -47,15 +48,27 @@ func (s *AdminStatsService) GetStats() (map[string]any, error) {
 	s.db.Model(&domain.TradeIn{}).Where("Status = 'REQUESTED'").Count(&pendingTradeInCount)
 	s.db.Model(&domain.VoucherCode{}).Where("Status = 'AVAILABLE'").Count(&voucherCount)
 
+	// VA 결제 모니터링 — 입금 대기 / 만료 임박(30분 이내) / 환불 진행 중
+	now := time.Now()
+	expiringSoonAt := now.Add(30 * time.Minute)
+	s.db.Model(&domain.Order{}).Where("Status = 'ISSUED'").Count(&vaIssuedCount)
+	s.db.Model(&domain.Order{}).
+		Where("Status = 'ISSUED' AND PaymentDeadlineAt IS NOT NULL AND PaymentDeadlineAt > ? AND PaymentDeadlineAt < ?", now, expiringSoonAt).
+		Count(&vaExpiringSoonCount)
+	s.db.Model(&domain.Order{}).Where("Status = 'REFUNDED'").Count(&refundInProgressCount)
+
 	stats := map[string]any{
-		"userCount":           userCount,
-		"productCount":        productCount,
-		"orderCount":          orderCount,
-		"pendingOrderCount":   pendingOrderCount,
-		"tradeInCount":        tradeInCount,
-		"pendingKycCount":     pendingKycCount,
-		"pendingTradeInCount": pendingTradeInCount,
-		"availableVouchers":   voucherCount,
+		"userCount":             userCount,
+		"productCount":          productCount,
+		"orderCount":            orderCount,
+		"pendingOrderCount":     pendingOrderCount,
+		"tradeInCount":          tradeInCount,
+		"pendingKycCount":       pendingKycCount,
+		"pendingTradeInCount":   pendingTradeInCount,
+		"availableVouchers":     voucherCount,
+		"vaIssuedCount":         vaIssuedCount,         // 입금 대기 (ISSUED)
+		"vaExpiringSoonCount":   vaExpiringSoonCount,   // 30분 내 만료 임박
+		"refundInProgressCount": refundInProgressCount, // 환불 진행 중 (REFUNDED, REFUND_PAID 전)
 	}
 
 	// CQRS 읽기 캐시에 저장
