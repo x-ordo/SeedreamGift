@@ -341,38 +341,53 @@ func (s *FulfillmentService) handleFailure(order *domain.Order, logEntry *domain
 	}
 
 	// 환불 시도
+	//
+	// 결제 수단별 라우팅:
+	//   - 가상계좌 (VIRTUAL_ACCOUNT*): paymentPP 가 Mock 인 한 자동 환불 금지.
+	//     Mock 은 항상 success 를 반환해 "REFUNDED" 가 기록되지만 실제 입금은
+	//     반환되지 않아 silent data integrity 사고 가능 (P0 검증 2026-04-25).
+	//     → FAILED_REFUND_PENDING 으로 강제 마킹하고 운영팀에 수동 환불 알람.
+	//     실제 환불 경로는 admin panel → CancelService.Refund (Seedream API) 로 처리.
+	//   - 카드/즉시결제: 기존 paymentPP 경로 유지 (현재 Mock — 카드 직결제 경로
+	//     자체가 미운영, AllowRealFulfillment=false 보호 중).
 	if order.PaymentKey != nil && *order.PaymentKey != "" {
-		_, refundErr := s.paymentPP.RefundPayment(*order.PaymentKey, "상품권 발급 실패로 인한 자동 환불")
-		if refundErr != nil {
+		ocStr := ""
+		if order.OrderCode != nil {
+			ocStr = *order.OrderCode
+		}
+
+		if isVAPaymentMethod(order.PaymentMethod) {
+			// VA: Mock 우회 — 수동 환불 필요로 강제 마킹.
 			logEntry.Status = "FAILED_REFUND_PENDING"
-			refundErrMsg := fmt.Sprintf("%s | 환불 실패: %s", errMsg, refundErr.Error())
-			logEntry.ErrorMessage = &refundErrMsg
-			// 환불 실패도 텔레그램 알림 (워커 풀로 비동기 발송)
-			ocStr := ""
-			if order.OrderCode != nil {
-				ocStr = *order.OrderCode
-			}
-			refundAlertMsg := fmt.Sprintf(
-				"🚨 <b>발급 실패 + 환불 실패</b>\n"+
+			vaMsg := fmt.Sprintf("%s | VA_AUTO_REFUND_BLOCKED: paymentPP=Mock 으로 안전한 환불 불가, 운영팀 수동 처리 필요", errMsg)
+			logEntry.ErrorMessage = &vaMsg
+			alertMsg := fmt.Sprintf(
+				"🚨 <b>VA 발급 실패 — 수동 환불 필요</b>\n"+
 					"<b>주문:</b> <code>%s</code>\n"+
+					"<b>결제수단:</b> %s\n"+
 					"<b>발급 에러:</b> %s\n"+
-					"<b>환불 에러:</b> %s\n"+
-					"<b>수동 환불 필요</b>",
-				ocStr, errMsg, refundErr.Error(),
+					"<b>조치:</b> Mock paymentPP 로 자동환불 차단됨. admin panel 에서 Seedream Refund 수동 실행 요망.",
+				ocStr, derefOr(order.PaymentMethod, "?"), errMsg,
 			)
-			if s.notifyPool != nil {
-				if submitErr := s.notifyPool.Submit(workqueue.TelegramAlertJob{
-					Token:   telegram.GetGlobalToken(),
-					ChatID:  telegram.GetGlobalChatID(),
-					Message: refundAlertMsg,
-				}); submitErr != nil {
-					logger.Log.Warn("환불 실패 알림 큐 제출 실패", zap.Error(submitErr))
-				}
-			} else {
-				go telegram.SendAlert(telegram.GetGlobalToken(), telegram.GetGlobalChatID(), refundAlertMsg)
-			}
+			submitTelegramAlert(s.notifyPool, alertMsg)
 		} else {
-			logEntry.Status = "REFUNDED"
+			_, refundErr := s.paymentPP.RefundPayment(*order.PaymentKey, "상품권 발급 실패로 인한 자동 환불")
+			if refundErr != nil {
+				logEntry.Status = "FAILED_REFUND_PENDING"
+				refundErrMsg := fmt.Sprintf("%s | 환불 실패: %s", errMsg, refundErr.Error())
+				logEntry.ErrorMessage = &refundErrMsg
+				refundAlertMsg := fmt.Sprintf(
+					"🚨 <b>발급 실패 + 환불 실패</b>\n"+
+						"<b>주문:</b> <code>%s</code>\n"+
+						"<b>발급 에러:</b> %s\n"+
+						"<b>환불 에러:</b> %s\n"+
+						"<b>수동 환불 필요</b>",
+					ocStr, errMsg, refundErr.Error(),
+				)
+				submitTelegramAlert(s.notifyPool, refundAlertMsg)
+			} else {
+				logEntry.Status = "REFUNDED"
+			}
 		}
 	}
 
@@ -553,3 +568,37 @@ func maskPINsInResponse(vouchers []interfaces.IssuedVoucher) string {
 
 func timePtr(t time.Time) *time.Time { return &t }
 func strPtr(s string) *string        { return &s }
+
+// isVAPaymentMethod 는 가상계좌 결제 수단인지 판별합니다.
+// VA 환불은 Mock paymentPP 로 처리하면 silent success 가 되므로
+// 자동환불 경로를 차단하고 수동 처리로 강제하기 위한 분기에 사용.
+func isVAPaymentMethod(method *string) bool {
+	if method == nil {
+		return false
+	}
+	return strings.HasPrefix(*method, "VIRTUAL_ACCOUNT")
+}
+
+// derefOr 는 nil 안전 dereference — 텔레그램 메시지 등 사람이 읽는 컨텍스트용.
+func derefOr(s *string, fallback string) string {
+	if s == nil {
+		return fallback
+	}
+	return *s
+}
+
+// submitTelegramAlert 는 워커 풀이 있으면 비동기 Job 제출, 없으면 fire-and-forget.
+// fulfillment 실패 알람 발송 패턴을 한곳에 모아 호출자 코드를 단순화합니다.
+func submitTelegramAlert(pool *workqueue.WorkerPool, message string) {
+	if pool != nil {
+		if err := pool.Submit(workqueue.TelegramAlertJob{
+			Token:   telegram.GetGlobalToken(),
+			ChatID:  telegram.GetGlobalChatID(),
+			Message: message,
+		}); err != nil {
+			logger.Log.Warn("텔레그램 알림 큐 제출 실패", zap.Error(err))
+		}
+		return
+	}
+	go telegram.SendAlert(telegram.GetGlobalToken(), telegram.GetGlobalChatID(), message)
+}

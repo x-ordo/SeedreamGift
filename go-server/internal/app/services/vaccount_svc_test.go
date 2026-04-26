@@ -75,7 +75,7 @@ func TestVAccountService_Issue_Success(t *testing.T) {
 	svc := NewVAccountService(db, stub, zap.NewNop())
 	caller := CallerContext{UserID: 42, Role: "USER", TraceID: "trace-t1"}
 
-	result, err := svc.Issue(context.Background(), caller, order.ID, "P")
+	result, err := svc.Issue(context.Background(), caller, order.ID, "P", "")
 	require.NoError(t, err)
 	assert.Equal(t, "https://testpg.kiwoompay.co.kr/x", result.TargetURL)
 	assert.Equal(t, "t-1", result.FormData["TOKEN"])
@@ -109,7 +109,7 @@ func TestVAccountService_Issue_OwnershipUser(t *testing.T) {
 	svc := NewVAccountService(db, stub, zap.NewNop())
 	// UserID 불일치
 	caller := CallerContext{UserID: 99, Role: "USER"}
-	_, err := svc.Issue(context.Background(), caller, order.ID, "P")
+	_, err := svc.Issue(context.Background(), caller, order.ID, "P", "")
 	assert.Error(t, err)
 	assert.Contains(t, strings.ToLower(err.Error()), "권한")
 }
@@ -125,7 +125,7 @@ func TestVAccountService_Issue_WrongOrderStatus(t *testing.T) {
 
 	svc := NewVAccountService(db, stub, zap.NewNop())
 	caller := CallerContext{UserID: 42, Role: "USER"}
-	_, err := svc.Issue(context.Background(), caller, order.ID, "P")
+	_, err := svc.Issue(context.Background(), caller, order.ID, "P", "")
 	assert.Error(t, err)
 }
 
@@ -149,7 +149,7 @@ func TestVAccountService_Issue_DuplicatePending_ReturnsConflict(t *testing.T) {
 
 	svc := NewVAccountService(db, stub, zap.NewNop())
 	caller := CallerContext{UserID: 42, Role: "USER"}
-	_, err := svc.Issue(context.Background(), caller, order.ID, "P")
+	_, err := svc.Issue(context.Background(), caller, order.ID, "P", "")
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "진행 중")
@@ -185,7 +185,7 @@ func TestVAccountService_Issue_RaceDetectedInTransaction(t *testing.T) {
 
 	svc := NewVAccountService(db, stub, zap.NewNop())
 	caller := CallerContext{UserID: 42, Role: "USER"}
-	_, err := svc.Issue(context.Background(), caller, order.ID, "P")
+	_, err := svc.Issue(context.Background(), caller, order.ID, "P", "")
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "진행 중")
@@ -233,7 +233,7 @@ func TestVAccountService_Resume_CancelsOldAndIssuesNew(t *testing.T) {
 	svc := NewVAccountService(db, stub, zap.NewNop())
 	caller := CallerContext{UserID: 42, Role: "USER", TraceID: "trace-retry"}
 
-	result, err := svc.Resume(context.Background(), caller, order.ID, "P")
+	result, err := svc.Resume(context.Background(), caller, order.ID, "P", "")
 	require.NoError(t, err)
 	assert.Equal(t, "https://retry.kiwoompay/x", result.TargetURL)
 	assert.Equal(t, int64(99999), result.SeedreamVAccountID)
@@ -264,7 +264,7 @@ func TestVAccountService_Resume_RejectsTerminalOrder(t *testing.T) {
 
 	svc := NewVAccountService(db, stub, zap.NewNop())
 	caller := CallerContext{UserID: 42, Role: "USER"}
-	_, err := svc.Resume(context.Background(), caller, order.ID, "P")
+	_, err := svc.Resume(context.Background(), caller, order.ID, "P", "")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "재결제")
 }
@@ -289,7 +289,7 @@ func TestVAccountService_Issue_ReservedRoundTripViolation(t *testing.T) {
 
 	svc := NewVAccountService(db, stub, zap.NewNop())
 	caller := CallerContext{UserID: 42, Role: "USER"}
-	_, err := svc.Issue(context.Background(), caller, order.ID, "P")
+	_, err := svc.Issue(context.Background(), caller, order.ID, "P", "")
 
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, seedream.ErrReservedRoundTripViolation))

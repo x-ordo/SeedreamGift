@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"testing"
 	"time"
 	"seedream-gift-server/internal/config"
@@ -10,6 +11,42 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// fakeCoocon 은 외부 1원 인증 API 를 흉내 내는 테스트 시뮬레이터입니다.
+// expectedVerifyVal (기본 "123") 과 다른 verify_val 이 confirm 으로 들어오면 거절합니다.
+// counter 를 1씩 증가시켜 매 issue 마다 다른 verify_tr_no 를 발급합니다.
+type fakeCoocon struct {
+	counter             int
+	forceIssueFail      bool
+	forceConfirmFail    bool
+	expectedVerifyVal   string
+}
+
+// install 은 테스트 시작 시 KycService 의 외부 호출 시임을 fake 구현으로 교체합니다.
+func (f *fakeCoocon) install(svc *KycService) {
+	svc.CooconIssueFn = func(bankCode, accountNumber, accountHolder string) (*cooconIssueResponse, error) {
+		if f.forceIssueFail {
+			return &cooconIssueResponse{Success: false, RC: "9001", RM: "거래정지된 계좌"}, nil
+		}
+		f.counter++
+		return &cooconIssueResponse{
+			Success:    true,
+			RC:         "0000",
+			RM:         "정상",
+			VerifyTrDt: time.Now().Format("20060102"),
+			VerifyTrNo: fmt.Sprintf("%09d", f.counter),
+		}, nil
+	}
+	svc.CooconConfirmFn = func(verifyTrDt, verifyTrNo, verifyVal string) (*cooconConfirmResponse, error) {
+		if f.forceConfirmFail {
+			return &cooconConfirmResponse{Success: false, RC: "9201", RM: "인증 코드 불일치"}, nil
+		}
+		if verifyVal != f.expectedVerifyVal {
+			return &cooconConfirmResponse{Success: false, RC: "9201", RM: "인증 코드 불일치"}, nil
+		}
+		return &cooconConfirmResponse{Success: true, RC: "0000", RM: "정상"}, nil
+	}
+}
+
 func setupKycTestDB() (*KycService, *config.Config) {
 	db := setupTestDB()
 	db.AutoMigrate(&domain.KycVerifySession{})
@@ -18,7 +55,9 @@ func setupKycTestDB() (*KycService, *config.Config) {
 		EncryptionKey:    testEncKey,
 		KYCSessionExpiry: 15 * time.Minute,
 	}
-	return NewKycService(db, cfg), cfg
+	svc := NewKycService(db, cfg)
+	(&fakeCoocon{expectedVerifyVal: "123"}).install(svc)
+	return svc, cfg
 }
 
 // ── 1원 인증 요청 (RequestBankVerify) ──
@@ -75,13 +114,11 @@ func TestKyc_ConfirmBankVerify_Success_WithUser(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	// 인증 확인 (올바른 인증번호)
+	// 인증 확인 (fakeCoocon 의 expectedVerifyVal 과 일치)
 	result, err := svc.ConfirmBankVerify(user.ID, BankVerifyConfirmRequest{
-		VerifyTrDt:    session.VerifyTrDt,
-		VerifyTrNo:    session.VerifyTrNo,
-		VerifyVal:     session.VerifyTrNo, // 올바른 값
-		BankCode:      "004",
-		AccountNumber: "9876543210",
+		VerifyTrDt: session.VerifyTrDt,
+		VerifyTrNo: session.VerifyTrNo,
+		VerifyVal:  "123",
 	})
 
 	require.NoError(t, err)
@@ -109,11 +146,9 @@ func TestKyc_ConfirmBankVerify_Success_NoUser(t *testing.T) {
 
 	// userID=0 (회원가입 중, 아직 사용자 없음)
 	result, err := svc.ConfirmBankVerify(0, BankVerifyConfirmRequest{
-		VerifyTrDt:    session.VerifyTrDt,
-		VerifyTrNo:    session.VerifyTrNo,
-		VerifyVal:     session.VerifyTrNo,
-		BankCode:      "088",
-		AccountNumber: "1111222233334444",
+		VerifyTrDt: session.VerifyTrDt,
+		VerifyTrNo: session.VerifyTrNo,
+		VerifyVal:  "123",
 	})
 
 	require.NoError(t, err)
@@ -129,46 +164,23 @@ func TestKyc_ConfirmBankVerify_WrongCode(t *testing.T) {
 	})
 
 	_, err := svc.ConfirmBankVerify(0, BankVerifyConfirmRequest{
-		VerifyTrDt:    session.VerifyTrDt,
-		VerifyTrNo:    session.VerifyTrNo,
-		VerifyVal:     "000000000", // 틀린 인증번호
-		BankCode:      "004",
-		AccountNumber: "9876543210",
+		VerifyTrDt: session.VerifyTrDt,
+		VerifyTrNo: session.VerifyTrNo,
+		VerifyVal:  "999", // fakeCoocon 의 expectedVerifyVal("123") 과 다름
 	})
 
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "인증 번호가 일치하지 않습니다")
-}
-
-func TestKyc_ConfirmBankVerify_WrongAccount(t *testing.T) {
-	svc, _ := setupKycTestDB()
-
-	session, _ := svc.RequestBankVerify(BankVerifyRequest{
-		BankCode: "004", BankName: "국민은행",
-		AccountNumber: "9876543210", AccountHolder: "김인증",
-	})
-
-	_, err := svc.ConfirmBankVerify(0, BankVerifyConfirmRequest{
-		VerifyTrDt:    session.VerifyTrDt,
-		VerifyTrNo:    session.VerifyTrNo,
-		VerifyVal:     session.VerifyTrNo,
-		BankCode:      "004",
-		AccountNumber: "1111111111", // 다른 계좌번호
-	})
-
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "계좌번호와 일치하지 않습니다")
+	// fakeCoocon 이 rc=9201, rm="인증 코드 불일치" 를 반환 → mapCooconError 에서 rm 이 그대로 메시지에 포함됨
+	assert.Contains(t, err.Error(), "인증 코드 불일치")
 }
 
 func TestKyc_ConfirmBankVerify_SessionNotFound(t *testing.T) {
 	svc, _ := setupKycTestDB()
 
 	_, err := svc.ConfirmBankVerify(0, BankVerifyConfirmRequest{
-		VerifyTrDt:    "20260325",
-		VerifyTrNo:    "999999999",
-		VerifyVal:     "999999999",
-		BankCode:      "004",
-		AccountNumber: "1234567890",
+		VerifyTrDt: "20260325",
+		VerifyTrNo: "999999999",
+		VerifyVal:  "123",
 	})
 
 	require.Error(t, err)
@@ -186,11 +198,9 @@ func TestKyc_ConfirmBankVerify_SessionExpired(t *testing.T) {
 	})
 
 	_, err := svc.ConfirmBankVerify(0, BankVerifyConfirmRequest{
-		VerifyTrDt:    session.VerifyTrDt,
-		VerifyTrNo:    session.VerifyTrNo,
-		VerifyVal:     session.VerifyTrNo,
-		BankCode:      "004",
-		AccountNumber: "9876543210",
+		VerifyTrDt: session.VerifyTrDt,
+		VerifyTrNo: session.VerifyTrNo,
+		VerifyVal:  "123",
 	})
 
 	require.Error(t, err)
@@ -207,11 +217,9 @@ func TestKyc_ConfirmBankVerify_AlreadyVerified(t *testing.T) {
 	})
 
 	confirmReq := BankVerifyConfirmRequest{
-		VerifyTrDt:    session.VerifyTrDt,
-		VerifyTrNo:    session.VerifyTrNo,
-		VerifyVal:     session.VerifyTrNo,
-		BankCode:      "004",
-		AccountNumber: "9876543210",
+		VerifyTrDt: session.VerifyTrDt,
+		VerifyTrNo: session.VerifyTrNo,
+		VerifyVal:  "123",
 	}
 
 	// 1차 인증 성공
@@ -341,6 +349,7 @@ func TestKyc_FullRegistrationFlow(t *testing.T) {
 	}
 
 	kycSvc := NewKycService(db, cfg)
+	(&fakeCoocon{expectedVerifyVal: "123"}).install(kycSvc)
 	mfaSvc := NewMfaService(db, cfg)
 	authSvc := NewAuthService(db, cfg, mfaSvc)
 
@@ -362,11 +371,9 @@ func TestKyc_FullRegistrationFlow(t *testing.T) {
 
 	// 3. 1원 인증 확인
 	result, err := kycSvc.ConfirmBankVerify(user.ID, BankVerifyConfirmRequest{
-		VerifyTrDt:    session.VerifyTrDt,
-		VerifyTrNo:    session.VerifyTrNo,
-		VerifyVal:     session.VerifyTrNo,
-		BankCode:      "004",
-		AccountNumber: "1234567890",
+		VerifyTrDt: session.VerifyTrDt,
+		VerifyTrNo: session.VerifyTrNo,
+		VerifyVal:  "123",
 	})
 	require.NoError(t, err)
 	assert.Equal(t, "국민은행", result.BankName)

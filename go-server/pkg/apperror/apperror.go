@@ -133,3 +133,13 @@ func As(err error) (*AppError, bool) {
 	ok := errors.As(err, &ae)
 	return ae, ok
 }
+
+// ── Sentinel 에러 ──
+//
+// AppError 와 달리 errors.Is 로 분류만 식별하기 위한 표식입니다.
+// HTTP 응답 매핑이 아닌 로깅 레벨 분기·재시도 분기 등 인프라 계층 의사결정에 사용합니다.
+
+// ErrOrderNotFound 는 OrderCode 로 주문을 찾지 못한 retriable 시나리오를 표식합니다.
+// 웹훅이 Order INSERT 보다 먼저 도착하는 race, smoke test fixture, stale 재전송 등
+// "정상적으로 다시 시도하면 해결되는" 케이스를 ERROR 가 아닌 WARN 으로 강등하기 위한 sentinel.
+var ErrOrderNotFound = errors.New("order not found")

@@ -1,0 +1,21 @@
+[1원인증 요청]
+http://103.97.209.176:8091/api/coocon/issue/etc?fnni_cd=048&acct_no=1234343245&memb_nm=테스트
+* fnni_cd: 은행코드
+* acct_no: 계좌번호
+* memb_nm: 예금주
+
+
+[1원 검증]
+http://103.97.209.176:8091/api/coocon/confirm/etc?verify_tr_dt=20251225&verify_tr_no=428051&verify_val=268
+* verify_tr_dt: 1원인증 요청에서 받은 verify_tr_dt 값
+* verify_tr_no: 1원인증 요청에서 받은 verify_tr_no 값
+* verify_val: 입금된 검증값 (숫자 3자리)
+
+1원인증 API입니다. 이부분은 따로 DB에 저장하는 부분이없어서 자체적으로 callback 받는 값을 이용해서 확인
+
+
+{"success":true,"rc":"0000","rm":"정상","verify_tr_dt":"20260211","verify_tr_no":"339698","rqDtime":"20260211082405","tno":"20260211082405"}
+
+{"success":true,"rc":"0000","rm":"정상"}
+
+각각 성공시 받는 응답코드입니다

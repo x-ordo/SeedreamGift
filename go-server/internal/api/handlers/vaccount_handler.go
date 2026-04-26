@@ -24,6 +24,9 @@ func NewVAccountHandler(svc *services.VAccountService) *VAccountHandler {
 type InitiateRequest struct {
 	OrderID    int    `json:"orderId" binding:"required"`
 	ClientType string `json:"clientType" binding:"required,oneof=P M"` // P=PC, M=Mobile
+	// BankCode 는 선택 — 발급 가능한 은행을 콤마구분으로 제한합니다 (예: "088" 또는 "088,004").
+	// 빈 문자열이면 모든 은행 허용 (omitempty 로 Seedream 호출 시 자동 누락).
+	BankCode string `json:"bankCode,omitempty"`
 }
 
 // Initiate 은 주문 ID 로 Seedream LINK 모드 VA 발급을 시작합니다.
@@ -40,7 +43,7 @@ func (h *VAccountHandler) Initiate(c *gin.Context) {
 	}
 
 	caller := callerContextFromGin(c)
-	res, err := h.service.Issue(c.Request.Context(), caller, req.OrderID, req.ClientType)
+	res, err := h.service.Issue(c.Request.Context(), caller, req.OrderID, req.ClientType, req.BankCode)
 	if err != nil {
 		response.HandleError(c, err)
 		return
@@ -60,7 +63,7 @@ func (h *VAccountHandler) Resume(c *gin.Context) {
 	}
 
 	caller := callerContextFromGin(c)
-	res, err := h.service.Resume(c.Request.Context(), caller, req.OrderID, req.ClientType)
+	res, err := h.service.Resume(c.Request.Context(), caller, req.OrderID, req.ClientType, req.BankCode)
 	if err != nil {
 		response.HandleError(c, err)
 		return

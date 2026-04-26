@@ -58,6 +58,11 @@ type VAccountIssueRequest struct {
 	Email    string `json:"email,omitempty"`    // max 100
 	UserID   string `json:"userId,omitempty"`   // max 30
 
+	// ── 발급 옵션 (선택) ──
+	// BankCode 는 발급 가능한 은행을 콤마구분으로 제한합니다 (예: "088" 또는 "088,004").
+	// 빈 문자열이면 키움이 모든 은행에서 발급 가능. (API_QUICKSTART §가상계좌 추가 §229 참조)
+	BankCode string `json:"bankCode,omitempty"`
+
 	// ── 결제창 콜백 URL (선택) ──
 	ReturnURL string `json:"returnUrl,omitempty"`
 	HomeURL   string `json:"homeUrl,omitempty"`

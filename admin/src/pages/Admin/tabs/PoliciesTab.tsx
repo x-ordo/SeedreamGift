@@ -236,7 +236,7 @@ const PoliciesTab = () => {
         title={editingPolicy ? '정책 수정' : '새 정책 등록'}
         size="large"
         footer={
-          <div className="flex gap-2 w-full">
+          <div className="grid grid-cols-2 gap-2 w-full">
             <Button variant="secondary" fullWidth onClick={() => setIsModalOpen(false)}>취소</Button>
             <Button variant="primary" fullWidth onClick={handleSubmit} isLoading={saving} disabled={!form.title || !form.content}>
               저장

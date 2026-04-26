@@ -396,7 +396,7 @@ const CartPage: React.FC = () => {
         title="선택 삭제"
         size="small"
         footer={
-          <div className="flex gap-2 w-full">
+          <div className="grid grid-cols-2 gap-2 w-full">
             <Button variant="secondary" fullWidth onClick={() => setShowDeleteConfirm(false)}>취소</Button>
             <Button variant="danger" fullWidth onClick={handleConfirmDelete} isLoading={isDeletingBatch}>삭제</Button>
           </div>

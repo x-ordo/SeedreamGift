@@ -60,6 +60,8 @@ export const useCheckoutPage = () => {
   const hasPhysicalItems = items.some(item => item.type !== 'DIGITAL');
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH');
+  // 선호 은행 (선택사항). 빈 문자열 = 모든 은행 허용. VIRTUAL_ACCOUNT 결제 시에만 의미.
+  const [preferredBankCode, setPreferredBankCode] = useState<string>('');
   const [orderResult, setOrderResult] = useState<OrderResultData | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const submitLockRef = useRef(false);
@@ -208,7 +210,11 @@ export const useCheckoutPage = () => {
           if (paymentMethod === 'VIRTUAL_ACCOUNT') {
             const isMobile = /Mobi|Android/i.test(navigator.userAgent);
             initiatePaymentMutation.mutate(
-              { orderId: orderData.id, clientType: isMobile ? 'M' : 'P' },
+              {
+                orderId: orderData.id,
+                clientType: isMobile ? 'M' : 'P',
+                bankCode: preferredBankCode || undefined,
+              },
               {
                 onSuccess: (ip) => {
                   submitLockRef.current = false;
@@ -275,7 +281,7 @@ export const useCheckoutPage = () => {
         },
       }
     );
-  }, [items, paymentMethod, cashReceiptType, cashReceiptNumber, totalPrice, removeSelectedItems, clearCheckout, showToast, giftTarget, createOrderMutation, initiatePaymentMutation, navigate, hasPhysicalItems, shippingInfo]);
+  }, [items, paymentMethod, preferredBankCode, cashReceiptType, cashReceiptNumber, totalPrice, removeSelectedItems, clearCheckout, showToast, giftTarget, createOrderMutation, initiatePaymentMutation, navigate, hasPhysicalItems, shippingInfo]);
 
   return {
     items,
@@ -297,6 +303,8 @@ export const useCheckoutPage = () => {
     hasPhysicalItems,
     paymentMethod,
     setPaymentMethod,
+    preferredBankCode,
+    setPreferredBankCode,
     orderResult,
     showConfirmModal,
     setShowConfirmModal,

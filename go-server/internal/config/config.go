@@ -118,6 +118,12 @@ type Config struct {
 	CooconKycUrl string `mapstructure:"COOCON_KYC_URL"`
 	// CooconKycUrlSub는 메인 서버 장애 시 사용할 서브 URL입니다.
 	CooconKycUrlSub string `mapstructure:"COOCON_KYC_URL_SUB"`
+	// CooconVerifyBaseUrl은 1원 계좌 인증 외부 API 의 메인 베이스 URL 입니다.
+	// 형식 예: http://103.97.209.176:8091/api/coocon
+	// (issue/etc, confirm/etc 엔드포인트가 이 base 아래에 위치)
+	CooconVerifyBaseUrl string `mapstructure:"COOCON_VERIFY_BASE_URL"`
+	// CooconVerifyBaseUrlSub 는 메인 1원 인증 서버 장애 시 사용할 서브 베이스 URL 입니다.
+	CooconVerifyBaseUrlSub string `mapstructure:"COOCON_VERIFY_BASE_URL_SUB"`
 	// GiftSearchLimit는 선물하기 대상 사용자 검색 시 반환되는 최대 인원수입니다.
 	GiftSearchLimit int `mapstructure:"GIFT_SEARCH_LIMIT"`
 	// GiftSearchMinQuery는 선물하기 대상 검색을 위한 최소 검색어 길이입니다.
@@ -335,6 +341,8 @@ func LoadConfig(path string) (config Config, err error) {
 	viper.SetDefault("KYC_SESSION_EXPIRY", "15m")
 	viper.SetDefault("COOCON_KYC_URL", "http://103.97.209.176:8091/coocon-kyc.html")
 	viper.SetDefault("COOCON_KYC_URL_SUB", "http://103.97.209.186:8091/coocon-kyc.html")
+	viper.SetDefault("COOCON_VERIFY_BASE_URL", "http://103.97.209.176:8091/api/coocon")
+	viper.SetDefault("COOCON_VERIFY_BASE_URL_SUB", "http://103.97.209.186:8091/api/coocon")
 
 	// API 속도 제한 및 서버 타임아웃
 	viper.SetDefault("GLOBAL_RATE_LIMIT", "100-M")

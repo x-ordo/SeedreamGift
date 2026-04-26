@@ -696,6 +696,12 @@ export const adminApi = {
     const response = await axiosInstance.post(`/admin/refunds/${id}/reject`, { adminNote });
     return response.data;
   },
+  // VA 주문 수동환불 — Seedream RefundDeposited API 호출
+  // BankCode 는 9개 화이트리스트, AccountNo 6~20자 숫자/하이픈, CancelReason 5~50 rune
+  seedreamRefund: async (id: number, body: { bankCode: string; accountNo: string; cancelReason: string }) => {
+    const response = await axiosInstance.post(`/admin/refunds/${id}/seedream-refund`, body);
+    return response.data;
+  },
 
   // =====================
   // Gifts Management

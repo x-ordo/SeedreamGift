@@ -211,14 +211,21 @@ func startAPIServer(cfg config.Config) {
 	}
 
 	// 결제 모듈
-	// TODO: 실제 PG 연동 시 Mock 제거 필요 — 현재는 실제 상품권이 발급되지 않도록 AllowRealFulfillment=false로 보호
-	var pp = payment.NewMockPaymentProvider()
+	// TODO: 실제 PG 연동 시 Mock 제거 필요 — 현재는 실제 상품권이 발급되지 않도록 AllowRealFulfillment=false로 보호.
+	//
+	// Release 빌드에서는 SafeMode 를 켜서 Mock VerifyPayment / RefundPayment 가 silent success
+	// 대신 ErrMockProviderInProduction 을 반환하도록 강제. 호출자(payment_service, fulfillment_svc)는
+	// 이 에러를 감지하면 결제 거부 / 수동 환불 알람으로 분기하므로 silent 데이터 정합성 사고를 차단.
+	var ppOpts []payment.MockOption
 	if gin.Mode() == gin.ReleaseMode {
-		logger.Log.Warn("WARNING: Mock payment provider active in RELEASE mode — 실제 PG 연동이 완료되기 전까지 실제 결제가 처리되지 않습니다. AllowRealFulfillment=false 설정을 확인하세요.",
+		ppOpts = append(ppOpts, payment.WithSafeMode())
+		logger.Log.Warn("WARNING: Mock payment provider active in RELEASE mode (SafeMode=ON) — 실제 PG 연동이 완료되기 전까지 결제 승인/환불이 거부됩니다. AllowRealFulfillment=false 설정을 확인하세요.",
 			zap.String("provider", "MockPaymentProvider"),
+			zap.Bool("safeMode", true),
 			zap.Bool("allowRealFulfillment", cfg.AllowRealFulfillment),
 		)
 	}
+	var pp = payment.NewMockPaymentProvider(ppOpts...)
 
 	// 텔레그램 알림
 	response.SetTelegramConfig(cfg.TelegramToken, cfg.TelegramChatID)

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"seedream-gift-server/internal/app/services"
+	"seedream-gift-server/pkg/apperror"
 	"seedream-gift-server/pkg/logger"
 	"seedream-gift-server/pkg/pagination"
 	"seedream-gift-server/pkg/response"
@@ -69,4 +70,61 @@ func (h *AdminRefundHandler) RejectRefund(c *gin.Context) {
 		return
 	}
 	response.Success(c, gin.H{"message": "환불이 거절되었습니다"})
+}
+
+// SeedreamRefundRequest 는 관리자 VA 수동환불 요청 바디입니다.
+// fulfillment 자동환불이 차단된 VA 주문(IssuanceLog.Status=FAILED_REFUND_PENDING)을
+// 운영팀이 admin panel 에서 처리할 때 사용. CancelService 검증 규칙은 그대로 적용됩니다.
+type SeedreamRefundRequest struct {
+	BankCode     string `json:"bankCode" binding:"required"`     // BankCodesCancel 9개 화이트리스트
+	AccountNo    string `json:"accountNo" binding:"required"`    // 6~20자 숫자/하이픈
+	CancelReason string `json:"cancelReason" binding:"required"` // 5~50 rune
+}
+
+// SeedreamRefund godoc
+// @Summary VA 주문 Seedream 수동환불
+// @Description VA 주문(VIRTUAL_ACCOUNT*)의 입금을 Seedream RefundDeposited API 로 환불합니다. 성공 시 Refund/Order 상태가 APPROVED/REFUNDED 로 전이되고 복식부기 원장이 기록됩니다.
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Refund ID"
+// @Param body body SeedreamRefundRequest true "은행 코드 + 계좌번호 + 취소사유"
+// @Success 200 {object} APIResponse
+// @Failure 400 {object} APIResponse
+// @Failure 404 {object} APIResponse
+// @Failure 500 {object} APIResponse
+// @Router /admin/refunds/{id}/seedream-refund [post]
+//
+// VA 주문에 대해 Seedream RefundDeposited API 를 호출하고 후처리(상태 전이/원장)까지 수행합니다.
+func (h *AdminRefundHandler) SeedreamRefund(c *gin.Context) {
+	id, ok := parseIDParam(c, "id")
+	if !ok {
+		return
+	}
+	var req SeedreamRefundRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "잘못된 요청입니다: "+err.Error())
+		return
+	}
+	adminID := c.GetInt("userId")
+	if err := h.service.SeedreamRefund(c.Request.Context(), id, adminID, services.AdminSeedreamRefundInput{
+		BankCode:     req.BankCode,
+		AccountNo:    req.AccountNo,
+		CancelReason: req.CancelReason,
+	}); err != nil {
+		logger.Log.Error("admin seedream refund failed",
+			zap.Int("refundId", id),
+			zap.Int("adminId", adminID),
+			zap.Error(err),
+		)
+		// AppError 면 적절한 HTTP status, 그 외는 500
+		if appErr, ok := apperror.As(err); ok {
+			response.Error(c, appErr.HTTPStatus(), appErr.Message)
+			return
+		}
+		response.InternalServerError(c, "Seedream 환불 호출 실패: "+err.Error())
+		return
+	}
+	response.Success(c, gin.H{"message": "Seedream 환불이 완료되었습니다"})
 }

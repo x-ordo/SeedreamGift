@@ -4,9 +4,16 @@ import DaumPostcodeEmbed from 'react-daum-postcode';
 import { Smartphone, Clipboard, Gift, Package, Truck, CreditCard, Coins, PlusCircle, Building, Info, Shield, Zap, CheckCircle, Phone, ChevronDown } from 'lucide-react';
 import SEO from '../components/common/SEO';
 import { OrderConfirmModal } from '../components/checkout/OrderConfirmModal';
-import { Card, Button, TextField, TableRow, Overlay, Result, FadeIn, SegmentedControl } from '../design-system';
+import { Card, Button, TextField, TableRow, Overlay, Result, FadeIn, SegmentedControl, Select } from '../design-system';
+import type { SelectOption } from '../design-system';
 import { handleImageError, getValidImageUrl, formatPrice } from '../utils';
 import { COMPANY_INFO } from '../constants/site';
+import { BANKS } from '../constants';
+
+const PREFERRED_BANK_OPTIONS: SelectOption[] = [
+  { value: '', label: '제한 없음 (모든 은행)' },
+  ...BANKS.map(b => ({ value: b.code, label: b.name })),
+];
 import { useCheckoutPage } from './CheckoutPage.hooks';
 import type { OrderResultData, GiftTarget, CheckoutItem, ShippingInfo, PaymentMethod, CashReceiptType, VoucherDisplay, BankInfo } from '../types';
 import type { AuthUser } from '../api/manual';
@@ -140,7 +147,7 @@ const CheckoutResult = memo(({
       </Card>
 
       <div className="checkout-action-buttons">
-        <div className="flex gap-2 w-full">
+        <div className="grid grid-cols-2 gap-2 w-full">
           <Button variant="secondary" size="lg" fullWidth onClick={() => onNavigate('/')}>
             홈으로
           </Button>
@@ -384,20 +391,24 @@ ShippingSection.displayName = 'ShippingSection';
  * 
  * @why 현재는 '무통장 입금'만 지원하며, 현금영수증 발행을 위한 정보를 조건부로 입력받습니다.
  */
-const PaymentSection = memo(({ 
-  paymentMethod, 
-  onSetPaymentMethod, 
-  cashReceiptType, 
-  onSetCashReceiptType, 
-  cashReceiptNumber, 
-  onSetCashReceiptNumber 
-}: { 
+const PaymentSection = memo(({
+  paymentMethod,
+  onSetPaymentMethod,
+  cashReceiptType,
+  onSetCashReceiptType,
+  cashReceiptNumber,
+  onSetCashReceiptNumber,
+  preferredBankCode,
+  onSetPreferredBankCode,
+}: {
   paymentMethod: PaymentMethod,
   onSetPaymentMethod: (m: PaymentMethod) => void,
   cashReceiptType: CashReceiptType,
   onSetCashReceiptType: (t: CashReceiptType) => void,
-  cashReceiptNumber: string, 
-  onSetCashReceiptNumber: (n: string) => void 
+  cashReceiptNumber: string,
+  onSetCashReceiptNumber: (n: string) => void,
+  preferredBankCode: string,
+  onSetPreferredBankCode: (code: string) => void,
 }) => (
   <FadeIn direction="up" distance={20} delay={0.2}>
     <Card className="p-6 sm:p-8 rounded-3xl checkout-card">
@@ -412,6 +423,7 @@ const PaymentSection = memo(({
         <button
           type="button"
           onClick={() => onSetPaymentMethod('CASH')}
+          aria-pressed={paymentMethod === 'CASH'}
           className={`p-6 rounded-3xl border transition-[border-color,background-color] text-left flex flex-col gap-4 ${paymentMethod === 'CASH' ? 'border-primary bg-primary/5' : 'border-grey-100 hover:border-grey-200'}`}
         >
           <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === 'CASH' ? 'bg-primary text-white' : 'bg-grey-100 text-grey-400'}`}>
@@ -423,16 +435,42 @@ const PaymentSection = memo(({
           </div>
         </button>
 
-        <div className="p-6 rounded-3xl border border-grey-100 bg-grey-50/30 opacity-60 flex flex-col gap-4 cursor-not-allowed">
-          <div className="w-10 h-10 rounded-full bg-grey-100 text-grey-300 flex items-center justify-center">
-            <PlusCircle size={20} />
+        <button
+          type="button"
+          onClick={() => onSetPaymentMethod('VIRTUAL_ACCOUNT')}
+          aria-pressed={paymentMethod === 'VIRTUAL_ACCOUNT'}
+          className={`p-6 rounded-3xl border transition-[border-color,background-color] text-left flex flex-col gap-4 ${paymentMethod === 'VIRTUAL_ACCOUNT' ? 'border-primary bg-primary/5' : 'border-grey-100 hover:border-grey-200'}`}
+        >
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === 'VIRTUAL_ACCOUNT' ? 'bg-primary text-white' : 'bg-grey-100 text-grey-400'}`}>
+            <Building size={20} />
           </div>
           <div>
-            <span className="block font-bold text-base-content/30 tracking-tight">기타 결제 수단</span>
-            <span className="inline-block px-2 py-0.5 rounded-full bg-grey-100 text-xs font-bold text-grey-400 mt-1">준비 중</span>
+            <span className={`block font-bold tracking-tight ${paymentMethod === 'VIRTUAL_ACCOUNT' ? 'text-primary' : 'text-base-content/60'}`}>가상계좌</span>
+            <span className="text-xs font-bold text-base-content/30">키움페이 결제창</span>
+          </div>
+        </button>
+      </div>
+
+      {paymentMethod === 'VIRTUAL_ACCOUNT' && (
+        <div className="mt-6 p-5 rounded-3xl bg-primary/5 border border-primary/10 space-y-4">
+          <div className="flex items-start gap-2 text-base-content/70">
+            <Info size={16} className="text-primary mt-0.5 shrink-0" aria-hidden="true" />
+            <p className="text-sm leading-relaxed">
+              <strong>주문하기</strong>를 누르면 키움페이 결제창이 열려 은행을 선택하실 수 있어요.
+              발급된 1회용 가상계좌로 입금하시면 자동으로 주문이 처리됩니다.
+            </p>
+          </div>
+          <div>
+            <Select
+              label="선호 은행 (선택사항)"
+              options={PREFERRED_BANK_OPTIONS}
+              value={preferredBankCode}
+              onChange={onSetPreferredBankCode}
+              helperText="자주 사용하시는 은행이 있다면 선택해주세요. 미선택 시 키움페이가 알아서 발급합니다."
+            />
           </div>
         </div>
-      </div>
+      )}
 
       {/* [비활성화] 유가증권은 현금영수증 발급 대상 아님
       {paymentMethod === 'CASH' && (
@@ -663,6 +701,8 @@ const CheckoutPage: React.FC = () => {
     hasPhysicalItems,
     paymentMethod,
     setPaymentMethod,
+    preferredBankCode,
+    setPreferredBankCode,
     orderResult,
     showConfirmModal,
     setShowConfirmModal,
@@ -749,13 +789,15 @@ const CheckoutPage: React.FC = () => {
             />
           )}
 
-          <PaymentSection 
-            paymentMethod={paymentMethod} 
-            onSetPaymentMethod={setPaymentMethod} 
-            cashReceiptType={cashReceiptType} 
-            onSetCashReceiptType={setCashReceiptType} 
-            cashReceiptNumber={cashReceiptNumber} 
-            onSetCashReceiptNumber={setCashReceiptNumber} 
+          <PaymentSection
+            paymentMethod={paymentMethod}
+            onSetPaymentMethod={setPaymentMethod}
+            cashReceiptType={cashReceiptType}
+            onSetCashReceiptType={setCashReceiptType}
+            cashReceiptNumber={cashReceiptNumber}
+            onSetCashReceiptNumber={setCashReceiptNumber}
+            preferredBankCode={preferredBankCode}
+            onSetPreferredBankCode={setPreferredBankCode}
           />
 
           {paymentMethod === 'CASH' && (

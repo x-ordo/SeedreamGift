@@ -3,10 +3,10 @@
 package services
 
 import (
-	crand "crypto/rand"
+	"encoding/json"
 	"fmt"
-	"math/big"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -81,17 +81,134 @@ func resolveCooconUrl(main, sub string) string {
 	return resolved
 }
 
+// ─── 외부 1원 인증 API (Coocon /api/coocon/{issue,confirm}/etc) ───
+
+// cooconVerifyHTTPClient 는 외부 1원 인증 API 호출 전용 HTTP 클라이언트입니다.
+// 실제 송금/검증 호출이므로 헬스체크보다 여유 있는 5초 타임아웃을 사용합니다.
+var cooconVerifyHTTPClient = &http.Client{Timeout: 5 * time.Second}
+
+// cooconIssueResponse 는 issue/etc (1원 송금 요청) 의 JSON 응답입니다.
+type cooconIssueResponse struct {
+	Success    bool   `json:"success"`
+	RC         string `json:"rc"`
+	RM         string `json:"rm"`
+	VerifyTrDt string `json:"verify_tr_dt"`
+	VerifyTrNo string `json:"verify_tr_no"`
+}
+
+// cooconConfirmResponse 는 confirm/etc (1원 검증) 의 JSON 응답입니다.
+type cooconConfirmResponse struct {
+	Success bool   `json:"success"`
+	RC      string `json:"rc"`
+	RM      string `json:"rm"`
+}
+
+// fetchWithFallback 은 main URL 실패 시 sub URL 로 자동 폴백합니다.
+// out 은 JSON 디코딩 대상 포인터, build 는 base URL 로 최종 URL 을 만드는 함수.
+func fetchCooconJSON(mainBase, subBase string, build func(base string) string, out any) error {
+	tryOne := func(target string) error {
+		resp, err := cooconVerifyHTTPClient.Get(target)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode >= 500 {
+			return fmt.Errorf("upstream %d", resp.StatusCode)
+		}
+		return json.NewDecoder(resp.Body).Decode(out)
+	}
+	if err := tryOne(build(mainBase)); err == nil {
+		return nil
+	} else if subBase == "" || subBase == mainBase {
+		return err
+	} else {
+		logger.Log.Warn("Coocon 1원 인증 메인 서버 실패, 서브로 폴백", zap.Error(err))
+		return tryOne(build(subBase))
+	}
+}
+
+// callCooconIssue 는 1원 송금 요청 API 를 호출합니다.
+func callCooconIssue(mainBase, subBase, bankCode, accountNumber, accountHolder string) (*cooconIssueResponse, error) {
+	build := func(base string) string {
+		q := url.Values{}
+		q.Set("fnni_cd", bankCode)
+		q.Set("acct_no", accountNumber)
+		q.Set("memb_nm", accountHolder)
+		return strings.TrimRight(base, "/") + "/issue/etc?" + q.Encode()
+	}
+	var out cooconIssueResponse
+	if err := fetchCooconJSON(mainBase, subBase, build, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// callCooconConfirm 은 1원 검증 API 를 호출합니다.
+// verifyVal 은 사용자가 통장 적요에서 본 3자리 숫자입니다.
+func callCooconConfirm(mainBase, subBase, verifyTrDt, verifyTrNo, verifyVal string) (*cooconConfirmResponse, error) {
+	build := func(base string) string {
+		q := url.Values{}
+		q.Set("verify_tr_dt", verifyTrDt)
+		q.Set("verify_tr_no", verifyTrNo)
+		q.Set("verify_val", verifyVal)
+		return strings.TrimRight(base, "/") + "/confirm/etc?" + q.Encode()
+	}
+	var out cooconConfirmResponse
+	if err := fetchCooconJSON(mainBase, subBase, build, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// mapCooconError 는 외부 API 의 실패 rc 코드를 사용자 친화 메시지로 매핑합니다.
+// rc="0000" 은 정상 응답이므로 이 함수는 rc != "0000" 인 경우에만 호출되어야 합니다.
+//
+// TODO(사용자 작성):
+//   외부 API 의 실패 rc 코드 카탈로그를 확보하면 아래 switch 에 case 를 추가하세요.
+//   예시 매핑 (실제 코드는 운영팀에서 수신해 채워 넣을 것):
+//     case "9001": // 계좌 미발견 / 거래정지
+//         return apperror.Validation("등록되지 않은 계좌이거나 거래가 정지된 계좌입니다")
+//     case "9101": // 예금주 불일치
+//         return apperror.Validation("예금주명이 계좌 정보와 일치하지 않습니다")
+//     case "9201": // 인증 코드 불일치
+//         return apperror.Unauthorized("인증 번호가 올바르지 않습니다")
+//   매핑되지 않은 rc 는 default 분기에서 외부 API 의 rm (한글 사유) 을 그대로 노출합니다.
+func mapCooconError(rc, rm string) error {
+	switch rc {
+	// TODO 사용자 작성: 실제 외부 API rc 카탈로그에 맞게 case 추가
+	default:
+		if strings.TrimSpace(rm) != "" {
+			return apperror.Unauthorized(fmt.Sprintf("1원 인증 실패: %s", rm))
+		}
+		return apperror.Unauthorized("1원 인증에 실패했습니다. 입력값을 다시 확인해주세요")
+	}
+}
+
 // ─── KYC 서비스 ───
 
 // KycService는 사용자의 실명 인증(휴대폰) 및 계좌 점유 인증(1원 송금) 로직을 관리합니다.
 type KycService struct {
 	db  *gorm.DB
 	cfg *config.Config
+
+	// CooconIssueFn / CooconConfirmFn 은 외부 API 호출을 추상화한 시임입니다.
+	// 프로덕션에서는 NewKycService 가 실제 HTTP 호출을 수행하는 기본 구현으로 채웁니다.
+	// 단위/E2E 테스트에서 외부 의존을 끊으려면 이 필드를 직접 교체하세요.
+	CooconIssueFn   func(bankCode, accountNumber, accountHolder string) (*cooconIssueResponse, error)
+	CooconConfirmFn func(verifyTrDt, verifyTrNo, verifyVal string) (*cooconConfirmResponse, error)
 }
 
 // NewKycService는 데이터베이스와 설정을 주입받아 서비스를 생성합니다.
+// 외부 1원 인증 API 호출 시임 두 개를 기본 구현으로 초기화합니다.
 func NewKycService(db *gorm.DB, cfg *config.Config) *KycService {
-	return &KycService{db: db, cfg: cfg}
+	s := &KycService{db: db, cfg: cfg}
+	s.CooconIssueFn = func(bankCode, accountNumber, accountHolder string) (*cooconIssueResponse, error) {
+		return callCooconIssue(cfg.CooconVerifyBaseUrl, cfg.CooconVerifyBaseUrlSub, bankCode, accountNumber, accountHolder)
+	}
+	s.CooconConfirmFn = func(verifyTrDt, verifyTrNo, verifyVal string) (*cooconConfirmResponse, error) {
+		return callCooconConfirm(cfg.CooconVerifyBaseUrl, cfg.CooconVerifyBaseUrlSub, verifyTrDt, verifyTrNo, verifyVal)
+	}
+	return s
 }
 
 // ─── 1원 계좌 인증 ───
@@ -123,20 +240,37 @@ func validateBankVerifyRequest(req BankVerifyRequest) error {
 }
 
 // RequestBankVerify는 사용자의 계좌로 1원을 전송하는 프로세스를 시작합니다.
+// 외부 Coocon API (issue/etc) 가 실제 송금을 트리거하며 verify_tr_dt / verify_tr_no 를 발급합니다.
+// 우리는 이를 그대로 세션에 저장 — 검증의 진실 출처는 외부 API, 메타데이터(은행/계좌)의
+// 진실 출처는 우리 세션 (TOCTOU 방지).
 func (s *KycService) RequestBankVerify(req BankVerifyRequest) (*domain.KycVerifySession, error) {
 	if err := validateBankVerifyRequest(req); err != nil {
 		return nil, err
 	}
 
+	// 외부 API 호출 — 실제 1원 송금 트리거
+	cooconResp, err := s.CooconIssueFn(req.BankCode, req.AccountNumber, req.AccountHolder)
+	if err != nil {
+		logger.Log.Error("외부 1원 송금 호출 실패",
+			zap.Error(err),
+			zap.String("bankCode", req.BankCode),
+		)
+		return nil, apperror.Internal("1원 인증 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요", err)
+	}
+	if !cooconResp.Success || cooconResp.RC != "0000" {
+		logger.Log.Warn("외부 1원 송금 거절",
+			zap.String("rc", cooconResp.RC),
+			zap.String("rm", cooconResp.RM),
+			zap.String("bankCode", req.BankCode),
+		)
+		return nil, mapCooconError(cooconResp.RC, cooconResp.RM)
+	}
+	if cooconResp.VerifyTrNo == "" || cooconResp.VerifyTrDt == "" {
+		return nil, apperror.Internal("외부 1원 송금 응답이 올바르지 않습니다", nil)
+	}
+
 	// 만료된 세션 정리 (누적 방지)
 	s.db.Where("ExpiresAt < ?", time.Now()).Delete(&domain.KycVerifySession{})
-
-	trNoInt, err := crand.Int(crand.Reader, big.NewInt(1000000000))
-	if err != nil {
-		return nil, apperror.Internal("인증용 거래번호 생성 실패", err)
-	}
-	trNo := fmt.Sprintf("%09d", trNoInt.Int64())
-	trDt := time.Now().Format("20060102")
 
 	encryptedAcct, err := crypto.EncryptCBC(req.AccountNumber, s.cfg.EncryptionKey)
 	if err != nil {
@@ -144,8 +278,8 @@ func (s *KycService) RequestBankVerify(req BankVerifyRequest) (*domain.KycVerify
 	}
 
 	session := &domain.KycVerifySession{
-		VerifyTrNo:    trNo,
-		VerifyTrDt:    trDt,
+		VerifyTrNo:    cooconResp.VerifyTrNo,
+		VerifyTrDt:    cooconResp.VerifyTrDt,
 		BankCode:      req.BankCode,
 		BankName:      req.BankName,
 		AccountNumber: encryptedAcct,
@@ -157,8 +291,9 @@ func (s *KycService) RequestBankVerify(req BankVerifyRequest) (*domain.KycVerify
 		return nil, err
 	}
 
-	logger.Log.Info("1원 인증 세션 생성",
-		zap.String("trNo", trNo),
+	logger.Log.Info("1원 인증 세션 생성 (외부 API 트리거)",
+		zap.String("trNo", cooconResp.VerifyTrNo),
+		zap.String("trDt", cooconResp.VerifyTrDt),
 		zap.String("bankCode", req.BankCode),
 		zap.String("holder", req.AccountHolder),
 	)
@@ -167,12 +302,11 @@ func (s *KycService) RequestBankVerify(req BankVerifyRequest) (*domain.KycVerify
 }
 
 // BankVerifyConfirmRequest는 사용자가 실제 통장 내역에서 확인한 인증값을 제출하는 데이터입니다.
+// 은행/계좌 정보는 RequestBankVerify 단계에서 이미 세션에 저장되어 있으므로 여기서는 받지 않습니다 (TOCTOU 방지).
 type BankVerifyConfirmRequest struct {
-	VerifyTrDt    string `json:"verifyTrDt" binding:"required"`
-	VerifyTrNo    string `json:"verifyTrNo" binding:"required"`
-	VerifyVal     string `json:"verifyVal" binding:"required"`
-	BankCode      string `json:"bankCode" binding:"required"`
-	AccountNumber string `json:"accountNumber" binding:"required"`
+	VerifyTrDt string `json:"verifyTrDt" binding:"required"`
+	VerifyTrNo string `json:"verifyTrNo" binding:"required"`
+	VerifyVal  string `json:"verifyVal" binding:"required,len=3"`
 }
 
 // BankVerifyResult는 계좌 인증 성공 후 반환되는 결과 요약입니다.
@@ -186,7 +320,9 @@ type BankVerifyResult struct {
 // maxVerifyAttempts는 인증 코드 입력 실패 허용 횟수입니다.
 const maxVerifyAttempts = 5
 
-// ConfirmBankVerify는 사용자가 입력한 인증 번호가 서버가 발송한 번호와 일치하는지 최종 확인합니다.
+// ConfirmBankVerify는 외부 Coocon confirm/etc API 를 호출해 사용자가 입력한 3자리 인증값이
+// 외부 시스템이 1원 송금 시 적요로 기록한 값과 일치하는지 검증합니다.
+// 검증의 진실 출처는 외부 API 이며, 우리 세션은 은행/계좌 메타만 보존합니다.
 func (s *KycService) ConfirmBankVerify(userID int, req BankVerifyConfirmRequest) (*BankVerifyResult, error) {
 	var result *BankVerifyResult
 
@@ -203,26 +339,24 @@ func (s *KycService) ConfirmBankVerify(userID int, req BankVerifyConfirmRequest)
 			return apperror.Unauthorized("인증 유효 시간이 만료되었습니다")
 		}
 
-		// DB의 암호화된 계좌번호를 복호화하여 비교
-		plainAcct, err := crypto.DecryptCBC(session.AccountNumber, s.cfg.EncryptionKey)
+		// 외부 API 검증 — 진실 출처
+		confirmResp, err := s.CooconConfirmFn(session.VerifyTrDt, session.VerifyTrNo, req.VerifyVal)
 		if err != nil {
-			return apperror.Internal("저장된 계좌 정보를 해독할 수 없습니다", err)
-		}
-		if plainAcct != req.AccountNumber {
-			logger.Log.Warn("1원 인증 계좌번호 불일치",
-				zap.String("trNo", req.VerifyTrNo),
+			logger.Log.Error("외부 1원 검증 호출 실패",
+				zap.Error(err),
+				zap.String("trNo", session.VerifyTrNo),
 				zap.Int("userId", userID),
 			)
-			return apperror.Unauthorized("인증을 요청했던 계좌번호와 일치하지 않습니다")
+			return apperror.Internal("1원 인증 서비스에 일시적인 문제가 발생했습니다", err)
 		}
-
-		// 인증값 대조
-		if req.VerifyVal != session.VerifyTrNo {
-			logger.Log.Warn("1원 인증 코드 불일치",
-				zap.String("trNo", req.VerifyTrNo),
+		if !confirmResp.Success || confirmResp.RC != "0000" {
+			logger.Log.Warn("1원 인증 외부 거절",
+				zap.String("rc", confirmResp.RC),
+				zap.String("rm", confirmResp.RM),
+				zap.String("trNo", session.VerifyTrNo),
 				zap.Int("userId", userID),
 			)
-			return apperror.Unauthorized("인증 번호가 일치하지 않습니다")
+			return mapCooconError(confirmResp.RC, confirmResp.RM)
 		}
 
 		// 세션을 '완료' 상태로 변경
@@ -230,16 +364,19 @@ func (s *KycService) ConfirmBankVerify(userID int, req BankVerifyConfirmRequest)
 			return apperror.Internal("세션 업데이트 실패", err)
 		}
 
-		// 로그인된 사용자의 경우 계좌 등록
+		// 응답 반환을 위해 세션의 암호화 계좌번호를 복호화
+		plainAcct, err := crypto.DecryptCBC(session.AccountNumber, s.cfg.EncryptionKey)
+		if err != nil {
+			return apperror.Internal("저장된 계좌 정보를 해독할 수 없습니다", err)
+		}
+
+		// 로그인된 사용자: 인증된 계좌 정보를 사용자 프로필에 저장
+		// 세션의 AccountNumber 는 이미 EncryptCBC 결과이므로 그대로 재사용 (이중 암호화 회피)
 		if userID > 0 {
-			encryptedReqAcct, err := crypto.EncryptCBC(req.AccountNumber, s.cfg.EncryptionKey)
-			if err != nil {
-				return apperror.Internal("계좌번호 암호화 중 오류", err)
-			}
 			if err := tx.Model(&domain.User{}).Where("Id = ?", userID).Updates(map[string]any{
 				"BankName":       session.BankName,
 				"BankCode":       session.BankCode,
-				"AccountNumber":  encryptedReqAcct,
+				"AccountNumber":  session.AccountNumber,
 				"AccountHolder":  session.AccountHolder,
 				"BankVerifiedAt": time.Now(),
 				"KycStatus":      "VERIFIED",
@@ -248,8 +385,8 @@ func (s *KycService) ConfirmBankVerify(userID int, req BankVerifyConfirmRequest)
 			}
 		}
 
-		logger.Log.Info("1원 인증 완료",
-			zap.String("trNo", req.VerifyTrNo),
+		logger.Log.Info("1원 인증 완료 (외부 검증 성공)",
+			zap.String("trNo", session.VerifyTrNo),
 			zap.Int("userId", userID),
 			zap.String("bankCode", session.BankCode),
 		)
@@ -257,7 +394,7 @@ func (s *KycService) ConfirmBankVerify(userID int, req BankVerifyConfirmRequest)
 		result = &BankVerifyResult{
 			BankName:      session.BankName,
 			BankCode:      session.BankCode,
-			AccountNumber: req.AccountNumber,
+			AccountNumber: plainAcct,
 			AccountHolder: session.AccountHolder,
 		}
 		return nil

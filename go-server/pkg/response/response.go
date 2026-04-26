@@ -62,18 +62,25 @@ func Created(c *gin.Context, data any) {
 // 1. 모든 에러에 대해 고유한 ErrorID를 생성하여 로그 추적성을 확보합니다.
 // 2. 500 이상의 서버 에러인 경우, 상세한 구현부 노출을 방지하기 위해 클라이언트용 메시지를 마스킹합니다.
 // 3. 치명적 에러(5xx) 발생 시 즉시 텔레그램으로 알림을 발송하여 운영팀이 인지할 수 있도록 합니다.
+// 4. 4xx 클라이언트 에러는 정상 흐름(404, 401, 400 등)이므로 WARN, 5xx 서버 에러는 ERROR로 로깅하여
+//    알람 노이즈를 분리합니다. 텔레그램 알림은 5xx에 한정.
 func Error(c *gin.Context, code int, message string) {
 	// 에러 추적을 위한 고유 ID 생성 (나노초 단위 타임스탬프 활용)
 	errorID := fmt.Sprintf("ERR-%X", time.Now().UnixNano())
 
 	// 서버 측 로그 기록: 에러 원인 분석을 위해 모든 세부 정보를 기록합니다.
-	logger.Log.Error("API Error",
+	logFields := []zap.Field{
 		zap.String("errorId", errorID),
 		zap.Int("statusCode", code),
 		zap.String("path", c.Request.URL.Path),
 		zap.String("clientIP", c.ClientIP()),
 		zap.String("message", message),
-	)
+	}
+	if code >= 500 {
+		logger.Log.Error("API Error", logFields...)
+	} else {
+		logger.Log.Warn("API Error", logFields...)
+	}
 
 	// 보안 및 알림 처리
 	clientMessage := message

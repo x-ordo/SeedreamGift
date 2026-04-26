@@ -295,7 +295,7 @@ const BankVerification: React.FC<BankVerificationProps> = ({ onVerified, userId 
             />
           </div>
 
-          <div className="flex gap-3 mt-2">
+          <div className="grid grid-cols-2 gap-3 mt-2">
             <Button
               type="button"
               variant="secondary"

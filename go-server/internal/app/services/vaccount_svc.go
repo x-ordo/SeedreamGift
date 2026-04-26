@@ -83,6 +83,7 @@ func (s *VAccountService) Issue(
 	caller CallerContext,
 	orderID int,
 	deviceType string, // "P" | "M"
+	bankCode string, // 선택: "088" 또는 "088,004" 콤마구분. 빈 문자열이면 모든 은행
 ) (*IssueResult, error) {
 	// 1) 주문 로드 + 소유권 검증
 	var order domain.Order
@@ -132,6 +133,7 @@ func (s *VAccountService) Issue(
 		ReservedIndex2: reservedIndex2,
 		ReservedString: seedream.ReservedStringFixed,
 		DepositEndDate: depositEndDate,
+		BankCode:       bankCode, // 빈 문자열은 omitempty 로 자동 누락 → 키움이 모든 은행 허용
 	}
 	// 7a) Seedream 호출 직전 마지막 재확인 — race window 축소
 	if alreadyPending(s.db.WithContext(ctx), orderID) {
@@ -241,6 +243,7 @@ func (s *VAccountService) Resume(
 	caller CallerContext,
 	orderID int,
 	deviceType string,
+	bankCode string, // 선택: 발급 가능 은행 제한 콤마구분. 빈 문자열이면 모든 은행
 ) (*IssueResult, error) {
 	// 1) 주문 로드 + 소유권
 	var order domain.Order
@@ -307,6 +310,7 @@ func (s *VAccountService) Resume(
 		ReservedIndex2: reservedIndex2,
 		ReservedString: seedream.ReservedStringFixed,
 		DepositEndDate: depositEndDate,
+		BankCode:       bankCode,
 	}
 	resp, err := s.client.IssueVAccount(ctx, req, idempotencyKey, caller.TraceID)
 	if err != nil {

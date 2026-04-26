@@ -118,6 +118,7 @@ func RegisterAdminRoutes(api *gin.RouterGroup, cfg *config.Config, h *Handlers) 
 			refunds.GET("/:id", h.AdminRefund.GetRefund)
 			refunds.POST("/:id/approve", h.AdminRefund.ApproveRefund)
 			refunds.POST("/:id/reject", h.AdminRefund.RejectRefund)
+			refunds.POST("/:id/seedream-refund", h.AdminRefund.SeedreamRefund) // VA 수동환불 (Seedream API)
 		}
 
 		// Gifts — /gifts/stats는 반드시 /gifts/:id 보다 먼저 등록해야 라우터 충돌을 방지합니다.

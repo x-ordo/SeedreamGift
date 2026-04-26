@@ -320,6 +320,8 @@ func NewHandlers(db *gorm.DB, cfg *config.Config, pp interfaces.IPaymentProvider
 
 	// Cancel/Refund 오케스트레이션 (Phase 4)
 	cancelSvc := services.NewCancelService(db, seedreamClient, logger.Log)
+	// AdminRefundService 에 cancelSvc 주입 — VA 주문 수동환불 시 Seedream RefundDeposited 호출용.
+	adminRefundSvc.SetCancelService(cancelSvc)
 
 	// VAccount 발급 오케스트레이션 (Phase 2) — seedreamClient 공유 인스턴스 재사용
 	vaccountService := services.NewVAccountService(db, seedreamClient, logger.Log)

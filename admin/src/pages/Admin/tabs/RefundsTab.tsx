@@ -26,6 +26,7 @@ interface Refund {
     userId: number;
     totalAmount: number;
     status: string;
+    paymentMethod?: string; // VIRTUAL_ACCOUNT_SEEDREAM 등 — VA 수동환불 분기용
     user?: { id: number; email: string; name: string };
     items?: Array<{ product: { name: string }; quantity: number; price: number }>;
   };
@@ -34,12 +35,32 @@ interface Refund {
 const getStatusLabel = (status: string) =>
   REFUND_STATUS_OPTIONS.find(o => o.value === status)?.label || status;
 
+// 백엔드 BankCodesCancel (cancel_svc.go) 9개 화이트리스트와 동기화 필요.
+const SEEDREAM_REFUND_BANKS: Array<{ code: string; name: string }> = [
+  { code: '088', name: '신한' },
+  { code: '004', name: 'KB국민' },
+  { code: '020', name: '우리' },
+  { code: '081', name: '하나' },
+  { code: '011', name: '농협' },
+  { code: '003', name: 'IBK기업' },
+  { code: '023', name: 'SC제일' },
+  { code: '027', name: '한국씨티' },
+  { code: '032', name: 'BNK부산' },
+];
+
+const isVAPayment = (method?: string) => !!method && method.startsWith('VIRTUAL_ACCOUNT');
+
 const RefundsTab = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [detailRefund, setDetailRefund] = useState<Refund | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [adminNote, setAdminNote] = useState('');
+  // VA 수동환불 모달 — bankCode/accountNo/cancelReason 입력 후 Seedream API 호출
+  const [vaRefundOpen, setVaRefundOpen] = useState(false);
+  const [vaBankCode, setVaBankCode] = useState('088');
+  const [vaAccountNo, setVaAccountNo] = useState('');
+  const [vaReason, setVaReason] = useState('상품권 발급 실패로 인한 자동 환불');
   const { showToast } = useToast();
 
   const { items: refunds, loading, page, total, setPage, reload } = useAdminList<Refund>(
@@ -93,6 +114,37 @@ const RefundsTab = () => {
       setActionLoading(false);
     }
   }, [adminNote, reload, showToast]);
+
+  const handleSeedreamRefund = useCallback(async (refundId: number) => {
+    // 클라이언트 측 1차 검증 — 백엔드 검증과 동일 규칙
+    const reasonLen = [...vaReason.trim()].length; // rune count
+    if (reasonLen < 5 || reasonLen > 50) {
+      showToast({ message: '취소 사유는 5~50자여야 합니다.', type: 'error' });
+      return;
+    }
+    if (!/^[0-9-]{6,20}$/.test(vaAccountNo)) {
+      showToast({ message: '계좌번호는 숫자/하이픈 6~20자여야 합니다.', type: 'error' });
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await adminApi.seedreamRefund(refundId, {
+        bankCode: vaBankCode,
+        accountNo: vaAccountNo,
+        cancelReason: vaReason.trim(),
+      });
+      showToast({ message: 'Seedream 환불이 완료되었습니다.', type: 'success' });
+      setVaRefundOpen(false);
+      setDetailRefund(null);
+      setVaAccountNo('');
+      reload();
+    } catch (err: unknown) {
+      const msg = err instanceof AxiosError ? err.response?.data?.error : err instanceof Error ? err.message : undefined;
+      showToast({ message: msg || 'Seedream 환불에 실패했습니다.', type: 'error' });
+    } finally {
+      setActionLoading(false);
+    }
+  }, [vaBankCode, vaAccountNo, vaReason, reload, showToast]);
 
   const columns: Column<Refund>[] = [
     { key: 'id', header: 'ID', render: (r) => <span className="admin-mono">#{r.id}</span> },
@@ -250,13 +302,95 @@ const RefundsTab = () => {
               {detailRefund.status === 'REQUESTED' && (
                 <>
                   <Button variant="secondary" size="sm" onClick={() => handleReject(detailRefund.id)} disabled={actionLoading}>거부</Button>
-                  <Button variant="primary" size="sm" onClick={() => handleApprove(detailRefund.id)} disabled={actionLoading}>승인</Button>
+                  {isVAPayment(detailRefund.order?.paymentMethod) ? (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setVaRefundOpen(true)}
+                      disabled={actionLoading}
+                      title="Seedream RefundDeposited API 를 호출해 가상계좌 입금을 환불합니다"
+                    >
+                      Seedream 환불 실행
+                    </Button>
+                  ) : (
+                    <Button variant="primary" size="sm" onClick={() => handleApprove(detailRefund.id)} disabled={actionLoading}>승인</Button>
+                  )}
                 </>
               )}
             </AdminDetailModal.ActionBar>
           </>
         )}
       </AdminDetailModal>
+
+      {/* VA 수동환불 입력 모달 — bankCode/accountNo/cancelReason */}
+      <Modal
+        isOpen={vaRefundOpen}
+        onClose={() => !actionLoading && setVaRefundOpen(false)}
+        title="Seedream 가상계좌 환불"
+        size="medium"
+        footer={
+          <div className="grid grid-cols-2 gap-2 w-full">
+            <Button variant="secondary" fullWidth onClick={() => setVaRefundOpen(false)} disabled={actionLoading}>취소</Button>
+            <Button
+              variant="primary"
+              fullWidth
+              onClick={() => detailRefund && handleSeedreamRefund(detailRefund.id)}
+              isLoading={actionLoading}
+              disabled={!vaAccountNo || !vaBankCode || !vaReason.trim()}
+            >
+              환불 실행
+            </Button>
+          </div>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING[4] }}>
+          <p style={{ fontSize: '13px', color: COLORS.grey600, lineHeight: 1.5, margin: 0 }}>
+            가상계좌로 입금된 금액을 사용자 계좌로 환불합니다. Seedream RefundDeposited API 가 동기 호출되며,
+            성공 시 주문 상태가 REFUNDED 로 전이되고 원장이 기록됩니다. <br />
+            <strong>주문 #{detailRefund?.orderId}</strong> · 금액 {detailRefund && Number(detailRefund.amount).toLocaleString()}원
+          </p>
+
+          <label style={{ display: 'flex', flexDirection: 'column', gap: SPACING[1] }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: COLORS.grey700 }}>입금 받을 은행</span>
+            <select
+              className="form-control"
+              value={vaBankCode}
+              onChange={(e) => setVaBankCode(e.target.value)}
+              style={{ padding: '10px 12px', borderRadius: '8px', border: `1px solid ${COLORS.grey200}` }}
+            >
+              {SEEDREAM_REFUND_BANKS.map(b => (
+                <option key={b.code} value={b.code}>{b.name} ({b.code})</option>
+              ))}
+            </select>
+          </label>
+
+          <label style={{ display: 'flex', flexDirection: 'column', gap: SPACING[1] }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: COLORS.grey700 }}>계좌번호 (숫자/하이픈, 6~20자)</span>
+            <input
+              className="form-control"
+              type="text"
+              value={vaAccountNo}
+              onChange={(e) => setVaAccountNo(e.target.value)}
+              placeholder="예: 110-123-456789"
+              maxLength={20}
+              style={{ padding: '10px 12px', borderRadius: '8px', border: `1px solid ${COLORS.grey200}` }}
+            />
+          </label>
+
+          <label style={{ display: 'flex', flexDirection: 'column', gap: SPACING[1] }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: COLORS.grey700 }}>취소 사유 (5~50자)</span>
+            <textarea
+              className="form-control"
+              value={vaReason}
+              onChange={(e) => setVaReason(e.target.value)}
+              rows={2}
+              maxLength={50}
+              style={{ padding: '10px 12px', borderRadius: '8px', border: `1px solid ${COLORS.grey200}`, resize: 'vertical' }}
+            />
+            <span style={{ fontSize: '11px', color: COLORS.grey500 }}>※ ^ [ ] 문자 사용 금지</span>
+          </label>
+        </div>
+      </Modal>
     </div>
   );
 };

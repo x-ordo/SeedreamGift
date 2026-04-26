@@ -27,7 +27,13 @@ export const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
   giftTarget,
   isSubmitting,
 }) => {
-  const paymentLabel = paymentMethod === 'CASH' ? '무통장입금' : paymentMethod;
+  const PAYMENT_LABEL: Record<string, string> = {
+    CASH: '무통장입금',
+    VIRTUAL_ACCOUNT: '가상계좌(키움페이)',
+    DEDICATED_ACCOUNT: '전용계좌',
+    OPEN_BANKING: '오픈뱅킹',
+  };
+  const paymentLabel = PAYMENT_LABEL[paymentMethod] ?? paymentMethod;
 
   return (
     <Modal
@@ -36,7 +42,7 @@ export const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
       title="주문 확인"
       size="medium"
       footer={
-        <div className="flex gap-2 w-full">
+        <div className="grid grid-cols-2 gap-2 w-full">
           <Button variant="secondary" size="lg" fullWidth onClick={onClose} disabled={isSubmitting}>
             취소
           </Button>
@@ -70,6 +76,13 @@ export const OrderConfirmModal: React.FC<OrderConfirmModalProps> = ({
           <TableRow left="결제 수단" right={paymentLabel} withBorder />
           {paymentMethod === 'CASH' && (
             <TableRow left="입금 계좌" right={`${bankInfo.bankName} ${bankInfo.accountNumber}`} withBorder />
+          )}
+          {paymentMethod === 'VIRTUAL_ACCOUNT' && (
+            <TableRow
+              left="결제 절차"
+              right="키움페이 결제창에서 은행 선택 후 입금"
+              withBorder
+            />
           )}
           <div style={{ fontWeight: 700 }}>
             <TableRow

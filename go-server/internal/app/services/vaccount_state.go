@@ -8,6 +8,7 @@ import (
 
 	"seedream-gift-server/internal/domain"
 	"seedream-gift-server/internal/infra/seedream"
+	"seedream-gift-server/pkg/apperror"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -59,7 +60,7 @@ func (s *VAccountStateService) ApplyIssued(ctx context.Context, orderCode *strin
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var order domain.Order
 		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
-			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
+			return fmt.Errorf("%w (orderCode=%s): %w", apperror.ErrOrderNotFound, *orderCode, err)
 		}
 		// 상태별 분기 (I-3 fix):
 		//   - PENDING: 정상 전이
@@ -126,7 +127,7 @@ func (s *VAccountStateService) ApplyDeposited(ctx context.Context, orderCode *st
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var order domain.Order
 		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
-			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
+			return fmt.Errorf("%w (orderCode=%s): %w", apperror.ErrOrderNotFound, *orderCode, err)
 		}
 		// 이미 PAID 이상이면 no-op
 		if order.Status == domain.OrderStatusPaid ||
@@ -207,7 +208,7 @@ func (s *VAccountStateService) ApplyPaymentCanceled(ctx context.Context, orderCo
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var order domain.Order
 		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
-			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
+			return fmt.Errorf("%w (orderCode=%s): %w", apperror.ErrOrderNotFound, *orderCode, err)
 		}
 
 		switch order.Status {
@@ -266,7 +267,7 @@ func (s *VAccountStateService) ApplyVAccountDepositCanceled(ctx context.Context,
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var order domain.Order
 		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
-			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
+			return fmt.Errorf("%w (orderCode=%s): %w", apperror.ErrOrderNotFound, *orderCode, err)
 		}
 
 		switch order.Status {
@@ -329,7 +330,7 @@ func (s *VAccountStateService) ApplyVAccountCancelled(ctx context.Context, order
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var order domain.Order
 		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
-			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
+			return fmt.Errorf("%w (orderCode=%s): %w", apperror.ErrOrderNotFound, *orderCode, err)
 		}
 
 		switch order.Status {
@@ -393,7 +394,7 @@ func (s *VAccountStateService) ApplyDepositCancelDeposited(ctx context.Context, 
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var order domain.Order
 		if err := tx.Where("OrderCode = ?", *orderCode).First(&order).Error; err != nil {
-			return fmt.Errorf("order not found (orderCode=%s): %w", *orderCode, err)
+			return fmt.Errorf("%w (orderCode=%s): %w", apperror.ErrOrderNotFound, *orderCode, err)
 		}
 
 		switch order.Status {
